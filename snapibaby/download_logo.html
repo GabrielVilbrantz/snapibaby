@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@800&display=swap" rel="stylesheet">
+</head>
+<body style="font-family: 'Inter', sans-serif; text-align: center; padding: 50px;">
+<h2>Extraindo sua logo em Alta Qualidade...</h2>
+<p>O download começará automaticamente em alguns segundos.</p>
+<canvas id="canvas" width="1600" height="400" style="max-width: 100%; border: 1px dashed #ccc; margin-top:20px;"></canvas>
+
+<script>
+// Aguarda a fonte Inter do Google carregar certinho
+document.fonts.ready.then(function() {
+    setTimeout(function() {
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Fundo Transparente!
+        // Configurando a fonte super grande para alta qualidade (800 weight, 140px size)
+        ctx.font = "800 160px 'Inter', sans-serif";
+        ctx.textBaseline = "middle";
+        
+        const emoji = "🍼 ";
+        const t1 = "Snapi";
+        const t2 = "Baby";
+        
+        const mEmoji = ctx.measureText(emoji).width;
+        const m1 = ctx.measureText(t1).width;
+        
+        const totalW = mEmoji + m1 + ctx.measureText(t2).width;
+        const startX = (canvas.width - totalW) / 2;
+        const y = canvas.height / 2 + 10; // offset vertical ajuste
+        
+        // Cor do texto "Snapi" (idêntica ao seu site)
+        ctx.fillStyle = "#2D3142";
+        ctx.fillText(emoji, startX, y);
+        ctx.fillText(t1, startX + mEmoji, y);
+        
+        // Cor do texto "Baby"
+        ctx.fillStyle = "#FF4D6D";
+        ctx.fillText(t2, startX + mEmoji + m1, y);
+        
+        // Baixar o PNG da logo automaticamente
+        const dataURL = canvas.toDataURL("image/png");
+        const link = document.createElement('a');
+        link.download = 'snapibaby_logo_alta_res.png';
+        link.href = dataURL;
+        link.click();
+        
+        document.querySelector('h2').innerHTML = "✅ Logo gerada e baixada com sucesso!";
+        document.querySelector('p').innerHTML = "Verifique a sua pasta de Downloads. Você já pode fechar esta aba.";
+    }, 500);
+});
+</script>
+</body>
+</html>

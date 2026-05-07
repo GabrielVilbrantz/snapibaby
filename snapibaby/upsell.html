@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wait — One Last Gift For You | SnapiBaby</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<!-- Meta Pixel Code — fires only after cookie consent -->
+<script>
+(function() {
+  if (localStorage.getItem('snapi_cookie_consent') !== 'accepted') return;
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '977138755178682');
+  fbq('track', 'PageView');
+})();
+</script>
+<!-- End Meta Pixel Code -->
+<style>
+  :root {
+    --primary: #ff4d6d;
+    --primary-dark: #e8003d;
+    --gold: #f5c518;
+    --gold-dark: #b8860b;
+    --green: #16a34a;
+    --green-light: #f0fdf4;
+    --dark: #0f0a1e;
+    --text: #1e1b2e;
+    --muted: #64748b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(160deg, #0f0a1e 0%, #1a0a2e 40%, #0d1b2a 100%);
+    min-height: 100vh;
+    color: white;
+    overflow-x: hidden;
+  }
+
+  /* ===== CONFIRMATION BAR ===== */
+  .confirm-bar {
+    background: linear-gradient(90deg, #16a34a, #22c55e, #16a34a);
+    background-size: 200% auto;
+    animation: barShine 3s linear infinite;
+    text-align: center;
+    padding: 14px 20px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  @keyframes barShine {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+  .confirm-check {
+    width: 24px; height: 24px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; flex-shrink: 0;
+  }
+
+  /* ===== COUNTDOWN STRIP ===== */
+  .countdown-strip {
+    background: linear-gradient(135deg, #7c0000, #ff0000, #7c0000);
+    background-size: 200% auto;
+    animation: redPulse 1.5s ease-in-out infinite alternate;
+    text-align: center;
+    padding: 11px 20px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: 0.5px;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+  }
+  @keyframes redPulse {
+    from { background-position: 0% center; }
+    to { background-position: 200% center; }
+  }
+  .countdown-num {
+    background: rgba(255,255,255,0.18);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-variant-numeric: tabular-nums;
+    font-size: 1.05rem;
+    letter-spacing: 2px;
+    font-weight: 900;
+  }
+
+  /* ===== PAGE WRAPPER ===== */
+  .page-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 44px 24px 60px;
+  }
+
+  /* ===== HEADER ===== */
+  .upsell-header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .order-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(22,163,74,0.15);
+    border: 1px solid rgba(22,163,74,0.4);
+    color: #4ade80;
+    padding: 8px 18px;
+    border-radius: 30px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 22px;
+    letter-spacing: 0.5px;
+  }
+  .upsell-headline {
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 14px;
+    color: white;
+  }
+  .upsell-headline span {
+    background: linear-gradient(135deg, #f5c518, #ff4d6d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .upsell-sub {
+    font-size: 1.02rem;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.65;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  /* ===== OFFER CARD ===== */
+  .offer-card {
+    background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    border: 1.5px solid rgba(245,197,24,0.35);
+    border-radius: 22px;
+    overflow: hidden;
+    margin-bottom: 28px;
+    box-shadow: 0 0 60px rgba(245,197,24,0.08), 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  /* Card ribbon */
+  .offer-ribbon {
+    background: linear-gradient(90deg, #b8860b, #f5c518, #d4a017, #f5e27a, #b8860b);
+    background-size: 200% auto;
+    animation: goldShine 2.5s linear infinite;
+    padding: 12px 20px;
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 900;
+    color: #3a2000;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+  @keyframes goldShine {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+
+  .offer-body { padding: 28px 30px 32px; }
+
+  /* ===== THEME ITEMS ===== */
+  .theme-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .theme-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 16px 20px;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .theme-item:hover { transform: translateX(4px); border-color: rgba(245,197,24,0.4); }
+  .theme-emoji {
+    font-size: 2rem;
+    flex-shrink: 0;
+    width: 52px; height: 52px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .theme-info { flex: 1; }
+  .theme-name {
+    font-size: 1rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 3px;
+  }
+  .theme-desc {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.4;
+  }
+  .theme-qty {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .theme-qty strong {
+    display: block;
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--gold);
+  }
+  .theme-qty span {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.4);
+  }
+
+  /* ===== THEME PHOTO GRID ===== */
+  .theme-photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .theme-photo-slot {
+    position: relative;
+    aspect-ratio: 3/4;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1.5px solid rgba(245,197,24,0.2);
+  }
+  .theme-photo-slot img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+  .theme-photo-slot:hover img { transform: scale(1.05); }
+  .theme-photo-slot .fallback-emoji {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.8rem;
+  }
+  .theme-photo-badge {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 14px 8px 8px;
+    text-align: center;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* ===== PRICE ROW ===== */
+  .price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 22px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .price-left {}
+  .price-label {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 4px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .price-total {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .price-was {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.3);
+    text-decoration: line-through;
+    font-weight: 600;
+  }
+  .price-now {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: white;
+    line-height: 1;
+  }
+  .price-per {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.4);
+    margin-top: 4px;
+  }
+  .price-badge {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 900;
+    padding: 8px 18px;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(239,68,68,0.5);
+    animation: badgePop 1.5s ease-in-out infinite;
+    white-space: nowrap;
+  }
+  @keyframes badgePop {
+    0%,100%{transform:scale(1)} 50%{transform:scale(1.05)}
+  }
+
+  .price-note {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  /* ===== EMOTIONAL COPY ===== */
+  .emotional-copy {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px 24px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .emotional-copy p {
+    font-size: 1.02rem;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.7;
+  }
+  .emotional-copy strong {
+    color: white;
+    font-weight: 800;
+  }
+
+  /* ===== CTA BUTTONS ===== */
+  .cta-section { text-align: center; }
+
+  .btn-yes {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, #f5c518 0%, #d4a017 50%, #f5c518 100%);
+    background-size: 200% auto;
+    animation: btnShine 2.5s linear infinite;
+    color: #1a0a00;
+    border: none;
+    border-radius: 14px;
+    padding: 20px 28px;
+    font-size: 1.15rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 8px 30px rgba(245,197,24,0.45), 0 0 0 0 rgba(245,197,24,0.5);
+    animation: btnShine 2.5s linear infinite, btnGlow 2s ease-in-out infinite;
+    transition: transform 0.2s;
+    text-decoration: none;
+    margin-bottom: 14px;
+    line-height: 1.3;
+  }
+  @keyframes btnShine {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+  @keyframes btnGlow {
+    0%,100% { box-shadow: 0 8px 30px rgba(245,197,24,0.45), 0 0 0 0 rgba(245,197,24,0.4); }
+    50%      { box-shadow: 0 12px 40px rgba(245,197,24,0.65), 0 0 0 8px rgba(245,197,24,0); }
+  }
+  .btn-yes:hover { transform: translateY(-3px); }
+  .btn-yes-sub {
+    font-size: 0.78rem;
+    font-weight: 600;
+    opacity: 0.7;
+    display: block;
+    margin-top: 4px;
+  }
+
+  .btn-no {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.3);
+    font-size: 0.82rem;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 10px;
+    transition: color 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-no:hover { color: rgba(255,255,255,0.6); }
+
+  /* ===== SOCIAL PROOF STRIP ===== */
+  .social-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 24px;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.4);
+    flex-wrap: wrap;
+    text-align: center;
+  }
+  .social-strip span { color: rgba(255,255,255,0.6); font-weight: 600; }
+
+  /* ===== GUARANTEE ===== */
+  .guarantee-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+    padding: 14px 20px;
+    background: rgba(22,163,74,0.08);
+    border: 1px solid rgba(22,163,74,0.2);
+    border-radius: 12px;
+    font-size: 0.82rem;
+    color: #4ade80;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* ===== LOADING STATE ===== */
+  .processing-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(15,10,30,0.92);
+    z-index: 9999;
+    align-items: center; justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .processing-overlay.show { display: flex; }
+  .spinner {
+    width: 52px; height: 52px;
+    border: 4px solid rgba(245,197,24,0.2);
+    border-top: 4px solid var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .processing-text {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+  }
+  .processing-sub {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+  }
+
+  /* ===== MOBILE ===== */
+  @media (max-width: 520px) {
+    .page-wrap { padding: 32px 16px 50px; }
+    .offer-body { padding: 20px 18px 24px; }
+    .theme-item { padding: 13px 15px; gap: 12px; }
+    .theme-emoji { width: 44px; height: 44px; font-size: 1.6rem; }
+    .price-now { font-size: 1.8rem; }
+    .btn-yes { font-size: 1rem; padding: 18px 20px; }
+    .upsell-headline { font-size: 1.7rem; }
+    .price-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+  }
+
+  /* ===== DOWNSELL POPUP ===== */
+  #downsellPopup {
+    display: none;
+    position: fixed; inset: 0;
+    z-index: 99999;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  #downsellPopup.show { display: flex; }
+  .ds-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.82);
+    backdrop-filter: blur(6px);
+  }
+  .ds-card {
+    position: relative; z-index: 2;
+    background: linear-gradient(160deg, #0f0a1e, #1c0a30);
+    border: 1.5px solid rgba(255,77,109,0.4);
+    border-radius: 24px;
+    overflow: hidden;
+    max-width: 500px; width: 100%;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,77,109,0.2);
+    animation: dsSlideIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes dsSlideIn {
+    from { opacity:0; transform: scale(0.75) translateY(30px); }
+    to   { opacity:1; transform: scale(1)   translateY(0); }
+  }
+  .ds-close {
+    position: absolute; top: 14px; right: 16px;
+    background: rgba(255,255,255,0.08); border: none;
+    color: rgba(255,255,255,0.5); width: 30px; height: 30px;
+    border-radius: 50%; font-size: 0.9rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, color 0.2s; z-index: 3;
+  }
+  .ds-close:hover { background: rgba(255,255,255,0.16); color: white; }
+  .ds-ribbon {
+    background: linear-gradient(90deg, #e8003d, #ff4d6d, #e8003d);
+    background-size: 200% auto;
+    animation: dsRibbon 2s linear infinite;
+    padding: 13px 20px;
+    text-align: center;
+    font-size: 0.72rem; font-weight: 900;
+    color: white; letter-spacing: 3px; text-transform: uppercase;
+  }
+  @keyframes dsRibbon {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+  .ds-body { padding: 26px 28px 30px; }
+  .ds-tag {
+    display: inline-block;
+    background: rgba(255,77,109,0.15);
+    border: 1px solid rgba(255,77,109,0.35);
+    color: #ff8fa3; font-size: 0.75rem; font-weight: 700;
+    padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 16px; letter-spacing: 0.5px;
+  }
+  .ds-headline {
+    font-size: clamp(1.4rem, 4vw, 1.9rem);
+    font-weight: 900; color: white;
+    line-height: 1.25; margin-bottom: 10px;
+  }
+  .ds-sub {
+    font-size: 0.9rem; color: rgba(255,255,255,0.55);
+    line-height: 1.6; margin-bottom: 22px;
+  }
+  /* price cut visual */
+  .ds-price-cut {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-bottom: 20px;
+    padding: 18px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+  }
+  .ds-price-old {
+    font-size: 2rem; font-weight: 900;
+    color: rgba(255,255,255,0.25);
+    text-decoration: line-through;
+    text-decoration-color: #ff4d6d;
+    text-decoration-thickness: 3px;
+  }
+  .ds-arrow {
+    font-size: 1.4rem; color: #ff4d6d;
+    animation: arrowBounce 0.8s ease-in-out infinite alternate;
+  }
+  @keyframes arrowBounce {
+    from { transform: translateX(-4px); }
+    to   { transform: translateX(4px); }
+  }
+  .ds-price-new {
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .ds-price-new strong {
+    font-size: 2.8rem; font-weight: 900;
+    background: linear-gradient(135deg, #ff4d6d, #ff8fa3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+  .ds-price-new span {
+    font-size: 0.72rem; color: rgba(255,255,255,0.4);
+    font-weight: 600; margin-top: 3px;
+  }
+  .ds-badge {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    color: white; font-size: 0.82rem; font-weight: 900;
+    padding: 5px 14px; border-radius: 8px;
+    box-shadow: 0 3px 12px rgba(239,68,68,0.5);
+    white-space: nowrap; align-self: center;
+  }
+  /* mini theme list */
+  .ds-themes {
+    display: flex; flex-direction: column; gap: 8px;
+    margin-bottom: 22px;
+  }
+  .ds-theme-row {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 0.88rem; color: rgba(255,255,255,0.7);
+    padding: 9px 14px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .ds-theme-row span { font-weight: 700; color: white; margin-left: auto; font-size: 0.8rem; }
+  /* warning note */
+  .ds-warning {
+    font-size: 0.78rem; color: rgba(255,255,255,0.35);
+    text-align: center; margin-bottom: 20px;
+    font-style: italic;
+  }
+  /* buttons */
+  .ds-btn-yes {
+    display: block; width: 100%;
+    background: linear-gradient(135deg, #ff4d6d, #e8003d);
+    color: white; border: none; border-radius: 12px;
+    padding: 18px 20px; font-size: 1rem; font-weight: 900;
+    cursor: pointer; margin-bottom: 10px;
+    box-shadow: 0 6px 24px rgba(255,77,109,0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-family: 'Inter', sans-serif; line-height: 1.3;
+    animation: dsBtnPulse 2s ease-in-out infinite;
+  }
+  @keyframes dsBtnPulse {
+    0%,100% { box-shadow: 0 6px 24px rgba(255,77,109,0.5); }
+    50%      { box-shadow: 0 10px 36px rgba(255,77,109,0.75); }
+  }
+  .ds-btn-yes:hover { transform: translateY(-2px); }
+  .ds-btn-yes-sub { display: block; font-size: 0.74rem; opacity: 0.75; margin-top: 4px; font-weight: 600; }
+  .ds-btn-no {
+    background: none; border: none;
+    color: rgba(255,255,255,0.25); font-size: 0.78rem;
+    cursor: pointer; text-decoration: underline;
+    width: 100%; padding: 8px;
+    transition: color 0.2s; font-family: 'Inter', sans-serif;
+  }
+  .ds-btn-no:hover { color: rgba(255,255,255,0.5); }
+
+  @media (max-width: 480px) {
+    .ds-body { padding: 20px 18px 22px; }
+    .ds-headline { font-size: 1.35rem; }
+    .ds-price-old { font-size: 1.6rem; }
+    .ds-price-new strong { font-size: 2.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PROCESSING OVERLAY -->
+<div class="processing-overlay" id="processingOverlay">
+  <div class="spinner"></div>
+  <div class="processing-text">Adding your extra photos...</div>
+  <div class="processing-sub">Just a moment, we're preparing your complete collection.</div>
+</div>
+
+<!-- CONFIRMATION BAR -->
+<div class="confirm-bar">
+  <div class="confirm-check">✓</div>
+  Your order is confirmed — photos will be sent to your email
+  <div class="confirm-check">✓</div>
+</div>
+
+<!-- COUNTDOWN STRIP -->
+<div class="countdown-strip">
+  <span>⚡ This offer disappears in:</span>
+  <span class="countdown-num" id="upsellCountdown">09:59</span>
+  <span>— only for you</span>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="page-wrap">
+
+  <!-- HEADER -->
+  <div class="upsell-header">
+    <div class="order-badge">
+      <span>✓</span> Order confirmed — But wait, one more thing...
+    </div>
+    <h1 class="upsell-headline">
+      These dates only come<br><span>once a year.</span>
+    </h1>
+    <p class="upsell-sub">
+      You already secured your baby's memories. But holidays pass fast —
+      and these are the moments you'll wish you had captured.
+    </p>
+  </div>
+
+  <!-- OFFER CARD -->
+  <div class="offer-card">
+    <div class="offer-ribbon">⭐ Exclusive Post-Purchase Offer — Not Available Anywhere Else</div>
+
+    <div class="offer-body">
+
+      <!-- THEME PHOTO GRID -->
+      <div class="theme-photo-grid">
+        <div class="theme-photo-slot">
+          <span class="fallback-emoji">🎄</span>
+          <img src="newborn-christmas-frame.jpg" alt="Christmas baby theme" onerror="this.style.display='none'">
+          <div class="theme-photo-badge">Christmas</div>
+        </div>
+        <div class="theme-photo-slot">
+          <span class="fallback-emoji">🎃</span>
+          <img src="newborn-halloween-frame.jpg" alt="Halloween baby theme" onerror="this.style.display='none'">
+          <div class="theme-photo-badge">Halloween</div>
+        </div>
+        <div class="theme-photo-slot">
+          <span class="fallback-emoji">🐣</span>
+          <img src="newborn-easter-bunny.jpg" alt="Easter baby theme" onerror="this.style.display='none'">
+          <div class="theme-photo-badge">Easter</div>
+        </div>
+      </div>
+
+      <!-- THEMES -->
+      <div class="theme-list">
+        <div class="theme-item">
+          <div class="theme-emoji">🎄</div>
+          <div class="theme-info">
+            <div class="theme-name">Christmas Theme</div>
+            <div class="theme-desc">Cozy holiday portraits — Santa hats, fairy lights & winter magic</div>
+          </div>
+          <div class="theme-qty">
+            <strong>5 photos</strong>
+            <span>exclusive</span>
+          </div>
+        </div>
+
+        <div class="theme-item">
+          <div class="theme-emoji">🎃</div>
+          <div class="theme-info">
+            <div class="theme-name">Halloween Theme</div>
+            <div class="theme-desc">Adorable costumes, pumpkins & spooky-cute backdrops</div>
+          </div>
+          <div class="theme-qty">
+            <strong>5 photos</strong>
+            <span>exclusive</span>
+          </div>
+        </div>
+
+        <div class="theme-item">
+          <div class="theme-emoji">🐣</div>
+          <div class="theme-info">
+            <div class="theme-name">Easter Theme</div>
+            <div class="theme-desc">Spring pastels, easter eggs & the sweetest bunny setups</div>
+          </div>
+          <div class="theme-qty">
+            <strong>5 photos</strong>
+            <span>exclusive</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRICE -->
+      <div class="price-row">
+        <div class="price-left">
+          <div class="price-label">Total for all 15 photos</div>
+          <div class="price-total">
+            <span class="price-was">$51</span>
+            <span class="price-now">$17</span>
+          </div>
+          <div class="price-per">That's just $1.13 per photo</div>
+        </div>
+        <div class="price-badge">67% OFF</div>
+      </div>
+      <div class="price-note">One-time offer — will not appear again after you leave this page</div>
+
+    </div>
+  </div>
+
+  <!-- EMOTIONAL COPY -->
+  <div class="emotional-copy">
+    <p>
+      He'll grow up faster than you think.<br>
+      These photos will last <strong>forever</strong> —
+      and they cost <strong>less than a dinner out.</strong>
+    </p>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <button class="btn-yes" onclick="acceptUpsell()">
+      Yes — Add My +15 Holiday Photos for $17
+      <span class="btn-yes-sub">Christmas · Halloween · Easter — delivered instantly</span>
+    </button>
+
+    <button class="btn-no" id="btnNoThanks" onclick="showDownsell()">
+      No thanks — I'll skip this and lose the offer
+    </button>
+  </div>
+
+  <!-- SOCIAL PROOF -->
+  <div class="social-strip">
+    <span>❤️ 2,400+ families</span> have added holiday themes to their collection
+  </div>
+
+  <!-- GUARANTEE -->
+  <div class="guarantee-row">
+    🛡️ 100% Money-Back Guarantee — If you're not happy, we refund in full. Zero risk.
+  </div>
+
+</div>
+
+<!-- ===== DOWNSELL POPUP ===== -->
+<div id="downsellPopup">
+  <div class="ds-overlay" onclick="closeDownsellToSuccess()"></div>
+  <div class="ds-card">
+    <button class="ds-close" onclick="closeDownsellToSuccess()">✕</button>
+    <div class="ds-ribbon">⚡ Final Offer — This Price Will Not Appear Again</div>
+    <div class="ds-body">
+
+      <div class="ds-tag">We cut the price in half. Just for you.</div>
+
+      <div class="ds-headline">
+        Same 15 photos.<br>Same 3 themes.<br>Half the price.
+      </div>
+      <p class="ds-sub">
+        We know $17 might not be the right moment.<br>
+        So we decided to do something different — just this once.
+      </p>
+
+      <!-- PRICE CUT VISUAL -->
+      <div class="ds-price-cut">
+        <div class="ds-price-old">$17</div>
+        <div class="ds-arrow">→</div>
+        <div class="ds-price-new">
+          <strong>$7</strong>
+          <span>only $0.47 per photo</span>
+        </div>
+        <div class="ds-badge">59% OFF</div>
+      </div>
+
+      <!-- MINI THEME LIST -->
+      <div class="ds-themes">
+        <div class="ds-theme-row">🎄 Christmas Theme <span>+5 photos</span></div>
+        <div class="ds-theme-row">🎃 Halloween Theme <span>+5 photos</span></div>
+        <div class="ds-theme-row">🐣 Easter Theme    <span>+5 photos</span></div>
+      </div>
+
+      <div class="ds-warning">
+        When you close this, the offer disappears forever.
+      </div>
+
+      <!-- BUTTONS -->
+      <button class="ds-btn-yes" onclick="acceptDownsell()">
+        Yes — I want my 15 photos for $7
+        <span class="ds-btn-yes-sub">Christmas · Halloween · Easter — 1-click, no forms</span>
+      </button>
+      <button class="ds-btn-no" onclick="closeDownsellToSuccess()">
+        No, I'd rather give up these photos
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STRIPE ONE-CLICK UPSELL =====
+// The checkout page passes these via URL after a successful payment:
+//   ?payment_method=pm_xxx&customer=cus_xxx&email=user@email.com
+//
+// Your backend endpoint (Netlify/Vercel Function or Node.js) receives these
+// and calls: stripe.paymentIntents.create({ amount: 1700, currency: 'usd',
+//   customer, payment_method, confirm: true, off_session: true })
+// — NO new card form needed. True 1-click.
+
+const params = new URLSearchParams(window.location.search);
+const PAYMENT_METHOD_ID = params.get('payment_method') || '';
+const CUSTOMER_ID       = params.get('customer')       || '';
+const CUSTOMER_EMAIL    = params.get('email')          || '';
+const BASE_TOTAL        = parseFloat(params.get('total') || '59');
+
+// ===== COUNTDOWN =====
+(function() {
+  let total = 9 * 60 + 59;
+  function tick() {
+    if (total <= 0) {
+      document.getElementById('upsellCountdown').textContent = '00:00';
+      declineUpsell();
+      return;
+    }
+    total--;
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    document.getElementById('upsellCountdown').textContent =
+      String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }
+  setInterval(tick, 1000);
+})();
+
+// ===== ACCEPT UPSELL (1-CLICK) =====
+async function acceptUpsell() {
+  const overlay = document.getElementById('processingOverlay');
+  overlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
+
+  try {
+    // ─────────────────────────────────────────────────────────────────
+    // 🔌 STRIPE INTEGRATION POINT
+    // Replace the URL below with your backend endpoint.
+    // The backend uses the saved payment_method to charge without a form.
+    //
+    // Example (Netlify Function / Express):
+    //   POST /api/charge-upsell
+    //   Body: { payment_method, customer, amount: 1700, currency: 'usd' }
+    //   Backend: stripe.paymentIntents.create({ confirm: true, off_session: true, ... })
+    // ─────────────────────────────────────────────────────────────────
+    // 🧪 TEST MODE — $1 (mudar para 1700 quando for ao ar)
+    const UPSELL_AMOUNT = 100; // $1.00 test | produção: 1700
+    const UPSELL_PRICE_DISPLAY = 1; // para cálculo do total na URL
+
+    const response = await fetch('/api/charge-upsell', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        payment_method: PAYMENT_METHOD_ID,
+        customer:       CUSTOMER_ID,
+        amount:         UPSELL_AMOUNT,
+        currency:       'usd',
+        description:    'SnapiBaby Upsell — 15 Holiday Photos',
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      const upsellTotal = (BASE_TOTAL + UPSELL_PRICE_DISPLAY).toFixed(2);
+      window.location.href = 'success.html?upsell=true&email=' + encodeURIComponent(CUSTOMER_EMAIL) + '&total=' + encodeURIComponent(upsellTotal);
+    } else {
+      throw new Error(result.error || 'Payment failed');
+    }
+
+  } catch (err) {
+    console.warn('Upsell backend not connected yet. Demo mode.', err.message);
+    const upsellTotal = (BASE_TOTAL + 1).toFixed(2);
+    setTimeout(function() {
+      window.location.href = 'success.html?upsell=true&total=' + encodeURIComponent(upsellTotal);
+    }, 1800);
+}
+
+// ===== DOWNSELL — show / close / accept =====
+let downsellShown = false;
+
+function showDownsell() {
+  if (downsellShown) return;
+  downsellShown = true;
+  document.getElementById('downsellPopup').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDownsellToSuccess() {
+  document.getElementById('downsellPopup').classList.remove('show');
+  document.body.style.overflow = '';
+  window.location.href = 'success.html?email=' + encodeURIComponent(CUSTOMER_EMAIL) + '&total=' + encodeURIComponent(BASE_TOTAL.toFixed(2));
+}
+
+async function acceptDownsell() {
+  document.getElementById('downsellPopup').classList.remove('show');
+  const overlay = document.getElementById('processingOverlay');
+  overlay.querySelector('.processing-text').textContent = 'Adding your holiday photos...';
+  overlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
+
+  try {
+    // ─────────────────────────────────────────────────────────────────
+    // 🔌 STRIPE INTEGRATION POINT — Downsell charge ($7)
+    // Same as upsell but amount: 700 (cents)
+    // ─────────────────────────────────────────────────────────────────
+    // 🧪 TEST MODE — $1 (mudar para 700 quando for ao ar)
+    const DOWNSELL_AMOUNT = 100; // $1.00 test | produção: 700
+    const DOWNSELL_PRICE_DISPLAY = 1; // para cálculo do total na URL
+
+    const response = await fetch('/api/charge-upsell', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        payment_method: PAYMENT_METHOD_ID,
+        customer:       CUSTOMER_ID,
+        amount:         DOWNSELL_AMOUNT,
+        currency:       'usd',
+        description:    'SnapiBaby Downsell — 15 Holiday Photos ($7)',
+      })
+    });
+    const result = await response.json();
+    if (result.success) {
+      const downsellTotal = (BASE_TOTAL + DOWNSELL_PRICE_DISPLAY).toFixed(2);
+      window.location.href = 'success.html?upsell=true&email=' + encodeURIComponent(CUSTOMER_EMAIL) + '&total=' + encodeURIComponent(downsellTotal);
+    } else { throw new Error(result.error); }
+  } catch (err) {
+    console.warn('Downsell backend not connected yet.', err.message);
+    const downsellTotal = (BASE_TOTAL + 1).toFixed(2);
+    setTimeout(() => { window.location.href = 'success.html?upsell=true&total=' + encodeURIComponent(downsellTotal); }, 1800);
+  }
+}
+
+// ===== EXIT INTENT — show downsell on leave =====
+let exitGuardActive = true;
+
+// Mobile: back button
+history.pushState({ snapiDownsellGuard: true }, '');
+window.addEventListener('popstate', function() {
+  if (exitGuardActive && !downsellShown) {
+    history.pushState({ snapiDownsellGuard: true }, '');
+    showDownsell();
+  }
+});
+
+// Desktop: tab/window close
+window.addEventListener('beforeunload', function(e) {
+  if (exitGuardActive && !downsellShown) {
+    e.preventDefault(); e.returnValue = '';
+    _intentToLeave = true;
+  }
+});
+let _intentToLeave = false;
+window.addEventListener('focus', function() {
+  if (_intentToLeave && !downsellShown) {
+    _intentToLeave = false;
+    setTimeout(showDownsell, 300);
+  }
+});
+
+// Mobile: switch app/tab
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'hidden' && !downsellShown) _intentToLeave = true;
+  if (document.visibilityState === 'visible' && _intentToLeave && !downsellShown) {
+    _intentToLeave = false;
+    setTimeout(showDownsell, 400);
+  }
+});
+</script>
+
+</body>
+</html>

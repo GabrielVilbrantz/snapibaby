@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin | SnapiBaby</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #ff4d6d;
+            --primary-dark: #cc3d57;
+            --sidebar-bg: #1e1e2d;
+            --sidebar-text: #a1a1c2;
+            --bg-color: #f3f6f9;
+            --card-bg: #ffffff;
+            --text-main: #3f4254;
+            --text-muted: #b5b5c3;
+            --success: #1bc5bd;
+            --warning: #ffa800;
+            --danger: #f64e60;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); display: flex; flex-direction: column; }
+        .sidebar-brand { height: 80px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .sidebar-brand a { color: white; text-decoration: none; font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .sidebar-menu { padding: 20px 0; list-style: none; flex-grow: 1; }
+        .sidebar-menu li a { display: flex; align-items: center; padding: 12px 25px; color: var(--sidebar-text); text-decoration: none; font-weight: 500; transition: 0.3s; gap: 15px; }
+        .sidebar-menu li a:hover, .sidebar-menu li.active a { background: #1b1b29; color: var(--primary); border-right: 3px solid var(--primary); }
+        .user-widget { padding: 20px; background: rgba(0,0,0,0.2); text-align: center; }
+        .user-widget img { width: 50px; height: 50px; border-radius: 50%; margin-bottom: 10px; border: 2px solid var(--primary); }
+        .user-widget p { color: white; font-weight: 600; font-size: 0.9rem; }
+        .user-widget span { color: var(--sidebar-text); font-size: 0.8rem; }
+
+        /* MAIN CONTENT */
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; }
+        .topbar { height: 80px; background: var(--card-bg); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .topbar-title { font-size: 1.3rem; font-weight: 600; }
+        
+        .content { padding: 40px; }
+
+        /* STATS CARDS */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        .stat-card { background: var(--card-bg); padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.03); display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid transparent; }
+        .stat-card.revenue { border-color: var(--success); }
+        .stat-card.orders { border-color: var(--primary); }
+        .stat-card.pending { border-color: var(--warning); }
+        .stat-info h3 { font-size: 1rem; color: var(--text-muted); font-weight: 500; margin-bottom: 10px; }
+        .stat-info .value { font-size: 2rem; font-weight: 700; color: var(--text-main); }
+        .stat-icon { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+        .stat-card.revenue .stat-icon { background: rgba(27, 197, 189, 0.1); color: var(--success); }
+        .stat-card.orders .stat-icon { background: rgba(255, 77, 109, 0.1); color: var(--primary); }
+        .stat-card.pending .stat-icon { background: rgba(255, 168, 0, 0.1); color: var(--warning); }
+
+        /* RECENT ORDERS TABLE */
+        .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.03); padding: 30px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .card-header h2 { font-size: 1.3rem; font-weight: 600; }
+        .btn-filter { background: var(--bg-color); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 500; color: var(--text-main); cursor: pointer; transition: 0.3s; }
+        .btn-filter:hover { background: #e4e6ef; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 15px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid #ebedf3; text-transform: uppercase; font-size: 0.85rem; }
+        td { padding: 15px; border-bottom: 1px solid #ebedf3; vertical-align: middle; }
+        
+        .client-info { display: flex; align-items: center; gap: 15px; }
+        .client-avatar { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 1px solid #eee; }
+        .client-details strong { display: block; color: var(--text-main); font-weight: 600; margin-bottom: 4px; }
+        .client-details span { color: var(--text-muted); font-size: 0.85rem; }
+        
+        .themes-list span { display: inline-block; background: #f3f6f9; padding: 5px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 500; margin: 2px; border: 1px solid #e4e6ef; }
+        
+        .status-badge { padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: inline-block; }
+        .status-pending { background: rgba(255, 168, 0, 0.1); color: var(--warning); }
+        .status-processing { background: rgba(137, 80, 252, 0.1); color: #8950fc; }
+        .status-delivered { background: rgba(27, 197, 189, 0.1); color: var(--success); }
+        
+        .action-btns { display: flex; gap: 10px; }
+        .btn-action { width: 35px; height: 35px; border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+        .btn-upload { background: rgba(255, 77, 109, 0.1); color: var(--primary); }
+        .btn-upload:hover { background: var(--primary); color: white; }
+        .btn-download { background: rgba(137, 80, 252, 0.1); color: #8950fc; }
+        .btn-download:hover { background: #8950fc; color: white; }
+
+        /* MODAL DE ENTREGA */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; }
+        .modal { background: white; width: 600px; border-radius: 12px; padding: 40px; position: relative; }
+        .close-btn { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; border: none; background: none; color: #999; }
+        .modal-title { font-size: 1.4rem; margin-bottom: 10px; }
+        .modal-desc { color: var(--text-muted); margin-bottom: 30px; }
+        .upload-box { border: 2px dashed #cfd8dc; padding: 40px; text-align: center; border-radius: 12px; background: #fafbfc; cursor: pointer; transition: 0.3s; margin-bottom: 20px; }
+        .upload-box:hover { border-color: var(--primary); background: #fff0f3; }
+        .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; }
+        .btn-submit:hover { background: var(--primary-dark); }
+        
+    </style>
+</head>
+<body>
+
+    <!-- BARRA LATERAL -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <a href="#">🍼 Snapi<span>Admin</span></a>
+        </div>
+        
+        <div class="user-widget">
+            <img src="https://ui-avatars.com/api/?name=Admin+SnapiBaby&background=ff4d6d&color=fff" alt="Admin Avatar">
+            <p>Admin Master</p>
+            <span>Online</span>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="active"><a href="#">📊 Painel Geral</a></li>
+            <li><a href="#">📦 Pedidos (2)</a></li>
+            <li><a href="#">💰 Financeiro</a></li>
+            <li><a href="#">🖼️ Banco de Temas</a></li>
+            <li><a href="#">⚙️ Configurações</a></li>
+            <li style="margin-top: auto;"><a href="index.html" style="color:var(--danger)">🚪 Sair (Ver Site)</a></li>
+        </ul>
+    </aside>
+
+    <!-- CONTEUDO PRINCIPAL -->
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-title">Visão Geral do Negócio</div>
+            <div>
+                <button class="btn-filter" style="background:var(--primary); color:white;">Nova Campanha Ads</button>
+            </div>
+        </header>
+
+        <section class="content">
+            
+        <!-- ESTATISTICAS -->
+            <div class="stats-grid">
+                <div class="stat-card revenue">
+                    <div class="stat-info">
+                        <h3>Faturamento Hoje</h3>
+                        <div class="value">R$ 2.598,00</div>
+                    </div>
+                    <div class="stat-icon">📈</div>
+                </div>
+                <div class="stat-card orders">
+                    <div class="stat-info">
+                        <h3>Gerados pela IA (Auto)</h3>
+                        <div class="value">20</div>
+                    </div>
+                    <div class="stat-icon">🤖</div>
+                </div>
+                <div class="stat-card pending">
+                    <div class="stat-info">
+                        <h3>Créditos da API Restantes</h3>
+                        <div class="value" style="color: var(--primary);">1.450</div>
+                    </div>
+                    <div class="stat-icon" style="background: rgba(255, 77, 109, 0.1); color: var(--primary);">🪙</div>
+                </div>
+            </div>
+
+            <!-- TABELA DE PEDIDOS (AUTO-GERAÇÃO) -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Fila de Automação (Servidor)</h2>
+                    <span style="background: var(--success); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">⚡ API ONLINE</span>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cliente / Bebê</th>
+                            <th>Pacote Pago</th>
+                            <th>Temas Selecionados</th>
+                            <th>Status da API (IA)</th>
+                            <th>Qualidade / Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- PEDIDO 1 (PROCESSANDO API) -->
+                        <tr>
+                            <td>
+                                <div class="client-info">
+                                    <img src="https://picsum.photos/seed/baby1/100/100" alt="Foto Original" class="client-avatar">
+                                    <div class="client-details">
+                                        <strong>Alice (Mãe: Rafaela)</strong>
+                                        <span>Há 2 minutos • Webhook Rápido</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><strong style="color:var(--success)">20 Fotos (R$ 129,90)</strong></td>
+                            <td>
+                                <div class="themes-list">
+                                    <span>Fada Mágica</span>
+                                    <span>Princesa</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="status-badge" style="background:#e1f5fe; color:#0288d1;">⚙️ Gerando no Servidor (65%)</span>
+                                <div style="width: 100%; background: #eee; height: 4px; border-radius: 2px; margin-top: 8px;">
+                                    <div style="width: 65%; background: #0288d1; height: 100%; border-radius: 2px;"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-action btn-download" title="Baixar Selfie Original" style="background: rgba(137, 80, 252, 0.1); color: #8950fc; width: 35px; height: 35px; border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;">⬇️</button>
+                                    <button class="btn-action btn-upload" title="Fazer Upload das 20 Fotos Prontas" style="background: rgba(255, 77, 109, 0.1); color: var(--primary); width: 35px; height: 35px; border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="openModal('Alice')">📤</button>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- PEDIDO 2 (ENTREGUE AUTOMATICAMENTE) -->
+                        <tr>
+                            <td>
+                                <div class="client-info">
+                                    <img src="https://picsum.photos/seed/baby2/100/100" alt="Foto Original" class="client-avatar">
+                                    <div class="client-details">
+                                        <strong>Miguel (Mãe: Fernanda)</strong>
+                                        <span>Há 2 horas • Hotmart Venda</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><strong style="color:var(--success)">10 Fotos (R$ 79,90)</strong></td>
+                            <td>
+                                <div class="themes-list">
+                                    <span>Astronauta</span>
+                                    <span>Dinossauro</span>
+                                </div>
+                            </td>
+                            <td><span class="status-badge status-delivered">✅ Entregue Auto. (Email/Zap)</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-action" style="background: rgba(27, 197, 189, 0.1); color: var(--success); width: auto; padding: 0 10px;" title="Ver as fotos geradas pela API" onclick="viewPhotos('Miguel')">👁️ Ver 10 Fotos</button>
+                                    <button class="btn-action btn-download" title="Re-gerar na API se o cliente não gostou" style="background: rgba(255,168,0,0.1); color: var(--warning);">🔄</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- MODAL DE UPLOAD DE ENTREGAVEIS -->
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <h2 class="modal-title">Entregar Fotos Mágicas 🎁</h2>
+            <p class="modal-desc">Faça o upload do pacote de imagens geradas para o bebê <strong id="modalBabyName" style="color:var(--primary)"></strong>. A mãe será notificada automaticamente de que as fotos estão prontas!</p>
+            
+            <div class="upload-box" onclick="alert('Isso abriria as pastas do seu computador para você selecionar as 20 fotos')">
+                <div style="font-size: 3rem; margin-bottom: 10px;">📁</div>
+                <h3>Arraste a pasta com as fotos finais até aqui</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">ou clique para buscar no computador</p>
+            </div>
+
+            <button class="btn-submit" onclick="confirmUpload()">Finalizar Pedido e Enviar para Cliente</button>
+        </div>
+    </div>
+
+    <script>
+        function openModal(name) {
+            document.getElementById('modalBabyName').innerText = name;
+            document.getElementById('uploadModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('uploadModal').style.display = 'none';
+        }
+
+        function confirmUpload() {
+            alert('Sucesso! As fotos foram entregues na galeria da cliente e o disparo de notificação no WhatsApp foi feito.');
+            closeModal();
+        }
+
+        function viewPhotos(name) {
+            alert(`Abrindo galeria automática gerada para ${name}...`);
+        }
+    </script>
+</body>
+</html>

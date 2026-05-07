@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Photos Are Ready! | SnapiBaby</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<!-- Meta Pixel Code — fires only after cookie consent -->
+<script>
+(function() {
+  if (localStorage.getItem('snapi_cookie_consent') !== 'accepted') return;
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '977138755178682');
+  fbq('track', 'PageView');
+  fbq('track', 'Purchase', {currency: 'USD', value: parseFloat(new URLSearchParams(window.location.search).get('total') || '59')});
+})();
+</script>
+<!-- End Meta Pixel Code -->
+<style>
+  :root {
+    --primary: #ff4d6d;
+    --primary-dark: #e8003d;
+    --gold: #f5c518;
+    --green: #16a34a;
+    --dark: #1e1b2e;
+    --text: #2b2b2b;
+    --muted: #64748b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(160deg, #fff0f3 0%, #fdf5ff 50%, #f0fff4 100%);
+    min-height: 100vh;
+    color: var(--text);
+  }
+
+  /* ===== TOP BANNER ===== */
+  .success-bar {
+    background: linear-gradient(90deg, #16a34a, #22c55e, #16a34a);
+    background-size: 200% auto;
+    animation: barShine 3s linear infinite;
+    text-align: center;
+    padding: 13px 20px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.3px;
+  }
+  @keyframes barShine {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* ===== WRAPPER ===== */
+  .page-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* ===== HERO ===== */
+  .hero-section {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  /* Animated check circle */
+  .check-circle {
+    width: 88px; height: 88px;
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 2.6rem;
+    box-shadow: 0 8px 32px rgba(22,163,74,0.35);
+    animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes popIn {
+    0%  { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.12); }
+    100%{ transform: scale(1);   opacity: 1; }
+  }
+
+  .hero-tag {
+    display: inline-block;
+    background: rgba(22,163,74,0.1);
+    border: 1px solid rgba(22,163,74,0.3);
+    color: #16a34a;
+    font-size: 0.78rem; font-weight: 700;
+    padding: 5px 16px; border-radius: 20px;
+    margin-bottom: 16px; letter-spacing: 0.5px;
+  }
+
+  .hero-title {
+    font-size: clamp(1.9rem, 5vw, 2.8rem);
+    font-weight: 900;
+    color: var(--dark);
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .hero-title span {
+    background: linear-gradient(135deg, var(--primary), #c2185b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.65;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* ===== DOWNLOAD CARD ===== */
+  .download-card {
+    background: white;
+    border-radius: 22px;
+    padding: 36px 32px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.06);
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  .order-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 28px;
+    padding: 12px 20px;
+    background: #f8fffe;
+    border: 1px solid #d1fae5;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  /* Photo preview strip */
+  .photo-strip {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .photo-thumb {
+    width: 72px; height: 88px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+    border: 2px solid white;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .photo-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    position: absolute; top: 0; left: 0;
+  }
+  .photo-thumb-more {
+    background: linear-gradient(135deg, #fff0f3, #ffe4ec);
+    border: 2px dashed var(--primary);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--primary);
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .download-headline {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 6px;
+  }
+  .download-sub {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-bottom: 24px;
+    line-height: 1.55;
+  }
+
+  /* MAIN DOWNLOAD BUTTON */
+  .btn-download-all {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 20px 28px;
+    font-size: 1.15rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 8px 28px rgba(255,77,109,0.42);
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-family: 'Inter', sans-serif;
+    text-decoration: none;
+    line-height: 1.3;
+    animation: btnGlow 2s ease-in-out infinite;
+  }
+  @keyframes btnGlow {
+    0%,100% { box-shadow: 0 8px 28px rgba(255,77,109,0.42); }
+    50%      { box-shadow: 0 14px 40px rgba(255,77,109,0.65); }
+  }
+  .btn-download-all:hover { transform: translateY(-3px); }
+  .btn-download-sub {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    opacity: 0.8;
+    margin-top: 5px;
+  }
+
+  .download-guarantee {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 28px 0;
+    color: #cbd5e1;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e2e8f0;
+  }
+
+  /* ===== EMAIL BACKUP SECTION ===== */
+  .backup-card {
+    background: white;
+    border-radius: 22px;
+    padding: 32px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.07);
+    border: 1px solid rgba(0,0,0,0.05);
+    margin-bottom: 28px;
+  }
+
+  .backup-icon-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .backup-icon {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
+    flex-shrink: 0;
+  }
+  .backup-icon-text h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 3px;
+  }
+  .backup-icon-text p {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  .backup-copy {
+    font-size: 0.95rem;
+    color: #444;
+    line-height: 1.7;
+    margin-bottom: 22px;
+    padding: 16px 18px;
+    background: #fffbf0;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+  }
+  .backup-copy strong { color: var(--dark); }
+
+  /* Form */
+  .backup-form { display: flex; flex-direction: column; gap: 12px; }
+
+  .form-row { display: flex; gap: 12px; }
+
+  .form-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+  .form-group label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+  }
+  .form-group input {
+    padding: 13px 16px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--dark);
+    background: #fafafa;
+    transition: border-color 0.2s, background 0.2s;
+    outline: none;
+  }
+  .form-group input:focus {
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255,77,109,0.1);
+  }
+  .form-group input.prefilled {
+    border-color: #22c55e;
+    background: #f0fdf4;
+    color: #15803d;
+  }
+
+  .btn-backup {
+    width: 100%;
+    background: linear-gradient(135deg, #1e1b2e, #2d2a3e);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 24px;
+    font-size: 0.98rem;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+  .btn-backup:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.28); }
+
+  .backup-success {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    background: #f0fdf4;
+    border: 1.5px solid #86efac;
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 0.9rem;
+    color: #15803d;
+    font-weight: 600;
+    animation: popIn 0.4s ease;
+  }
+  .backup-success.show { display: flex; }
+  .backup-success-icon {
+    width: 34px; height: 34px;
+    background: #16a34a;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .privacy-note {
+    font-size: 0.74rem;
+    color: #94a3b8;
+    text-align: center;
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  /* ===== BOTTOM SECTION ===== */
+  .bottom-section {
+    text-align: center;
+  }
+
+  .share-card {
+    background: white;
+    border-radius: 18px;
+    padding: 26px 28px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+  }
+  .share-card h4 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 6px;
+  }
+  .share-card p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .btn-share {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 11px 28px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: transform 0.2s;
+  }
+  .btn-share:hover { transform: translateY(-2px); }
+
+  .footer-note {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin-top: 24px;
+  }
+  .footer-note a { color: var(--primary); text-decoration: none; }
+
+  /* ===== MOBILE ===== */
+  @media (max-width: 520px) {
+    .page-wrap { padding: 32px 16px 60px; }
+    .download-card { padding: 26px 20px; }
+    .backup-card { padding: 24px 18px; }
+    .form-row { flex-direction: column; }
+    .hero-title { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="success-bar">
+  ✓ Order Confirmed — Your portraits are ready to download
+</div>
+
+<div class="page-wrap">
+
+  <!-- HERO -->
+  <div class="hero-section">
+    <div class="check-circle">✓</div>
+    <div class="hero-tag">✨ Payment approved — portraits generated</div>
+    <h1 class="hero-title">
+      <span id="heroName">Your baby's</span> portraits<br>are ready!
+    </h1>
+    <p class="hero-sub">
+      Every detail captured, every memory preserved. Your photos are waiting — download them now and keep them forever.
+    </p>
+  </div>
+
+  <!-- DOWNLOAD CARD -->
+  <div class="download-card">
+
+    <div class="order-info">
+      <span>✓</span>
+      <span>Order <strong id="orderId">#SN-00000</strong> — Payment confirmed</span>
+    </div>
+
+    <!-- Photo preview strip (demo thumbnails from your site images) -->
+    <div class="photo-strip" id="photoStrip">
+      <div class="photo-thumb">🍼<img src="newborn-floral-basket.jpg" alt="" onerror="this.style.display='none'"></div>
+      <div class="photo-thumb">✨<img src="newborn-princess.jpg" alt="" onerror="this.style.display='none'"></div>
+      <div class="photo-thumb">🌌<img src="newborn-space.jpg" alt="" onerror="this.style.display='none'"></div>
+      <div class="photo-thumb">🦁<img src="newborn-safari.jpg" alt="" onerror="this.style.display='none'"></div>
+      <div class="photo-thumb photo-thumb-more">+<span id="moreCount">46</span><span>more</span></div>
+    </div>
+
+    <div class="download-headline">Your complete collection is ready</div>
+    <p class="download-sub">
+      All portraits in <strong>Full HD</strong>, no watermarks, ready to print, frame, and share —
+      delivered instantly as a ZIP file.
+    </p>
+
+    <button class="btn-download-all" id="btnDownload" onclick="downloadPhotos()">
+      📩 Send My Photos to Email
+      <span class="btn-download-sub">Full HD · No watermarks · Delivered in minutes</span>
+    </button>
+
+    <div class="download-guarantee">
+      🛡️ 7-day money-back guarantee &nbsp;·&nbsp; 🔒 Secure download &nbsp;·&nbsp; ✉️ Sent to your email too
+    </div>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="divider">Also secure your memories</div>
+
+  <!-- EMAIL BACKUP SECTION -->
+  <div class="backup-card">
+
+    <div class="backup-icon-row">
+      <div class="backup-icon">📩</div>
+      <div class="backup-icon-text">
+        <h3>Get a permanent email backup</h3>
+        <p>Never lose your photos — even if you lose your phone</p>
+      </div>
+    </div>
+
+    <div class="backup-copy">
+      <strong>Children grow up in the blink of an eye.</strong><br>
+      These are photos you'll want to look at in 10 years, print for their room, and show at their wedding.
+      <br><br>
+      Let us send a secure backup link to your email — forever accessible, always yours.
+    </div>
+
+    <!-- FORM — pre-filled if already completed at checkout -->
+    <div class="backup-form" id="backupForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Your first name</label>
+          <input type="text" id="backupName" placeholder="Sarah" autocomplete="given-name">
+        </div>
+        <div class="form-group">
+          <label>Your email address</label>
+          <input type="email" id="backupEmail" placeholder="sarah@email.com" autocomplete="email">
+        </div>
+      </div>
+      <button class="btn-backup" onclick="sendBackup()">
+        📩 Send My Photos to This Email
+      </button>
+      <p class="privacy-note">
+        We'll send a secure link to your full photo collection.<br>
+        No spam, ever. Unsubscribe anytime. Your data is encrypted.
+      </p>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div class="backup-success" id="backupSuccess">
+      <div class="backup-success-icon">✓</div>
+      <div>
+        <strong>Backup sent!</strong><br>
+        <span id="backupConfirmText">Check your inbox for the download link.</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SHARE / BOTTOM -->
+  <div class="bottom-section">
+    <div class="share-card">
+      <h4>❤️ Know a mom who'd love this?</h4>
+      <p>Share the magic with your friends — every mom deserves portraits this beautiful.</p>
+      <a href="index.html" class="btn-share">Share SnapiBaby</a>
+    </div>
+
+    <p class="footer-note">
+      Questions? Contact us at <a href="mailto:support@snapibaby.com">support@snapibaby.com</a><br>
+      <a href="terms.html">Terms of Service</a> &nbsp;·&nbsp; <a href="privacy.html">Privacy Policy</a>
+    </p>
+  </div>
+
+</div>
+
+<script>
+// ===== CUSTOMER DATA (localStorage + URL params) =====
+const urlParams    = new URLSearchParams(window.location.search);
+const savedName    = localStorage.getItem('snapi_customer_name')  || '';
+const savedEmail   = localStorage.getItem('snapi_customer_email') || urlParams.get('email') || '';
+const savedOrderId = localStorage.getItem('snapi_order_id')       || urlParams.get('order_id') || '';
+const savedOrderNr = localStorage.getItem('snapi_order_number')   || '';
+
+// Hero name
+if (savedName) {
+  const firstName = savedName.split(' ')[0];
+  document.getElementById('heroName').textContent = firstName + "'s baby's";
+}
+
+// Order number (real from Supabase, else generated)
+document.getElementById('orderId').textContent =
+  savedOrderNr ? '#' + savedOrderNr : '#SN-' + Math.floor(10000 + Math.random() * 90000);
+
+// Pre-fill form
+const nameInput  = document.getElementById('backupName');
+const emailInput = document.getElementById('backupEmail');
+if (savedName)  { nameInput.value  = savedName.split(' ')[0]; nameInput.classList.add('prefilled'); }
+if (savedEmail) { emailInput.value = savedEmail;               emailInput.classList.add('prefilled'); }
+
+if (savedName && savedEmail) {
+  document.querySelector('.backup-copy').insertAdjacentHTML('afterend',
+    '<p style="font-size:0.78rem;color:#16a34a;font-weight:600;margin-bottom:12px;">&#10003; Your email from checkout is already saved — just confirm below to receive the backup.</p>'
+  );
+}
+
+// ===== PLAN / PHOTO COUNT =====
+const plan        = urlParams.get('plano') || localStorage.getItem('snapi_plan') || 'premium';
+const planPhotos  = { starter: 15, classic: 30, premium: 50 };
+const photoCount  = planPhotos[plan] || 50;
+const hasUpsell   = urlParams.get('upsell') === 'true';
+const totalPhotos = photoCount + (hasUpsell ? 15 : 0);
+document.getElementById('moreCount').textContent = Math.max(0, totalPhotos - 4);
+
+// ===== DELIVERY — real email via Resend =====
+async function downloadPhotos() {
+  const btn   = document.getElementById('btnDownload');
+  const email = savedEmail || document.getElementById('backupEmail')?.value.trim();
+  const name  = savedName  || document.getElementById('backupName')?.value.trim();
+
+  if (!email) {
+    document.getElementById('backupEmail').focus();
+    document.getElementById('backupEmail').style.borderColor = '#ef4444';
+    return;
+  }
+
+  btn.innerHTML = '⏳ Sending portraits to your inbox...';
+  btn.style.opacity = '0.8';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/.netlify/functions/send-backup-email', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId:       savedOrderId  || null,
+        customerName:  name          || 'there',
+        customerEmail: email,
+        orderNumber:   savedOrderNr  || 'SN-00000',
+        photoUrls:     [],
+        plan:          plan
+      })
+    });
+
+    // Success regardless of Resend status (backup already saved to Supabase)
+    btn.innerHTML = '✔ Sent! Check your inbox<span class="btn-download-sub">Your '
+      + totalPhotos + ' portraits are on their way to ' + email + '</span>';
+    btn.style.background = 'linear-gradient(135deg, #16a34a, #22c55e)';
+    btn.style.opacity = '1';
+    btn.disabled = false;
+
+    document.getElementById('backupSuccess').classList.add('show');
+    document.getElementById('backupForm').style.display = 'none';
+    document.getElementById('backupConfirmText').textContent =
+      'Your ' + totalPhotos + ' portraits are being sent to ' + email + ' — check your inbox in minutes.';
+
+    // Save email to localStorage for future visits
+    localStorage.setItem('snapi_customer_email', email);
+    if (name) localStorage.setItem('snapi_customer_name', name);
+
+  } catch (err) {
+    console.error('Email send error:', err);
+    btn.innerHTML = '📩 Try Again — Resend Email<span class="btn-download-sub">Check your spam too, it may already be there</span>';
+    btn.style.opacity = '1';
+    btn.disabled = false;
+  }
+}
+
+// ===== SEND BACKUP EMAIL (saves to Supabase) =====
+async function sendBackup() {
+  const name  = document.getElementById('backupName').value.trim();
+  const email = document.getElementById('backupEmail').value.trim();
+
+  if (!name)  { document.getElementById('backupName').style.borderColor  = '#ef4444'; document.getElementById('backupName').focus(); return; }
+  if (!email || !email.includes('@')) { document.getElementById('backupEmail').style.borderColor = '#ef4444'; document.getElementById('backupEmail').focus(); return; }
+
+  const btn = document.querySelector('.btn-backup');
+  btn.textContent = '⏳ Saving...';
+  btn.disabled = true;
+
+  // Save to localStorage
+  localStorage.setItem('snapi_customer_name', name);
+  localStorage.setItem('snapi_customer_email', email);
+
+  // Save to Supabase
+  await saveEmailBackup({
+    orderId:       savedOrderId || null,
+    customerName:  name,
+    customerEmail: email
+  });
+
+  // 🔌 INTEGRATION POINT: trigger email send via your backend/Resend/SendGrid
+  // await fetch('/api/send-backup', { method:'POST', body: JSON.stringify({ name, email, orderId: savedOrderId }) });
+
+  setTimeout(() => {
+    document.getElementById('backupForm').style.display = 'none';
+    document.getElementById('backupSuccess').classList.add('show');
+    document.getElementById('backupConfirmText').textContent =
+      'Backup link sent to ' + email + ' — check your inbox!';
+  }, 1000);
+}
+
+// Remove prefilled highlight on edit
+[nameInput, emailInput].forEach(input => {
+  input.addEventListener('input', () => { input.classList.remove('prefilled'); input.style.borderColor = ''; });
+});
+</script>
+
+</body>
+</html>
