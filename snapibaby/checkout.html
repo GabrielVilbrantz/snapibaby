@@ -1250,6 +1250,16 @@
     }
     function updateTotal(hasBump = true) { document.getElementById('total-price').innerText = `$${(basePrice + (hasBump ? bumpPrice : 0)).toFixed(2)}`; }
 
+    // ── Limpar params Stripe da URL (payment_intent expirado causa erro visual) ──
+    (function cleanStripeUrlParams() {
+      const url = new URL(window.location.href);
+      let changed = false;
+      ['payment_intent', 'payment_intent_client_secret', 'redirect_status', 'source_redirect_slug'].forEach(p => {
+        if (url.searchParams.has(p)) { url.searchParams.delete(p); changed = true; }
+      });
+      if (changed) window.history.replaceState({}, '', url.toString());
+    })();
+
     // ── Stripe Elements initialization ────────────────────────────────────────────
     const STRIPE_PK = 'pk_live_51S7jFvGoYUc0liSkaYyxYiwdQslPYEhVxZZ0wsrOIfcHuBP06A4v5bph0kQLEyYgxHSeFviLWQa5luV6IuR3rfqA00BRKtxdSd';
     const stripeClient = Stripe(STRIPE_PK);
