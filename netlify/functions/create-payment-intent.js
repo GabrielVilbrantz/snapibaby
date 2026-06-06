@@ -11,16 +11,15 @@ const Stripe = require('stripe');
 const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
 const stripe = new Stripe(STRIPE_SECRET);
 
-// 🧪 MODO TESTE — $1 em tudo para validar a integração
-// Mude para false quando for ao ar de verdade
+// 🧪 MODO TESTE — trocar para false antes de ir ao ar!
 const TEST_MODE = true;
 
 // Preços em centavos
 const PLAN_PRICES = TEST_MODE
   ? { starter: 100, classic: 100, premium: 100 }  // $1 para testar
-  : { starter: 2900, classic: 4900, premium: 5900 };
+  : { starter: 1900, classic: 2900, premium: 3900 };
 
-const BUMP_PRICE = TEST_MODE ? 100 : 900; // $1 ou $9
+const BUMP_PRICE = TEST_MODE ? 100 : 300; // $1 ou $3
 
 exports.handler = async (event) => {
   const headers = {

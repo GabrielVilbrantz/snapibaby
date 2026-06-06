@@ -22,7 +22,7 @@
   t.src=v;s=b.getElementsByTagName(e)[0];
   s.parentNode.insertBefore(t,s)}(window, document,'script',
   'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', '977138755178682');
+  fbq('init', '1480009823730507');
   fbq('track', 'PageView');
   fbq('track', 'Purchase', {currency: 'USD', value: parseFloat(new URLSearchParams(window.location.search).get('total') || '59')});
 })();
@@ -662,7 +662,7 @@ async function downloadPhotos() {
   }
 }
 
-// ===== SEND BACKUP EMAIL (saves to Supabase) =====
+// ===== SEND BACKUP EMAIL (saves to Supabase + calls email API) =====
 async function sendBackup() {
   const name  = document.getElementById('backupName').value.trim();
   const email = document.getElementById('backupEmail').value.trim();
@@ -671,30 +671,92 @@ async function sendBackup() {
   if (!email || !email.includes('@')) { document.getElementById('backupEmail').style.borderColor = '#ef4444'; document.getElementById('backupEmail').focus(); return; }
 
   const btn = document.querySelector('.btn-backup');
-  btn.textContent = '⏳ Saving...';
+  btn.textContent = '⏳ Sending...';
   btn.disabled = true;
 
   // Save to localStorage
   localStorage.setItem('snapi_customer_name', name);
   localStorage.setItem('snapi_customer_email', email);
 
-  // Save to Supabase
+  // Call email API (send-backup-email Netlify Function)
+  try {
+    await fetch('/.netlify/functions/send-backup-email', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId:       savedOrderId || null,
+        customerName:  name,
+        customerEmail: email,
+        orderNumber:   savedOrderNr || 'SN-00000',
+        photoUrls:     [],
+        plan:          plan
+      })
+    });
+  } catch (err) {
+    console.error('Backup email send error:', err);
+  }
+
+  // Also save to Supabase
   await saveEmailBackup({
     orderId:       savedOrderId || null,
     customerName:  name,
     customerEmail: email
   });
 
-  // 🔌 INTEGRATION POINT: trigger email send via your backend/Resend/SendGrid
-  // await fetch('/api/send-backup', { method:'POST', body: JSON.stringify({ name, email, orderId: savedOrderId }) });
-
-  setTimeout(() => {
-    document.getElementById('backupForm').style.display = 'none';
-    document.getElementById('backupSuccess').classList.add('show');
-    document.getElementById('backupConfirmText').textContent =
-      'Backup link sent to ' + email + ' — check your inbox!';
-  }, 1000);
+  document.getElementById('backupForm').style.display = 'none';
+  document.getElementById('backupSuccess').classList.add('show');
+  document.getElementById('backupConfirmText').textContent =
+    'Backup link sent to ' + email + ' — check your inbox!';
 }
+
+// ===== GENERATION STATUS POLLING (10-min timeout) =====
+async function pollGenerationStatus() {
+  if (!savedOrderId) return; // sem order ID, nada a fazer
+
+  const MAX_WAIT_MS    = 10 * 60 * 1000; // 10 minutos
+  const POLL_INTERVAL  = 8000;           // 8 segundos
+  const startTime      = Date.now();
+
+  const banner = document.getElementById('generationBanner');
+  if (banner) banner.style.display = 'flex';
+
+  while (Date.now() - startTime < MAX_WAIT_MS) {
+    try {
+      const status = await getOrderStatus(savedOrderId);
+      if (!status) break;
+
+      if (status.generation_status === 'done') {
+        if (banner) banner.style.display = 'none';
+        return; // tudo pronto
+      }
+
+      if (status.generation_status === 'failed') {
+        if (banner) {
+          banner.innerHTML = '⚠️ <strong>Generation issue detected.</strong> We\'ll email your photos shortly. Need help? <a href="mailto:support@snapibaby.com" style="color:#ff4d6d">Contact us</a>.';
+          banner.style.background = 'rgba(239,68,68,0.1)';
+          banner.style.borderColor = 'rgba(239,68,68,0.3)';
+          banner.style.color = '#b91c1c';
+        }
+        return;
+      }
+    } catch (e) {
+      console.warn('Poll error:', e);
+    }
+
+    await new Promise(r => setTimeout(r, POLL_INTERVAL));
+  }
+
+  // Timeout: geração demorou mais de 10 minutos
+  if (banner) {
+    banner.innerHTML = '⏳ <strong>Your photos are taking a bit longer than expected.</strong> We\'ll send them to your email as soon as they\'re ready — usually within 15 minutes.';
+    banner.style.background = 'rgba(245,197,24,0.08)';
+    banner.style.borderColor = 'rgba(245,197,24,0.3)';
+    banner.style.color = '#92700a';
+  }
+}
+
+// Start polling on page load
+pollGenerationStatus();
 
 // Remove prefilled highlight on edit
 [nameInput, emailInput].forEach(input => {

@@ -13,6 +13,23 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../styles.css">
+<!-- Meta Pixel Code — fires only after cookie consent -->
+<script>
+(function() {
+  if (localStorage.getItem('snapi_cookie_consent') !== 'accepted') return;
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '977138755178682');
+  fbq('track', 'PageView');
+})();
+</script>
+<!-- End Meta Pixel Code -->
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Product","name":"AI THEME_NAME Newborn Portrait","brand":{"@type":"Brand","name":"SnapiBaby"},"offers":{"@type":"AggregateOffer","lowPrice":"29.00","highPrice":"59.00","priceCurrency":"USD","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"18247","bestRating":"5"}}
 </script>

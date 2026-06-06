@@ -10,6 +10,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="styles.css">
+<!-- Meta Pixel Code — fires only after cookie consent -->
+<script>
+(function() {
+  if (localStorage.getItem('snapi_cookie_consent') !== 'accepted') return;
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1480009823730507');
+  fbq('track', 'PageView');
+  fbq('track', 'ViewContent', { content_name: 'Pricing Plans', content_category: 'Baby Photos' });
+})();
+</script>
+<!-- End Meta Pixel Code -->
 <style>
 body { background: #f4f6fa; }
 .app-navbar {
@@ -447,9 +465,89 @@ body { background: #f4f6fa; }
 .apc-btn-primary:hover { background: #e0304d; transform: translateY(-1px); }
 .apc-btn-gold { background: linear-gradient(135deg, #f5c518, #e8a000); color: #5a3e00; box-shadow: 0 4px 15px rgba(200,160,0,0.35); }
 .apc-btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(200,160,0,0.5); }
+/* ===== SOCIAL PROOF NOTIFICATIONS ===== */
+#snapi-notif-container {
+  position: fixed;
+  bottom: 24px;
+  left: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  pointer-events: none;
+  max-width: 320px;
+}
+@media (max-width: 480px) {
+  #snapi-notif-container { left: 10px; right: 10px; max-width: calc(100vw - 20px); bottom: 14px; }
+}
+.snapi-notif {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border-radius: 14px;
+  padding: 12px 16px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.07);
+  border-left: 4px solid var(--primary);
+  pointer-events: all;
+  cursor: pointer;
+  transform: translateX(-110%);
+  opacity: 0;
+  transition: transform 0.45s cubic-bezier(.22,1,.36,1), opacity 0.35s ease;
+  will-change: transform, opacity;
+  max-width: 320px;
+}
+.snapi-notif.visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+.snapi-notif.hiding {
+  transform: translateX(-110%);
+  opacity: 0;
+}
+.snapi-notif-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fff0f3, #ffe4ec);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  border: 2px solid #ffd6e0;
+}
+.snapi-notif-body { flex: 1; min-width: 0; }
+.snapi-notif-text {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #2d2d2d;
+  line-height: 1.4;
+  margin-bottom: 3px;
+}
+.snapi-notif-meta {
+  font-size: 0.72rem;
+  color: #aaa;
+  font-weight: 500;
+}
+.snapi-notif-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+  animation: snapi-pulse 1.5s infinite;
+}
+@keyframes snapi-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+.snapi-notif.type-transformation { border-left-color: #f472b6; }
+.snapi-notif.type-reaction       { border-left-color: #fb923c; }
+.snapi-notif.type-purchase       { border-left-color: var(--primary); }
+.snapi-notif.type-urgency        { border-left-color: #facc15; }
 </style>
 </head>
 <body>
+
+<!-- SOCIAL PROOF NOTIFICATION CONTAINER -->
+<div id="snapi-notif-container" aria-live="polite" aria-atomic="true"></div>
 
 <div class="app-navbar">
   <a href="index.html" class="logo" style="text-decoration:none;"> Snapi<span>Baby</span></a>
@@ -572,7 +670,7 @@ body { background: #f4f6fa; }
         <div class="apc-tagline">"Your first magical memory"</div>
         <div class="apc-name">Starter</div>
         <div class="apc-price-wrap">
-          <div class="apc-price-main">$29</div>
+          <div class="apc-price-main">$19</div>
         </div>
         <div class="apc-photo-pill">15 photos</div>
         <ul class="app-plan-features apc-features-v2">
@@ -584,7 +682,7 @@ body { background: #f4f6fa; }
           <li class="feat-no-v2">Portrait &amp; landscape format</li>
           <li class="feat-no-v2">Free redo</li>
         </ul>
-        <button class="apc-btn-v2 apc-btn-secondary" onclick="window.location.href='checkout.html?plano=starter'">Get 15 photos in 20 min</button>
+        <button class="apc-btn-v2 apc-btn-secondary" onclick="window.location.href='checkout.html?plano=starter'">Get 15 photos in 1 hour</button>
         <p class="app-guarantee">100% Money-Back Guarantee</p>
       </div>
 
@@ -594,10 +692,9 @@ body { background: #f4f6fa; }
         <div class="apc-tagline">"The complete newborn story"</div>
         <div class="apc-name">Classic</div>
         <div class="apc-price-wrap">
-          <div class="apc-price-old">$58</div>
-          <div class="apc-price-main apc-price-accent">$49</div>
+          <div class="apc-price-main apc-price-accent">$29</div>
         </div>
-        <div class="apc-savings-badge apc-savings-pink">Save $9</div>
+
         <div class="apc-photo-pill apc-photo-pill-accent">30 photos</div>
         <ul class="app-plan-features apc-features-v2">
           <li>30 professional AI photos</li>
@@ -608,7 +705,7 @@ body { background: #f4f6fa; }
           <li>Portrait &amp; landscape format</li>
           <li class="feat-no-v2">Free redo</li>
         </ul>
-        <button class="apc-btn-v2 apc-btn-primary" onclick="window.location.href='checkout.html?plano=classic'">Get 30 photos in 15 min</button>
+        <button class="apc-btn-v2 apc-btn-primary" onclick="window.location.href='checkout.html?plano=classic'">Get 30 photos in 30 min</button>
         <p class="app-guarantee">100% Money-Back Guarantee</p>
       </div>
 
@@ -618,22 +715,21 @@ body { background: #f4f6fa; }
         <div class="apc-tagline">"Every moment, forever"</div>
         <div class="apc-name">Premium</div>
         <div class="apc-price-wrap">
-          <div class="apc-price-old">$96</div>
-          <div class="apc-price-main apc-price-gold">$59</div>
+          <div class="apc-price-main apc-price-gold">$39</div>
         </div>
-        <div class="apc-savings-badge apc-savings-gold">Save $37 — Best Value</div>
+
         <div class="apc-photo-pill apc-photo-pill-gold">50 photos</div>
         <ul class="app-plan-features apc-features-v2">
           <li>50 professional AI photos</li>
           <li id="premium-themes-li">ALL your chosen themes unlocked</li>
           <li>4K resolution, ultra-realistic</li>
-          <li>Priority — ready in under 8 min</li>
+          <li>Priority — ready in 15 min</li>
           <li>Free watermark preview</li>
           <li>Portrait &amp; landscape format</li>
           <li>1 free redo included</li>
           <li>Perfect for the complete 1st year album</li>
         </ul>
-        <button class="apc-btn-v2 apc-btn-gold" onclick="window.location.href='checkout.html?plano=premium'">Get 50 photos in 5 min</button>
+        <button class="apc-btn-v2 apc-btn-gold" onclick="window.location.href='checkout.html?plano=premium'">Get 50 photos in 15 min</button>
         <p class="app-guarantee">100% Money-Back Guarantee</p>
       </div>
     </div>
@@ -1107,6 +1203,108 @@ function buildThemePreviewGrid() {
     if (elS) elS.textContent = pad(s);
   }
   setInterval(tick, 1000);
+})();
+</script>
+
+<script>
+// ============================================================
+// SOCIAL PROOF NOTIFICATION SYSTEM
+// 40% transformation | 30% reaction | 20% purchase | 10% urgency
+// ============================================================
+(function() {
+  var NOTIFICATIONS = [
+    // TRANSFORMATION (40%)
+    { type: 'transformation', avatar: '🌸', text: "Ava's couch photo was just transformed into a Princess portrait", meta: 'moments ago' },
+    { type: 'transformation', avatar: '🍼', text: "Liam's parents just received their newborn Astronaut gallery", meta: '4 min ago' },
+    { type: 'transformation', avatar: '✨', text: "Baby Sophia's Fairy theme preview is ready", meta: 'just now' },
+    { type: 'transformation', avatar: '🧸', text: "Noah's Teddy Bear portrait was delivered in 6 minutes", meta: '7 min ago' },
+    { type: 'transformation', avatar: '🌙', text: "Isabella's Starry Night photos are done", meta: '1 min ago' },
+    { type: 'transformation', avatar: '🦁', text: "Ethan's Safari portraits were just created from phone photos", meta: '5 min ago' },
+    { type: 'transformation', avatar: '👑', text: "Mia's Princess portrait is ready — mom hasn't stopped crying", meta: '3 min ago' },
+    { type: 'transformation', avatar: '🚀', text: "Oliver's Astronaut preview was delivered while mom was feeding", meta: '8 min ago' },
+    { type: 'transformation', avatar: '🧚', text: "Baby Emma's Fairy Magic photos just came in", meta: '6 min ago' },
+    { type: 'transformation', avatar: '🌿', text: "Charlotte's Floral Basket portrait is stunning", meta: '2 min ago' },
+    // REACTION (30%)
+    { type: 'reaction', avatar: '💗', text: '"I literally cried." — New mom from Chicago', meta: 'just now' },
+    { type: 'reaction', avatar: '😍', text: '"My husband thought I hired a real photographer." — Sarah M.', meta: '3 min ago' },
+    { type: 'reaction', avatar: '🥹', text: '"Uploaded during feeding time. Finished before baby woke up." — Jessica W.', meta: '5 min ago' },
+    { type: 'reaction', avatar: '💕', text: '"Grandma cried seeing these photos." — Amanda R.', meta: '1 min ago' },
+    { type: 'reaction', avatar: '😭', text: '"These look more real than my actual studio session." — Melissa T.', meta: '9 min ago' },
+    { type: 'reaction', avatar: '✨', text: '"SnapiBaby gave me a second chance after my C-section." — Emily C.', meta: '4 min ago' },
+    { type: 'reaction', avatar: '🍼', text: '"Ordered at midnight. Photos done before next feed." — Megan W.', meta: 'just now' },
+    // PURCHASE (20%)
+    { type: 'purchase', avatar: '🎀', text: 'Emily from California just unlocked all premium themes', meta: '2 min ago' },
+    { type: 'purchase', avatar: '📸', text: 'A mom in Texas just replaced a $900 studio session with SnapiBaby', meta: '6 min ago' },
+    { type: 'purchase', avatar: '💝', text: 'Valentina just upgraded to the complete keepsake collection', meta: '3 min ago' },
+    { type: 'purchase', avatar: '🛍️', text: 'Jessica from Florida just got her full newborn portrait collection', meta: '1 min ago' },
+    // URGENCY (10%)
+    { type: 'urgency', avatar: '🔥', text: '23 moms created newborn portraits in the last hour', meta: 'live' },
+    { type: 'urgency', avatar: '⏳', text: "Today's 40% OFF ends soon — don't miss it", meta: 'limited time' },
+    { type: 'urgency', avatar: '👶', text: 'The newborn phase changes fast — preserve it now', meta: 'reminder' },
+    { type: 'urgency', avatar: '⚡', text: 'Average delivery: 8 minutes. Your preview is waiting.', meta: 'quick delivery' }
+  ];
+
+  // Fisher-Yates shuffle
+  function shuffle(arr) {
+    var a = arr.slice(), i, j, tmp;
+    for (i = a.length - 1; i > 0; i--) {
+      j = Math.floor(Math.random() * (i + 1));
+      tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  var queue = shuffle(NOTIFICATIONS);
+  var qIdx = 0;
+  var activeNotif = null;
+  var container = document.getElementById('snapi-notif-container');
+  if (!container) return;
+
+  function removeNotif(el) {
+    el.classList.remove('visible');
+    el.classList.add('hiding');
+    setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 470);
+  }
+
+  function showNotif(data) {
+    if (activeNotif) { removeNotif(activeNotif); activeNotif = null; }
+
+    var el = document.createElement('div');
+    el.className = 'snapi-notif type-' + data.type;
+    el.setAttribute('role', 'status');
+    el.innerHTML =
+      '<div class="snapi-notif-avatar">' + data.avatar + '</div>' +
+      '<div class="snapi-notif-body">' +
+        '<div class="snapi-notif-text">' + data.text + '</div>' +
+        '<div class="snapi-notif-meta">' + data.meta + '</div>' +
+      '</div>' +
+      '<div class="snapi-notif-dot"></div>';
+
+    el.addEventListener('click', function() { removeNotif(el); if (activeNotif === el) activeNotif = null; });
+    container.appendChild(el);
+    activeNotif = el;
+
+    // Trigger animation on next frame
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() { el.classList.add('visible'); });
+    });
+
+    // Auto-hide after 4.5s
+    setTimeout(function() {
+      if (el.parentNode) { removeNotif(el); if (activeNotif === el) activeNotif = null; }
+    }, 4500);
+  }
+
+  function nextNotif() {
+    if (qIdx >= queue.length) { queue = shuffle(NOTIFICATIONS); qIdx = 0; }
+    showNotif(queue[qIdx]);
+    qIdx++;
+    var delay = 8000 + Math.floor(Math.random() * 7001); // 8–15s
+    setTimeout(nextNotif, delay + 4500);
+  }
+
+  // First notification after 10s
+  setTimeout(nextNotif, 10000);
 })();
 </script>
 </body>

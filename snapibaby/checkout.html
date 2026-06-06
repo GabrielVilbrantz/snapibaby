@@ -1,419 +1,820 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Secure Checkout | SnapiBaby</title>
-<meta name="robots" content="noindex, nofollow">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-client.js"></script>
-<script src="https://js.stripe.com/v3/"></script>
-<!-- Meta Pixel Code — fires only after cookie consent -->
-<script>
-(function() {
-  if (localStorage.getItem('snapi_cookie_consent') !== 'accepted') return;
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', '977138755178682');
-  fbq('track', 'PageView');
-})();
-</script>
-<!-- End Meta Pixel Code -->
-<style>
-:root {
-  --primary: #ff4d6d;
-  --primary-dark: #cc3d57;
-  --text-dark: #2b2b2b;
-  --text-muted: #666;
-  --bg-color: #f9fafb;
-  --success: #10b981;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-body { background: var(--bg-color); color: var(--text-dark); display: flex; flex-direction: column; align-items: center; padding: 0 0 60px; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Checkout | SnapiBaby</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <!-- Meta Pixel Code — fires only after cookie consent -->
+  <script>
+    (function () {
+      if (localStorage.getItem('snapi_cookie_consent') !== 'accepted') return;
+      !function (f, b, e, v, n, t, s) {
+        if (f.fbq) return; n = f.fbq = function () {
+          n.callMethod ?
+          n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+        };
+        if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+        n.queue = []; t = b.createElement(e); t.async = !0;
+        t.src = v; s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s)
+      }(window, document, 'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '1480009823730507');
+      fbq('track', 'PageView');
+      fbq('track', 'InitiateCheckout');
+    })();
+  </script>
+  <!-- End Meta Pixel Code -->
+  <style>
+    :root {
+      --primary: #ff4d6d;
+      --primary-dark: #cc3d57;
+      --text-dark: #2b2b2b;
+      --text-muted: #666;
+      --bg-color: #f9fafb;
+      --success: #10b981;
+    }
 
-.trust-top-bar {
-  width: 100%;
-  background: linear-gradient(90deg, #10b981, #059669);
-  color: white;
-  text-align: center;
-  padding: 10px 20px;
-  font-size: 0.88rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
 
-.checkout-wrapper {
-  width: 100%;
-  max-width: 1040px;
-  padding: 30px 20px 0;
-}
+    body {
+      background: var(--bg-color);
+      color: var(--text-dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 60px;
+    }
 
-.site-header { text-align: center; margin-bottom: 28px; }
-.site-header h2 { font-size: 1.8rem; font-weight: 800; }
-.site-header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
+    .trust-top-bar {
+      width: 100%;
+      background: linear-gradient(90deg, #10b981, #059669);
+      color: white;
+      text-align: center;
+      padding: 10px 20px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
 
-.checkout-container {
-  display: grid;
-  grid-template-columns: 1fr 390px;
-  gap: 28px;
-  align-items: start;
-}
+    .checkout-wrapper {
+      width: 100%;
+      max-width: 1040px;
+      padding: 30px 20px 0;
+    }
 
-.card { background: white; padding: 30px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    .site-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
 
-.card-header {
-  font-size: 1.15rem;
-  font-weight: 700;
-  margin-bottom: 22px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #f0f0f0;
-  display: flex; align-items: center; gap: 10px;
-  color: var(--text-dark);
-}
+    .site-header h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+    }
 
-.form-group { margin-bottom: 18px; }
-.form-group label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 7px; color: var(--text-dark); }
-.form-group input {
-  width: 100%; padding: 12px 14px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 9px; font-size: 1rem; transition: 0.2s;
-  background: #fafafa;
-}
-.form-group input:focus { border-color: var(--primary); outline: none; background: #fff; box-shadow: 0 0 0 3px rgba(255,77,109,0.1); }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .site-header p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
 
-/* ===== CASHBACK BOX ===== */
-.cashback-box {
-  background: linear-gradient(135deg, #fff7ed, #fffbeb);
-  border: 2px dashed #f59e0b;
-  border-radius: 12px;
-  padding: 20px;
-  margin-top: 6px;
-  margin-bottom: 4px;
-  text-align: center;
-}
-.cashback-icon { font-size: 2rem; margin-bottom: 8px; }
-.cashback-box h4 { font-size: 1rem; font-weight: 800; color: #92400e; margin-bottom: 6px; }
-.cashback-box > p { font-size: 0.82rem; color: #78350f; margin-bottom: 14px; line-height: 1.5; }
-.cashback-fields { display: flex; flex-direction: column; gap: 10px; }
-.cashback-fields input {
-  width: 100%; padding: 10px 14px;
-  border: 1.5px solid #fcd34d;
-  border-radius: 9px; font-size: 0.9rem;
-  background: #fff; transition: 0.2s;
-}
-.cashback-fields input:focus { border-color: #f59e0b; outline: none; box-shadow: 0 0 0 3px rgba(245,158,11,0.15); }
-.cashback-btn {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: white; border: none; border-radius: 9px;
-  padding: 11px; font-size: 0.9rem; font-weight: 700;
-  cursor: pointer; transition: 0.2s;
-}
-.cashback-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(245,158,11,0.4); }
-.cashback-success {
-  display: none;
-  background: #f0fdf4; border: 1.5px solid #86efac;
-  border-radius: 9px; padding: 12px 14px;
-  font-size: 0.85rem; font-weight: 700; color: #15803d; margin-top: 8px;
-}
+    .checkout-container {
+      display: grid;
+      grid-template-columns: 1fr 390px;
+      gap: 28px;
+      align-items: start;
+    }
 
-/* ===== SECURE BADGE ===== */
-.secure-badge-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin: 0 0 20px;
-  padding: 14px 20px;
-  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-}
-.secure-seal { width: 64px; height: 64px; flex-shrink: 0; }
-.secure-badge-text h5 { font-size: 0.95rem; font-weight: 800; color: #1e293b; margin-bottom: 3px; }
-.secure-badge-text p { font-size: 0.78rem; color: #64748b; line-height: 1.5; }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    }
 
-/* ===== ORDER BUMP ===== */
-@keyframes goldPulse {
-  0%   { border-color: #f5c518; box-shadow: 0 0 0 0 rgba(245,197,24,0.7), 0 4px 20px rgba(245,197,24,0.3); }
-  50%  { border-color: #d4a017; box-shadow: 0 0 0 8px rgba(245,197,24,0), 0 6px 28px rgba(245,197,24,0.5); }
-  100% { border-color: #f5c518; box-shadow: 0 0 0 0 rgba(245,197,24,0.7), 0 4px 20px rgba(245,197,24,0.3); }
-}
-@keyframes offBadgePop {
-  0%, 100% { transform: scale(1) rotate(-2deg); }
-  50%       { transform: scale(1.08) rotate(-2deg); }
-}
+    .card-header {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-dark);
+    }
 
-.order-bump-section { margin-top: 28px; }
-.order-bump-label {
-  display: block;
-  background: linear-gradient(135deg, #fffdf0, #fff9e0);
-  border: 3px solid #f5c518;
-  border-radius: 14px; padding: 0;
-  cursor: pointer; transition: all 0.25s ease;
-  box-shadow: 0 4px 20px rgba(245,197,24,0.35);
-  overflow: hidden;
-  animation: goldPulse 1.8s ease-in-out infinite;
-}
-.order-bump-label:hover { transform: translateY(-2px); }
-.order-bump-label.checked {
-  border-color: #16a34a;
-  box-shadow: 0 6px 24px rgba(22,163,74,0.25);
-  animation: none;
-  background: #f0fdf4;
-}
+    .form-group {
+      margin-bottom: 18px;
+    }
 
-.bump-ribbon {
-  background: linear-gradient(90deg, #b8860b, #f5c518, #d4a017, #f5e27a, #b8860b);
-  background-size: 200% auto;
-  animation: goldShine 2.5s linear infinite;
-  color: #5a3a00;
-  text-align: center;
-  padding: 10px 16px; font-size: 0.82rem;
-  font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase;
-  text-shadow: 0 1px 0 rgba(255,255,255,0.4);
-}
-@keyframes goldShine {
-  0%   { background-position: 0% center; }
-  100% { background-position: 200% center; }
-}
-.order-bump-label.checked .bump-ribbon {
-  background: linear-gradient(90deg, #15803d, #22c55e, #16a34a);
-  background-size: 200% auto;
-  animation: none;
-  color: white;
-  text-shadow: none;
-}
+    .form-group label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 7px;
+      color: var(--text-dark);
+    }
 
-.bump-body { padding: 22px 24px 24px; }
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 9px;
+      font-size: 1rem;
+      transition: 0.2s;
+      background: #fafafa;
+    }
 
-/* Items grid */
-.bump-items { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
-.bump-item {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 12px 16px;
-  background: rgba(255,255,255,0.8);
-  border-radius: 10px;
-  border: 1px solid #fde68a;
-}
-.bump-item-left { display: flex; flex-direction: column; gap: 3px; }
-.bump-item-title { font-size: 0.92rem; font-weight: 700; color: var(--text-dark); }
-.bump-item-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
-.bump-item-price { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-.bump-item-price s { font-size: 0.8rem; color: #bbb; }
-.bump-item-price strong { font-size: 0.95rem; color: var(--text-dark); font-weight: 700; }
+    .form-group input:focus {
+      border-color: var(--primary);
+      outline: none;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.1);
+    }
 
-/* Total row */
-.bump-total-row {
-  display: flex; justify-content: space-between; align-items: center;
-  border-top: 1.5px solid #fde68a;
-  padding-top: 14px; margin-bottom: 18px;
-}
-.bump-total-label { font-size: 0.88rem; color: var(--text-muted); }
-.bump-total-price {
-  display: flex; align-items: center; gap: 10px;
-}
-.bump-total-was { font-size: 0.88rem; color: #bbb; text-decoration: line-through; }
-.bump-total-now {
-  background: linear-gradient(135deg, #b8860b, #d4a017);
-  color: white;
-  padding: 6px 18px; border-radius: 20px;
-  font-size: 1.05rem; font-weight: 800;
-  box-shadow: 0 3px 10px rgba(184,134,11,0.4);
-}
-.order-bump-label.checked .bump-total-now { background: linear-gradient(135deg, #15803d, #22c55e); box-shadow: 0 3px 10px rgba(22,163,74,0.4); }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
 
-/* 60% OFF badge */
-.bump-off-badge {
-  display: inline-flex;
-  align-items: center;
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: white;
-  font-size: 1.1rem;
-  font-weight: 900;
-  padding: 5px 14px;
-  border-radius: 8px;
-  letter-spacing: 0.5px;
-  box-shadow: 0 3px 10px rgba(239,68,68,0.5);
-  animation: offBadgePop 1.5s ease-in-out infinite;
-  white-space: nowrap;
-}
+    /* ===== CASHBACK BOX ===== */
+    .cashback-box {
+      background: linear-gradient(135deg, #fff7ed, #fffbeb);
+      border: 2px dashed #f59e0b;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 6px;
+      margin-bottom: 4px;
+      text-align: center;
+    }
 
-/* Checkbox row */
-.bump-header-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
-.bump-checkbox-wrap {
-  display: flex; align-items: center; justify-content: center;
-  width: 26px; height: 26px;
-  border: 2px solid #d1d5db;
-  border-radius: 6px; background: white;
-  flex-shrink: 0; transition: all 0.2s;
-}
-.order-bump-label.checked .bump-checkbox-wrap { background: #16a34a; border-color: #16a34a; }
-.bump-checkbox-wrap span { font-size: 0.9rem; opacity: 0; transition: 0.2s; color: white; font-weight: 700; }
-.order-bump-label.checked .bump-checkbox-wrap span { opacity: 1; }
-input#bumpCheck { display: none; }
-.bump-title-text { font-size: 1rem; font-weight: 800; color: var(--text-dark); line-height: 1.3; }
+    .cashback-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
 
-/* Social proof & urgency */
-.bump-social-proof {
-  font-size: 0.82rem; color: var(--text-muted);
-  margin-top: 14px; padding-top: 14px;
-  border-top: 1px solid #f0f0f0;
-  display: flex; flex-direction: column; gap: 4px;
-}
-.bump-social-proof span { display: block; }
-.bump-urgency { font-size: 0.78rem; color: #ef4444; font-weight: 600; margin-top: 6px; letter-spacing: 0.2px; }
+    .cashback-box h4 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #92400e;
+      margin-bottom: 6px;
+    }
 
-/* Bump image grid */
-.bump-visual { margin-bottom: 18px; }
-.bump-visual-inner { display: flex; gap: 8px; margin-bottom: 6px; }
-.bump-img-slot {
-  flex: 1; height: 90px; border-radius: 9px;
-  border: 1px solid #e2e8f0;
-  overflow: hidden; position: relative;
-  background: #f1f5f9;
-  display: flex; align-items: center; justify-content: center;
-}
-.bump-img-slot img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
-.bump-img-slot .fallback-emoji { font-size: 2rem; z-index: 1; }
-.bump-visual-caption { font-size: 0.75rem; color: var(--text-muted); text-align: center; font-weight: 500; }
+    .cashback-box>p {
+      font-size: 0.82rem;
+      color: #78350f;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
 
-/* Summary */
-.summary-item { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 0.95rem; align-items: center; }
-.summary-item.total { font-size: 1.45rem; font-weight: 800; border-top: 2px solid #f0f0f0; padding-top: 16px; margin-top: 8px; }
-.plan-preview { display: flex; gap: 14px; margin-bottom: 22px; align-items: center; background: #fff0f3; padding: 12px; border-radius: 10px; }
-.plan-preview-img-box {
-  width: 60px; height: 60px; border-radius: 8px;
-  border: 2px solid var(--primary);
-  overflow: hidden; position: relative;
-  background: linear-gradient(135deg, #fce4ec, #f8bbd0);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; font-size: 1.5rem;
-}
-.plan-preview-img-box img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
-.trust-badges { display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
-.trust-badges img { height: 28px; opacity: 0.7; }
-.btn-buy {
-  width: 100%;
-  background: linear-gradient(135deg, #ff4d6d, #e8003d);
-  color: white; padding: 17px; border: none; border-radius: 10px;
-  font-size: 1.15rem; font-weight: 800; cursor: pointer; transition: 0.25s; margin-top: 18px;
-  box-shadow: 0 6px 20px rgba(255,77,109,0.4); letter-spacing: 0.3px;
-}
-.btn-buy:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(255,77,109,0.5); }
-.security-note { text-align: center; font-size: 0.78rem; color: var(--text-muted); margin-top: 14px; line-height: 1.5; }
-.guarantee-badge { display: flex; align-items: center; gap: 10px; justify-content: center; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 10px 14px; margin-top: 16px; font-size: 0.82rem; color: #15803d; font-weight: 600; }
+    .cashback-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-@media (max-width: 800px) { .checkout-container { grid-template-columns: 1fr; } .order-summary { grid-row: 1; } }
-</style>
+    .cashback-fields input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #fcd34d;
+      border-radius: 9px;
+      font-size: 0.9rem;
+      background: #fff;
+      transition: 0.2s;
+    }
+
+    .cashback-fields input:focus {
+      border-color: #f59e0b;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+    }
+
+    .cashback-btn {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      border: none;
+      border-radius: 9px;
+      padding: 11px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .cashback-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    }
+
+    .cashback-success {
+      display: none;
+      background: #f0fdf4;
+      border: 1.5px solid #86efac;
+      border-radius: 9px;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #15803d;
+      margin-top: 8px;
+    }
+
+    /* ===== SECURE BADGE ===== */
+    .secure-badge-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin: 0 0 20px;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+    }
+
+    .secure-seal {
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .secure-badge-text h5 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 3px;
+    }
+
+    .secure-badge-text p {
+      font-size: 0.78rem;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    /* ===== ORDER BUMP ===== */
+    @keyframes goldPulse {
+      0% {
+        border-color: #f5c518;
+        box-shadow: 0 0 0 0 rgba(245, 197, 24, 0.7), 0 4px 20px rgba(245, 197, 24, 0.3);
+      }
+
+      50% {
+        border-color: #d4a017;
+        box-shadow: 0 0 0 8px rgba(245, 197, 24, 0), 0 6px 28px rgba(245, 197, 24, 0.5);
+      }
+
+      100% {
+        border-color: #f5c518;
+        box-shadow: 0 0 0 0 rgba(245, 197, 24, 0.7), 0 4px 20px rgba(245, 197, 24, 0.3);
+      }
+    }
+
+    @keyframes offBadgePop {
+
+      0%,
+      100% {
+        transform: scale(1) rotate(-2deg);
+      }
+
+      50% {
+        transform: scale(1.08) rotate(-2deg);
+      }
+    }
+
+    .order-bump-section {
+      margin-top: 28px;
+    }
+
+    .order-bump-label {
+      display: block;
+      background: linear-gradient(135deg, #fffdf0, #fff9e0);
+      border: 3px solid #f5c518;
+      border-radius: 14px;
+      padding: 0;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 20px rgba(245, 197, 24, 0.35);
+      overflow: hidden;
+      animation: goldPulse 1.8s ease-in-out infinite;
+    }
+
+    .order-bump-label:hover {
+      transform: translateY(-2px);
+    }
+
+    .order-bump-label.checked {
+      border-color: #16a34a;
+      box-shadow: 0 6px 24px rgba(22, 163, 74, 0.25);
+      animation: none;
+      background: #f0fdf4;
+    }
+
+    .bump-ribbon {
+      background: linear-gradient(90deg, #b8860b, #f5c518, #d4a017, #f5e27a, #b8860b);
+      background-size: 200% auto;
+      animation: goldShine 2.5s linear infinite;
+      color: #5a3a00;
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 0.82rem;
+      font-weight: 900;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    @keyframes goldShine {
+      0% {
+        background-position: 0% center;
+      }
+
+      100% {
+        background-position: 200% center;
+      }
+    }
+
+    .order-bump-label.checked .bump-ribbon {
+      background: linear-gradient(90deg, #15803d, #22c55e, #16a34a);
+      background-size: 200% auto;
+      animation: none;
+      color: white;
+      text-shadow: none;
+    }
+
+    .bump-body {
+      padding: 22px 24px 24px;
+    }
+
+    /* Items grid */
+    .bump-items {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .bump-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      border: 1px solid #fde68a;
+    }
+
+    .bump-item-left {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .bump-item-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .bump-item-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .bump-item-price {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .bump-item-price s {
+      font-size: 0.8rem;
+      color: #bbb;
+    }
+
+    .bump-item-price strong {
+      font-size: 0.95rem;
+      color: var(--text-dark);
+      font-weight: 700;
+    }
+
+    /* Total row */
+    .bump-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1.5px solid #fde68a;
+      padding-top: 14px;
+      margin-bottom: 18px;
+    }
+
+    .bump-total-label {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .bump-total-price {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bump-total-was {
+      font-size: 0.88rem;
+      color: #bbb;
+      text-decoration: line-through;
+    }
+
+    .bump-total-now {
+      background: linear-gradient(135deg, #b8860b, #d4a017);
+      color: white;
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      box-shadow: 0 3px 10px rgba(184, 134, 11, 0.4);
+    }
+
+    .order-bump-label.checked .bump-total-now {
+      background: linear-gradient(135deg, #15803d, #22c55e);
+      box-shadow: 0 3px 10px rgba(22, 163, 74, 0.4);
+    }
+
+    /* 60% OFF badge */
+    .bump-off-badge {
+      display: inline-flex;
+      align-items: center;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 900;
+      padding: 5px 14px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 3px 10px rgba(239, 68, 68, 0.5);
+      animation: offBadgePop 1.5s ease-in-out infinite;
+      white-space: nowrap;
+    }
+
+    /* Checkbox row */
+    .bump-header-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .bump-checkbox-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border: 2px solid #d1d5db;
+      border-radius: 6px;
+      background: white;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .order-bump-label.checked .bump-checkbox-wrap {
+      background: #16a34a;
+      border-color: #16a34a;
+    }
+
+    .bump-checkbox-wrap span {
+      font-size: 0.9rem;
+      opacity: 0;
+      transition: 0.2s;
+      color: white;
+      font-weight: 700;
+    }
+
+    .order-bump-label.checked .bump-checkbox-wrap span {
+      opacity: 1;
+    }
+
+    input#bumpCheck {
+      display: none;
+    }
+
+    .bump-title-text {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      line-height: 1.3;
+    }
+
+    /* Social proof & urgency */
+    .bump-social-proof {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .bump-social-proof span {
+      display: block;
+    }
+
+    .bump-urgency {
+      font-size: 0.78rem;
+      color: #ef4444;
+      font-weight: 600;
+      margin-top: 6px;
+      letter-spacing: 0.2px;
+    }
+
+    /* Bump image grid */
+    .bump-visual {
+      margin-bottom: 18px;
+    }
+
+    .bump-visual-inner {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .bump-img-slot {
+      flex: 1;
+      height: 90px;
+      border-radius: 9px;
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+      position: relative;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bump-img-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .bump-img-slot .fallback-emoji {
+      font-size: 2rem;
+      z-index: 1;
+    }
+
+    .bump-visual-caption {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+      font-weight: 500;
+    }
+
+    /* Summary */
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      font-size: 0.95rem;
+      align-items: center;
+    }
+
+    .summary-item.total {
+      font-size: 1.45rem;
+      font-weight: 800;
+      border-top: 2px solid #f0f0f0;
+      padding-top: 16px;
+      margin-top: 8px;
+    }
+
+    .plan-preview {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 22px;
+      align-items: center;
+      background: #fff0f3;
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    .plan-preview-img-box {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      border: 2px solid var(--primary);
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.5rem;
+    }
+
+    .plan-preview-img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .trust-badges {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .trust-badges img {
+      height: 28px;
+      opacity: 0.7;
+    }
+
+    .btn-buy {
+      width: 100%;
+      background: linear-gradient(135deg, #ff4d6d, #e8003d);
+      color: white;
+      padding: 17px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.25s;
+      margin-top: 18px;
+      box-shadow: 0 6px 20px rgba(255, 77, 109, 0.4);
+      letter-spacing: 0.3px;
+    }
+
+    .btn-buy:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(255, 77, 109, 0.5);
+    }
+
+    .security-note {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+
+    .guarantee-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-top: 16px;
+      font-size: 0.82rem;
+      color: #15803d;
+      font-weight: 600;
+    }
+
+    @media (max-width: 800px) {
+      .checkout-container {
+        grid-template-columns: 1fr;
+      }
+
+      .order-summary {
+        grid-row: 1;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
 
 
-<div class="trust-top-bar">
-  🔒 Secure & Encrypted Checkout — SSL Protected · Your data is 100% safe
-</div>
-
-<!-- BANNER -->
-<div style="background:#fff0f4; text-align:center; padding:10px 0;">
-  <a href="#btn-buy" onclick="document.getElementById('btn-buy').scrollIntoView({behavior:'smooth'}); return false;">
-    <img src="checkout.jpeg" alt="SnapiBaby — Turn Moments Into Unforgettable Memories"
-         style="max-width:860px; width:100%; display:inline-block; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.12);">
-  </a>
-</div>
-
-<div class="checkout-wrapper">
-  <div class="site-header">
-    <h2>🍼 SnapiBaby</h2>
-    <p>Secure Encrypted Environment 🔒 · Photos delivered to your email in minutes.</p>
+  <div class="trust-top-bar">
+    🔒 Secure & Encrypted Checkout — SSL Protected · Your data is 100% safe
   </div>
 
-  <div class="checkout-container">
+  <!-- BANNER -->
+  <div style="background:#fff0f4; text-align:center; padding:10px 0;">
+    <a href="#btn-buy" onclick="document.getElementById('btn-buy').scrollIntoView({behavior:'smooth'}); return false;">
+      <img src="checkout.jpeg" alt="SnapiBaby — Turn Moments Into Unforgettable Memories"
+        style="max-width:860px; width:100%; display:inline-block; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.12);">
+    </a>
+  </div>
 
-    <!-- LEFT: FORM -->
-    <div class="checkout-form">
+  <div class="checkout-wrapper">
+    <div class="site-header">
+      <h2>🍼 SnapiBaby</h2>
+      <p>Secure Encrypted Environment 🔒 · Photos delivered to your email in minutes.</p>
+    </div>
 
-      <!-- STEP 1 -->
-      <div class="card">
-        <div class="card-header">👤 1. Your Details (Where we'll send your photos)</div>
+    <div class="checkout-container">
 
-        <!-- UNIFIED FIELDS -->
-        <div class="cashback-box">
-          <div class="cashback-icon">🍼✨</div>
-          <h4>Sign up and receive everything in your inbox!</h4>
-          <p>Your <strong>HD photos</strong>, exclusive <strong>cashback coupons</strong>, and the latest <strong>SnapiBaby news</strong> — all delivered straight to you.</p>
-          <div class="cashback-fields" id="cashbackFields">
-            <input type="text" id="cashbackName" placeholder="Your full name (e.g. Sarah Johnson)">
-            <input type="email" id="cashbackEmail" placeholder="Your best email address">
-            <button class="cashback-btn" onclick="claimCashback()">✨ Confirm & Receive My Photos</button>
-          </div>
-          <div class="cashback-success" id="cashbackSuccess">
-            🎉 You're in! Your photos will be sent to this email. Coupon <strong>SNAPI10</strong> is on its way too — 10% off your next order!
-          </div>
-        </div>
-      </div>
+      <!-- LEFT: FORM -->
+      <div class="checkout-form">
 
-      <!-- STEP 2: PAYMENT -->
-      <div class="card" style="margin-top: 24px;">
-        <div class="card-header">💳 2. Secure Payment</div>
+        <!-- STEP 1 -->
+        <div class="card">
+          <div class="card-header">👤 1. Your Details (Where we'll send your photos)</div>
 
-        <!-- 100% SECURE BADGE (SVG) -->
-        <div class="secure-badge-wrap">
-          <svg class="secure-seal" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="goldOuter" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#f5e27a"/>
-                <stop offset="50%" style="stop-color:#d4a017"/>
-                <stop offset="100%" style="stop-color:#f5c518"/>
-              </linearGradient>
-              <linearGradient id="goldInner" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:#fde68a"/>
-                <stop offset="100%" style="stop-color:#b8860b"/>
-              </linearGradient>
-              <linearGradient id="silverShackle" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#e0e0e0"/>
-                <stop offset="100%" style="stop-color:#9e9e9e"/>
-              </linearGradient>
-            </defs>
-            <!-- Gold starburst -->
-            <polygon points="50,2 56,16 71,8 70,24 86,22 80,36 95,42 86,54 95,66 80,68 82,84 67,79 60,94 50,83 40,94 33,79 18,84 20,68 5,66 14,54 5,42 20,36 14,22 30,24 29,8 44,16" fill="url(#goldOuter)"/>
-            <!-- Black circle -->
-            <circle cx="50" cy="50" r="33" fill="#111"/>
-            <!-- Gold ring -->
-            <circle cx="50" cy="50" r="31" fill="none" stroke="url(#goldInner)" stroke-width="2.5"/>
-            <!-- Lock body -->
-            <rect x="37" y="51" width="26" height="19" rx="3.5" fill="url(#goldInner)"/>
-            <!-- Lock shackle -->
-            <path d="M43 51 V43 a7 7 0 0 1 14 0 V51" fill="none" stroke="url(#silverShackle)" stroke-width="4" stroke-linecap="round"/>
-            <!-- Keyhole -->
-            <circle cx="50" cy="59.5" r="2.8" fill="#111"/>
-            <rect x="48.6" y="59.5" width="2.8" height="5.5" rx="1.2" fill="#111"/>
-            <!-- Stars -->
-            <text x="30" y="77" font-size="7" fill="#f5c518" text-anchor="middle">★</text>
-            <text x="70" y="77" font-size="7" fill="#f5c518" text-anchor="middle">★</text>
-            <!-- Text top -->
-            <text x="50" y="33" text-anchor="middle" font-family="Arial Black, Arial" font-weight="900" font-size="7.5" fill="#f5c518" letter-spacing="1.2">100% SECURE</text>
-            <!-- Text bottom -->
-            <text x="50" y="86" text-anchor="middle" font-family="Arial Black, Arial" font-weight="900" font-size="7.5" fill="#f5c518" letter-spacing="1.2">100% SECURE</text>
-          </svg>
-          <div class="secure-badge-text">
-            <h5>100% Secure Payment</h5>
-            <p>Your data is encrypted with 256-bit SSL.<br>Processed safely via Stripe.</p>
+          <!-- UNIFIED FIELDS -->
+          <div class="cashback-box">
+            <div class="cashback-icon">🍼✨</div>
+            <h4>Sign up and receive everything in your inbox!</h4>
+            <p>Your <strong>HD photos</strong>, exclusive <strong>cashback coupons</strong>, and the latest
+              <strong>SnapiBaby news</strong> — all delivered straight to you.</p>
+            <div class="cashback-fields" id="cashbackFields">
+              <input type="text" id="cashbackName" placeholder="Your full name (e.g. Sarah Johnson)">
+              <input type="email" id="cashbackEmail" placeholder="Your best email address">
+              <button class="cashback-btn" onclick="claimCashback()">✨ Confirm & Receive My Photos</button>
+            </div>
+            <div class="cashback-success" id="cashbackSuccess">
+              🎉 You're in! Your photos will be sent to this email. Coupon <strong>SNAPI10</strong> is on its way too —
+              10% off your next order!
+            </div>
           </div>
         </div>
 
-        <!-- STRIPE CARD ELEMENT -->
-        <div class="form-group">
-          <label>Card Details</label>
-          <div id="card-element" style="
+        <!-- STEP 2: PAYMENT -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header">💳 2. Secure Payment</div>
+
+          <!-- 100% SECURE BADGE (SVG) -->
+          <div class="secure-badge-wrap">
+            <svg class="secure-seal" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="goldOuter" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#f5e27a" />
+                  <stop offset="50%" style="stop-color:#d4a017" />
+                  <stop offset="100%" style="stop-color:#f5c518" />
+                </linearGradient>
+                <linearGradient id="goldInner" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#fde68a" />
+                  <stop offset="100%" style="stop-color:#b8860b" />
+                </linearGradient>
+                <linearGradient id="silverShackle" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#e0e0e0" />
+                  <stop offset="100%" style="stop-color:#9e9e9e" />
+                </linearGradient>
+              </defs>
+              <!-- Gold starburst -->
+              <polygon
+                points="50,2 56,16 71,8 70,24 86,22 80,36 95,42 86,54 95,66 80,68 82,84 67,79 60,94 50,83 40,94 33,79 18,84 20,68 5,66 14,54 5,42 20,36 14,22 30,24 29,8 44,16"
+                fill="url(#goldOuter)" />
+              <!-- Black circle -->
+              <circle cx="50" cy="50" r="33" fill="#111" />
+              <!-- Gold ring -->
+              <circle cx="50" cy="50" r="31" fill="none" stroke="url(#goldInner)" stroke-width="2.5" />
+              <!-- Lock body -->
+              <rect x="37" y="51" width="26" height="19" rx="3.5" fill="url(#goldInner)" />
+              <!-- Lock shackle -->
+              <path d="M43 51 V43 a7 7 0 0 1 14 0 V51" fill="none" stroke="url(#silverShackle)" stroke-width="4"
+                stroke-linecap="round" />
+              <!-- Keyhole -->
+              <circle cx="50" cy="59.5" r="2.8" fill="#111" />
+              <rect x="48.6" y="59.5" width="2.8" height="5.5" rx="1.2" fill="#111" />
+              <!-- Stars -->
+              <text x="30" y="77" font-size="7" fill="#f5c518" text-anchor="middle">★</text>
+              <text x="70" y="77" font-size="7" fill="#f5c518" text-anchor="middle">★</text>
+              <!-- Text top -->
+              <text x="50" y="33" text-anchor="middle" font-family="Arial Black, Arial" font-weight="900"
+                font-size="7.5" fill="#f5c518" letter-spacing="1.2">100% SECURE</text>
+              <!-- Text bottom -->
+              <text x="50" y="86" text-anchor="middle" font-family="Arial Black, Arial" font-weight="900"
+                font-size="7.5" fill="#f5c518" letter-spacing="1.2">100% SECURE</text>
+            </svg>
+            <div class="secure-badge-text">
+              <h5>100% Secure Payment</h5>
+              <p>Your data is encrypted with 256-bit SSL.<br>Processed safely via Stripe.</p>
+            </div>
+          </div>
+
+          <!-- STRIPE CARD ELEMENT -->
+          <div class="form-group">
+            <label>Card Details</label>
+            <div id="card-element" style="
             border: 1.5px solid #e2e8f0;
             border-radius: 10px;
             padding: 14px 16px;
@@ -421,377 +822,559 @@ input#bumpCheck { display: none; }
             font-size: 1rem;
             transition: border-color 0.2s;
           "></div>
-          <div id="card-errors" style="color:#ef4444;font-size:0.83rem;margin-top:6px;min-height:18px;"></div>
-        </div>
+            <div id="card-errors" style="color:#ef4444;font-size:0.83rem;margin-top:6px;min-height:18px;"></div>
+          </div>
 
-        <!-- ORDER BUMP -->
-        <div class="order-bump-section">
-          <label for="bumpCheck" class="order-bump-label" id="bumpLabel">
-            <div class="bump-ribbon">⚡ Unique Offer — Today Only</div>
-            <div class="bump-body">
+          <!-- ORDER BUMP -->
+          <div class="order-bump-section">
+            <label for="bumpCheck" class="order-bump-label" id="bumpLabel">
+              <div class="bump-ribbon">⚡ Unique Offer — Today Only</div>
+              <div class="bump-body">
 
 
 
-              <!-- Items -->
-              <div class="bump-items">
-                <div class="bump-item">
-                  <div class="bump-item-left">
-                    <span class="bump-item-title">Premium Frames</span>
-                    <span class="bump-item-desc">Professional studio frames ready for printing for each photo</span>
+                <!-- Items -->
+                <div class="bump-items">
+                  <div class="bump-item">
+                    <div class="bump-item-left">
+                      <span class="bump-item-title">Premium Frames</span>
+                      <span class="bump-item-desc">Professional studio frames ready for printing for each photo</span>
+                    </div>
+                    <div class="bump-item-price">
+                      <s>$12.90</s>
+                      <strong>included</strong>
+                    </div>
                   </div>
-                  <div class="bump-item-price">
-                    <s>$12.90</s>
-                    <strong>included</strong>
+                  <div class="bump-item">
+                    <div class="bump-item-left">
+                      <span class="bump-item-title">Premium Editing</span>
+                      <span class="bump-item-desc">Professional color grading and retouching on every photo</span>
+                    </div>
+                    <div class="bump-item-price">
+                      <s>$14.90</s>
+                      <strong>included</strong>
+                    </div>
                   </div>
                 </div>
-                <div class="bump-item">
-                  <div class="bump-item-left">
-                    <span class="bump-item-title">Premium Editing</span>
-                    <span class="bump-item-desc">Professional color grading and retouching on every photo</span>
-                  </div>
-                  <div class="bump-item-price">
-                    <s>$14.90</s>
-                    <strong>included</strong>
+
+                <!-- Total -->
+                <div class="bump-total-row">
+                  <span class="bump-total-label">Both for only</span>
+                  <div class="bump-total-price">
+                    <span class="bump-total-now">+ $3.00</span>
+                    <span class="bump-off-badge">68% OFF</span>
                   </div>
                 </div>
-              </div>
 
-              <!-- Total -->
-              <div class="bump-total-row">
-                <span class="bump-total-label">Both for only</span>
-                <div class="bump-total-price">
-                  <span class="bump-total-was">$27.80</span>
-                  <span class="bump-total-now">+ $9.00</span>
-                  <span class="bump-off-badge">68% OFF</span>
+                <!-- Checkbox -->
+                <div class="bump-header-row">
+                  <input type="checkbox" id="bumpCheck" onchange="toggleBump()">
+                  <div class="bump-checkbox-wrap"><span>✓</span></div>
+                  <div class="bump-title-text">YES — Add Premium Frames + Premium Editing</div>
                 </div>
-              </div>
 
-              <!-- Checkbox -->
-              <div class="bump-header-row">
-                <input type="checkbox" id="bumpCheck" onchange="toggleBump()">
-                <div class="bump-checkbox-wrap"><span>✓</span></div>
-                <div class="bump-title-text">YES — Add Premium Frames + Premium Editing</div>
-              </div>
+                <!-- Social proof & urgency -->
+                <div class="bump-social-proof">
+                  <span>Over <strong>3,800 moms</strong> have added this to their order — our most loved extra.</span>
+                  <span>Your baby deserves it.</span>
+                  <span class="bump-urgency">This pack will not appear again after checkout.</span>
+                </div>
 
-              <!-- Social proof & urgency -->
-              <div class="bump-social-proof">
-                <span>Over <strong>3,800 moms</strong> have added this to their order — our most loved extra.</span>
-                <span>Your baby deserves it.</span>
-                <span class="bump-urgency">This pack will not appear again after checkout.</span>
               </div>
-
-            </div>
-          </label>
+            </label>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- RIGHT: ORDER SUMMARY -->
-    <div class="order-summary">
-      <div class="card" style="position: sticky; top: 30px;">
-        <div class="card-header">🛒 Order Summary</div>
+      <!-- RIGHT: ORDER SUMMARY -->
+      <div class="order-summary">
+        <div class="card" style="position: sticky; top: 30px;">
+          <div class="card-header">🛒 Order Summary</div>
 
-        <div class="plan-preview">
-          <div class="plan-preview-img-box">
-            🍼
-            <img src="newborn-floral-basket.jpg" alt="Preview" onerror="this.style.display='none'">
+          <div class="plan-preview">
+            <div class="plan-preview-img-box">
+              🍼
+              <img src="newborn-floral-basket.jpg" alt="Preview" onerror="this.style.display='none'">
+            </div>
+            <div>
+              <strong id="plan-name" style="display:block;font-size:0.95rem;">Premium Package – 30 Photos</strong>
+              <span style="font-size:0.8rem;color:var(--text-muted);">Delivered to your email in up to 15 min.</span>
+            </div>
           </div>
-          <div>
-            <strong id="plan-name" style="display:block;font-size:0.95rem;">Premium Package – 50 Photos</strong>
-            <span style="font-size:0.8rem;color:var(--text-muted);">Delivered to your email in under 5 min.</span>
-          </div>
-        </div>
 
-        <div class="summary-item">
-          <span style="color:var(--text-muted);">Package Price</span>
-          <strong id="plan-price">$59.00</strong>
-        </div>
-        <div class="summary-item" id="bump-line" style="display:none;color:#d97706;align-items:center;gap:8px;">
-          <button id="bump-toggle-btn" onclick="toggleBumpFromSummary()" title="Remove this item" style="
+          <div class="summary-item">
+            <span style="color:var(--text-muted);">Package Price</span>
+            <strong id="plan-price">$39.00</strong>
+          </div>
+          <div class="summary-item" id="bump-line" style="display:none;color:#d97706;align-items:center;gap:8px;">
+            <button id="bump-toggle-btn" onclick="toggleBumpFromSummary()" title="Remove this item" style="
             width:22px;height:22px;border-radius:5px;border:1.5px solid #d97706;
             background:#fff7ed;color:#d97706;font-size:0.75rem;font-weight:900;
             cursor:pointer;display:flex;align-items:center;justify-content:center;
             flex-shrink:0;transition:all 0.2s;padding:0;line-height:1;
           ">✓</button>
-          <span style="flex:1;">+ Premium Frames &amp; Editing</span>
-          <strong>$9.00</strong>
-        </div>
-        <div class="summary-item total">
-          <span>Total:</span>
-          <span id="total-price">$59.00</span>
-        </div>
+            <span style="flex:1;">+ Premium Frames &amp; Editing</span>
+            <strong>$3.00</strong>
+          </div>
+          <div class="summary-item total">
+            <span>Total:</span>
+            <span id="total-price">$39.00</span>
+          </div>
 
-        <button class="btn-buy" id="btn-buy" onclick="processPurchase()">
-          Complete Payment 🚀
-        </button>
+          <button class="btn-buy" id="btn-buy" onclick="processPurchase()">
+            Complete Payment 🚀
+          </button>
 
-        <div class="guarantee-badge">
-          🛡️ 100% Money-Back Guarantee — Risk free for 7 days
-        </div>
+          <div class="guarantee-badge">
+            🛡️ 100% Money-Back Guarantee — Risk free for 7 days
+          </div>
 
-        <p class="security-note">
-          By clicking above, you confirm our <a href="terms.html" style="color:var(--primary);">Terms of Service</a>
-          and <a href="privacy.html" style="color:var(--primary);">Privacy Policy</a>.
-          Your photos will be delivered to the email provided.
-        </p>
+          <p class="security-note">
+            By clicking above, you confirm our <a href="terms.html" style="color:var(--primary);">Terms of Service</a>
+            and <a href="privacy.html" style="color:var(--primary);">Privacy Policy</a>.
+            Your photos will be delivered to the email provided.
+          </p>
 
-        <div class="trust-badges">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mastercard_2019_logo.svg/1200px-Mastercard_2019_logo.svg.png" alt="Mastercard">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" alt="Visa">
+          <div class="trust-badges">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mastercard_2019_logo.svg/1200px-Mastercard_2019_logo.svg.png"
+              alt="Mastercard">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png"
+              alt="Visa">
+          </div>
         </div>
       </div>
+
     </div>
-
   </div>
-</div>
 
-<!-- TESTIMONIALS -->
-<div class="checkout-testimonials">
-  <div class="ct-header">
-    <span class="ct-badge">⭐ Real Stories from Real Moms</span>
-    <h3>Join thousands of happy families</h3>
+  <!-- TESTIMONIALS -->
+  <div class="checkout-testimonials">
+    <div class="ct-header">
+      <span class="ct-badge">⭐ Real Stories from Real Moms</span>
+      <h3>Join thousands of happy families</h3>
+    </div>
+    <div class="ct-carousel-wrapper">
+      <button class="ct-btn ct-prev" id="ctPrev">❮</button>
+      <div class="ct-carousel" id="ctCarousel"></div>
+      <button class="ct-btn ct-next" id="ctNext">❯</button>
+    </div>
+    <div class="ct-dots" id="ctDots"></div>
   </div>
-  <div class="ct-carousel-wrapper">
-    <button class="ct-btn ct-prev" id="ctPrev">❮</button>
-    <div class="ct-carousel" id="ctCarousel"></div>
-    <button class="ct-btn ct-next" id="ctNext">❯</button>
-  </div>
-  <div class="ct-dots" id="ctDots"></div>
-</div>
 
-<style>
-.checkout-testimonials { width:100%; max-width:1040px; margin:40px auto 0; padding:0 20px; }
-.ct-header { text-align:center; margin-bottom:24px; }
-.ct-badge { display:inline-block; background:linear-gradient(135deg,#ff4d6d22,#ff4d6d11); color:var(--primary); border:1px solid #ff4d6d44; border-radius:20px; padding:5px 16px; font-size:0.82rem; font-weight:700; letter-spacing:0.5px; margin-bottom:10px; }
-.ct-header h3 { font-size:1.4rem; font-weight:800; color:var(--text-dark); }
-.ct-carousel-wrapper { position:relative; display:flex; align-items:center; gap:12px; }
-.ct-carousel { flex:1; overflow:hidden; position:relative; min-height:200px; }
-.ct-slide { background:white; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.07); padding:26px 28px; display:flex; gap:22px; align-items:flex-start; border:1px solid #f0f0f0; animation:ctFadeIn 0.4s ease; }
-@keyframes ctFadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-.ct-avatar { width:54px; height:54px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:800; color:white; flex-shrink:0; }
-.ct-user { flex-shrink:0; text-align:center; min-width:70px; }
-.ct-name { font-size:0.88rem; font-weight:700; color:var(--text-dark); margin-top:8px; line-height:1.3; }
-.ct-role { font-size:0.75rem; color:var(--primary); font-weight:600; margin-top:2px; }
-.ct-stars { font-size:0.8rem; margin-top:4px; }
-.ct-body { flex:1; }
-.ct-quote { font-size:0.97rem; color:#444; line-height:1.65; font-style:italic; margin-bottom:14px; }
-.ct-results { display:flex; flex-wrap:wrap; gap:8px; }
-.ct-result-badge { background:#fff0f3; color:var(--primary); border:1px solid #ffd6df; border-radius:20px; padding:3px 12px; font-size:0.78rem; font-weight:600; }
-.ct-btn { background:white; border:1.5px solid #e2e8f0; border-radius:50%; width:40px; height:40px; cursor:pointer; font-size:0.9rem; color:var(--text-dark); flex-shrink:0; transition:0.2s; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,0.07); }
-.ct-btn:hover { background:var(--primary); color:white; border-color:var(--primary); }
-.ct-dots { display:flex; justify-content:center; gap:8px; margin-top:18px; }
-.ct-dot { width:8px; height:8px; border-radius:50%; background:#e2e8f0; cursor:pointer; transition:0.2s; }
-.ct-dot.active { background:var(--primary); width:22px; border-radius:4px; }
-@media(max-width:600px){.ct-slide{flex-direction:column;gap:14px}.ct-user{display:flex;align-items:center;gap:12px;text-align:left;min-width:unset}.ct-name,.ct-role{margin-top:0}}
-</style>
-
-<script>
-// ===== CASHBACK =====
-function claimCashback() {
-  const name = document.getElementById('cashbackName').value.trim();
-  const email = document.getElementById('cashbackEmail').value.trim();
-  if (!name || !email || !email.includes('@')) {
-    alert('Please enter your name and email to continue! 🍼');
-    return;
-  }
-  // Save to localStorage so success page can pre-fill
-  localStorage.setItem('snapi_customer_name', name);
-  localStorage.setItem('snapi_customer_email', email);
-  document.getElementById('cashbackFields').style.display = 'none';
-  document.getElementById('cashbackSuccess').style.display = 'block';
-}
-
-// ===== TESTIMONIALS =====
-const checkoutTestimonials = [
-  { name:"Jessica Thompson", role:"Mom of Liam, 3 weeks", text:"I sent 3 phone photos and got back 30 portraits that look like they were shot in a $2,000 studio. I'm absolutely blown away.", results:["3 Photos In","30 Portraits Out"] },
-  { name:"Emily Carter", role:"Mom of Sophia, 1 month", text:"Quoted $750 by a local photographer. Paid $49 here and got 30 photos that look better. I'm not joking.", results:["Saved $701","Better Than Studio"] },
-  { name:"Megan Wilson", role:"Mom of Emma, 6 weeks", text:"Ordered at 11pm while feeding her. Photos were done before she fell back asleep. I ordered a canvas print the same night.", results:["Done in Minutes","Canvas Ordered"] },
-  { name:"Kayla Anderson", role:"Mom of Elijah, 4 weeks", text:"The 4K resolution is no joke. I printed an 18x24 canvas and it looks like a professional studio shot hanging in our living room.", results:["4K Resolution 🖼️","18x24 Canvas"] },
-  { name:"Stephanie White", role:"Mom of James, 1 month", text:"I'm a photographer myself and I was ready to criticize everything. I can't find a single flaw. The lighting alone is stunning.", results:["Photographer Approved","Flawless Lighting"] },
-];
-const avatarColors=['#ff4d6d','#e05cb0','#7c6cf0','#3b9cf5','#10b981','#f59e0b','#ef4444','#8b5cf6'];
-let ctIndex=0;
-function renderCt(){
-  const carousel=document.getElementById('ctCarousel');
-  const dotsEl=document.getElementById('ctDots');
-  const item=checkoutTestimonials[ctIndex];
-  const initials=item.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
-  const color=avatarColors[item.name.charCodeAt(0)%avatarColors.length];
-  carousel.innerHTML=`<div class="ct-slide"><div class="ct-user"><div class="ct-avatar" style="background:${color};">${initials}</div><div class="ct-name">${item.name}</div><div class="ct-role">${item.role}</div><div class="ct-stars">⭐⭐⭐⭐⭐</div></div><div class="ct-body"><p class="ct-quote">"${item.text}"</p><div class="ct-results">${item.results.map(r=>`<span class="ct-result-badge">${r}</span>`).join('')}</div></div></div>`;
-  if(dotsEl.children.length===0){checkoutTestimonials.forEach((_,i)=>{const dot=document.createElement('div');dot.className='ct-dot';dot.addEventListener('click',()=>{ctIndex=i;renderCt();});dotsEl.appendChild(dot);});}
-  Array.from(dotsEl.children).forEach((d,i)=>d.className=i===ctIndex?'ct-dot active':'ct-dot');
-}
-document.getElementById('ctNext').addEventListener('click',()=>{ctIndex=(ctIndex+1)%checkoutTestimonials.length;renderCt();});
-document.getElementById('ctPrev').addEventListener('click',()=>{ctIndex=(ctIndex-1+checkoutTestimonials.length)%checkoutTestimonials.length;renderCt();});
-document.addEventListener('DOMContentLoaded',()=>{renderCt();setInterval(()=>{ctIndex=(ctIndex+1)%checkoutTestimonials.length;renderCt();},5000);});
-
-// ===== PRICING =====
-const plans={starter:{name:'Starter — 15 Photos',price:29.00},classic:{name:'Classic — 30 Photos',price:49.00},premium:{name:'Premium — 50 Photos',price:59.00}};
-const bumpPrice=9.00;
-let basePrice=59.00;
-const urlParams=new URLSearchParams(window.location.search);
-const plan=urlParams.get('plano')||'premium';
-if(plans[plan]){basePrice=plans[plan].price;document.getElementById('plan-name').innerText=plans[plan].name;}
-document.getElementById('plan-price').innerText=`$${basePrice.toFixed(2)}`;
-updateTotal(false);
-
-function toggleBump(){
-  const isChecked=document.getElementById('bumpCheck').checked;
-  document.getElementById('bumpLabel').classList.toggle('checked',isChecked);
-  document.getElementById('bump-line').style.display=isChecked?'flex':'none';
-  updateTotal(isChecked);
-  syncBumpToggleBtn(isChecked);
-}
-
-function toggleBumpFromSummary(){
-  const cb=document.getElementById('bumpCheck');
-  cb.checked=!cb.checked;
-  toggleBump();
-}
-
-function syncBumpToggleBtn(isChecked){
-  const btn=document.getElementById('bump-toggle-btn');
-  if(!btn)return;
-  if(isChecked){
-    btn.textContent='✓';
-    btn.style.background='#fff7ed';
-    btn.style.color='#d97706';
-    btn.style.borderColor='#d97706';
-    btn.title='Remove this item';
-  } else {
-    btn.textContent='+';
-    btn.style.background='#f0fdf4';
-    btn.style.color='#16a34a';
-    btn.style.borderColor='#16a34a';
-    btn.title='Add this item';
-    document.getElementById('bump-line').style.display='flex';
-  }
-}
-function updateTotal(hasBump=true){document.getElementById('total-price').innerText=`$${(basePrice+(hasBump?bumpPrice:0)).toFixed(2)}`;}
-
-// ── Stripe Elements initialization ────────────────────────────────────────────
-const STRIPE_PK = 'pk_live_51S7jFvGoYUc0liSkaYyxYiwdQslPYEhVxZZ0wsrOIfcHuBP06A4v5bph0kQLEyYgxHSeFviLWQa5luV6IuR3rfqA00BRKtxdSd';
-const stripeClient = Stripe(STRIPE_PK);
-const elements     = stripeClient.elements();
-const cardElement  = elements.create('card', {
-  style: {
-    base: {
-      fontFamily: 'Inter, sans-serif',
-      fontSize:   '15px',
-      color:      '#2b2b2b',
-      '::placeholder': { color: '#aab7c4' }
-    },
-    invalid: { color: '#ef4444', iconColor: '#ef4444' }
-  }
-});
-cardElement.mount('#card-element');
-cardElement.on('change', ({ error }) => {
-  document.getElementById('card-errors').textContent = error ? error.message : '';
-  document.getElementById('card-element').style.borderColor = error ? '#ef4444' : '#e2e8f0';
-});
-// ─────────────────────────────────────────────────────────────────────────────
-
-async function processPurchase() {
-  const btn           = document.getElementById('btn-buy');
-  const customerName  = document.getElementById('cashbackName')?.value.trim()  || '';
-  const customerEmail = document.getElementById('cashbackEmail')?.value.trim() || '';
-
-  // Basic validation
-  if (!customerEmail || !customerEmail.includes('@')) {
-    document.getElementById('cashbackEmail')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    document.getElementById('card-errors').textContent = 'Please enter a valid email address.';
-    return;
-  }
-
-  btn.innerHTML = '⌛ Processing Payment...';
-  btn.style.opacity = '0.75';
-  btn.disabled = true;
-  document.getElementById('card-errors').textContent = '';
-
-  const hasBump   = document.getElementById('bumpCheck')?.checked ?? true;
-  const planName  = plan || 'premium';
-
-  try {
-    // ── Step 1: Create PaymentIntent via Netlify Function ──────────────
-    const piRes = await fetch('/.netlify/functions/create-payment-intent', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ plan: planName, hasBump, customerEmail, customerName })
-    });
-
-    if (!piRes.ok) throw new Error('Could not initialize payment. Please try again.');
-    const { clientSecret, customerId, intentId } = await piRes.json();
-
-    // ── Step 2: Confirm card payment with Stripe.js ────────────────────
-    const { error, paymentIntent } = await stripeClient.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: cardElement,
-        billing_details: { name: customerName, email: customerEmail }
-      },
-      receipt_email: customerEmail
-    });
-
-    if (error) {
-      document.getElementById('card-errors').textContent = error.message;
-      btn.innerHTML = 'Complete Payment 🚀';
-      btn.style.opacity = '1';
-      btn.disabled = false;
-      return;
+  <style>
+    .checkout-testimonials {
+      width: 100%;
+      max-width: 1040px;
+      margin: 40px auto 0;
+      padding: 0 20px;
     }
 
-    // ── Step 3: Payment confirmed — save order to Supabase ─────────────
-    const pmId = paymentIntent.payment_method;
-
-    localStorage.setItem('snapi_customer_name',  customerName);
-    localStorage.setItem('snapi_customer_email', customerEmail);
-    localStorage.setItem('snapi_plan', planName);
-
-    const order = await saveOrderToSupabase({
-      customerName,
-      customerEmail,
-      plan:                planName,
-      basePrice:           basePrice,
-      bumpAdded:           hasBump,
-      totalPaid:           basePrice + (hasBump ? bumpPrice : 0),
-      stripePaymentIntent: intentId,
-      stripeCustomerId:    customerId,
-      stripePaymentMethod: pmId,
-      themesSelected:      JSON.parse(localStorage.getItem('snapi_themes') || '[]'),
-      babyPhotoUrls:       []
-    });
-
-    if (order) {
-      localStorage.setItem('snapi_order_id',     order.id);
-      localStorage.setItem('snapi_order_number', order.order_number);
+    .ct-header {
+      text-align: center;
+      margin-bottom: 24px;
     }
 
-    // ── Step 4: Redirect to upsell ────────────────────────────────────
-    btn.innerHTML = '✅ Payment Approved! Redirecting...';
-    const totalPaid = (basePrice + (hasBump ? bumpPrice : 0)).toFixed(2);
-    window.location.href = 'upsell.html'
-      + '?payment_method=' + encodeURIComponent(pmId)
-      + '&customer='       + encodeURIComponent(customerId || '')
-      + '&email='          + encodeURIComponent(customerEmail)
-      + '&total='          + encodeURIComponent(totalPaid)
-      + (order ? '&order_id=' + order.id : '');
+    .ct-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #ff4d6d22, #ff4d6d11);
+      color: var(--primary);
+      border: 1px solid #ff4d6d44;
+      border-radius: 20px;
+      padding: 5px 16px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
 
-  } catch (err) {
-    console.error('Payment error:', err);
-    document.getElementById('card-errors').textContent = err.message || 'Payment failed. Please try again.';
-    btn.innerHTML = 'Complete Payment 🚀';
-    btn.style.opacity = '1';
-    btn.disabled = false;
-  }
-}
-</script>
+    .ct-header h3 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
 
-<!-- ===== EXIT INTENT POPUP ===== -->
-<div id="exitPopup" style="display:none; position:fixed; inset:0; z-index:99999; align-items:center; justify-content:center;">
-  <!-- Overlay -->
-  <div id="exitOverlay" onclick="closeExitPopup()" style="position:absolute; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px);"></div>
+    .ct-carousel-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-  <!-- Card -->
-  <div id="exitCard" style="
+    .ct-carousel {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      min-height: 200px;
+    }
+
+    .ct-slide {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+      padding: 26px 28px;
+      display: flex;
+      gap: 22px;
+      align-items: flex-start;
+      border: 1px solid #f0f0f0;
+      animation: ctFadeIn 0.4s ease;
+    }
+
+    @keyframes ctFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .ct-avatar {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .ct-user {
+      flex-shrink: 0;
+      text-align: center;
+      min-width: 70px;
+    }
+
+    .ct-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-top: 8px;
+      line-height: 1.3;
+    }
+
+    .ct-role {
+      font-size: 0.75rem;
+      color: var(--primary);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .ct-stars {
+      font-size: 0.8rem;
+      margin-top: 4px;
+    }
+
+    .ct-body {
+      flex: 1;
+    }
+
+    .ct-quote {
+      font-size: 0.97rem;
+      color: #444;
+      line-height: 1.65;
+      font-style: italic;
+      margin-bottom: 14px;
+    }
+
+    .ct-results {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .ct-result-badge {
+      background: #fff0f3;
+      color: var(--primary);
+      border: 1px solid #ffd6df;
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .ct-btn {
+      background: white;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--text-dark);
+      flex-shrink: 0;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    }
+
+    .ct-btn:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .ct-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .ct-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .ct-dot.active {
+      background: var(--primary);
+      width: 22px;
+      border-radius: 4px;
+    }
+
+    @media(max-width:600px) {
+      .ct-slide {
+        flex-direction: column;
+        gap: 14px
+      }
+
+      .ct-user {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-align: left;
+        min-width: unset
+      }
+
+      .ct-name,
+      .ct-role {
+        margin-top: 0
+      }
+    }
+  </style>
+
+  <script>
+    // ===== CASHBACK =====
+    function claimCashback() {
+      const name = document.getElementById('cashbackName').value.trim();
+      const email = document.getElementById('cashbackEmail').value.trim();
+      if (!name || !email || !email.includes('@')) {
+        alert('Please enter your name and email to continue! 🍼');
+        return;
+      }
+      // Save to localStorage so success page can pre-fill
+      localStorage.setItem('snapi_customer_name', name);
+      localStorage.setItem('snapi_customer_email', email);
+      document.getElementById('cashbackFields').style.display = 'none';
+      document.getElementById('cashbackSuccess').style.display = 'block';
+    }
+
+    // ===== TESTIMONIALS =====
+    const checkoutTestimonials = [
+      { name: "Jessica Thompson", role: "Mom of Liam, 3 weeks", text: "I sent 3 phone photos and got back 20 portraits that look like they were shot in a $2,000 studio. I'm absolutely blown away.", results: ["3 Photos In", "20 Portraits Out"] },
+      { name: "Emily Carter", role: "Mom of Sophia, 1 month", text: "Quoted $750 by a local photographer. Paid $29 here and got 20 photos that look better. I'm not joking.", results: ["Saved $721", "Better Than Studio"] },
+      { name: "Megan Wilson", role: "Mom of Emma, 6 weeks", text: "Ordered at 11pm while feeding her. Photos were done before she fell back asleep. I ordered a canvas print the same night.", results: ["Done in Minutes", "Canvas Ordered"] },
+      { name: "Kayla Anderson", role: "Mom of Elijah, 4 weeks", text: "The 4K resolution is no joke. I printed an 18x24 canvas and it looks like a professional studio shot hanging in our living room.", results: ["4K Resolution 🖼️", "18x24 Canvas"] },
+      { name: "Stephanie White", role: "Mom of James, 1 month", text: "I'm a photographer myself and I was ready to criticize everything. I can't find a single flaw. The lighting alone is stunning.", results: ["Photographer Approved", "Flawless Lighting"] },
+    ];
+    const avatarColors = ['#ff4d6d', '#e05cb0', '#7c6cf0', '#3b9cf5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+    let ctIndex = 0;
+    function renderCt() {
+      const carousel = document.getElementById('ctCarousel');
+      const dotsEl = document.getElementById('ctDots');
+      const item = checkoutTestimonials[ctIndex];
+      const initials = item.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      const color = avatarColors[item.name.charCodeAt(0) % avatarColors.length];
+      carousel.innerHTML = `<div class="ct-slide"><div class="ct-user"><div class="ct-avatar" style="background:${color};">${initials}</div><div class="ct-name">${item.name}</div><div class="ct-role">${item.role}</div><div class="ct-stars">⭐⭐⭐⭐⭐</div></div><div class="ct-body"><p class="ct-quote">"${item.text}"</p><div class="ct-results">${item.results.map(r => `<span class="ct-result-badge">${r}</span>`).join('')}</div></div></div>`;
+      if (dotsEl.children.length === 0) { checkoutTestimonials.forEach((_, i) => { const dot = document.createElement('div'); dot.className = 'ct-dot'; dot.addEventListener('click', () => { ctIndex = i; renderCt(); }); dotsEl.appendChild(dot); }); }
+      Array.from(dotsEl.children).forEach((d, i) => d.className = i === ctIndex ? 'ct-dot active' : 'ct-dot');
+    }
+    document.getElementById('ctNext').addEventListener('click', () => { ctIndex = (ctIndex + 1) % checkoutTestimonials.length; renderCt(); });
+    document.getElementById('ctPrev').addEventListener('click', () => { ctIndex = (ctIndex - 1 + checkoutTestimonials.length) % checkoutTestimonials.length; renderCt(); });
+    document.addEventListener('DOMContentLoaded', () => { renderCt(); setInterval(() => { ctIndex = (ctIndex + 1) % checkoutTestimonials.length; renderCt(); }, 5000); });
+
+    // ===== PRICING =====
+    const plans = { starter: { name: 'Starter — 10 Photos', price: 19.00 }, classic: { name: 'Classic — 20 Photos', price: 29.00 }, premium: { name: 'Premium — 30 Photos', price: 39.00 } };
+    const bumpPrice = 3.00;
+    let basePrice = 39.00;
+    const urlParams = new URLSearchParams(window.location.search);
+    const plan = urlParams.get('plano') || 'premium';
+    if (plans[plan]) { basePrice = plans[plan].price; document.getElementById('plan-name').innerText = plans[plan].name; }
+    document.getElementById('plan-price').innerText = `$${basePrice.toFixed(2)}`;
+    updateTotal(false);
+
+    function toggleBump() {
+      const isChecked = document.getElementById('bumpCheck').checked;
+      document.getElementById('bumpLabel').classList.toggle('checked', isChecked);
+      document.getElementById('bump-line').style.display = isChecked ? 'flex' : 'none';
+      updateTotal(isChecked);
+      syncBumpToggleBtn(isChecked);
+    }
+
+    function toggleBumpFromSummary() {
+      const cb = document.getElementById('bumpCheck');
+      cb.checked = !cb.checked;
+      toggleBump();
+    }
+
+    function syncBumpToggleBtn(isChecked) {
+      const btn = document.getElementById('bump-toggle-btn');
+      if (!btn) return;
+      if (isChecked) {
+        btn.textContent = '✓';
+        btn.style.background = '#fff7ed';
+        btn.style.color = '#d97706';
+        btn.style.borderColor = '#d97706';
+        btn.title = 'Remove this item';
+      } else {
+        btn.textContent = '+';
+        btn.style.background = '#f0fdf4';
+        btn.style.color = '#16a34a';
+        btn.style.borderColor = '#16a34a';
+        btn.title = 'Add this item';
+        document.getElementById('bump-line').style.display = 'flex';
+      }
+    }
+    function updateTotal(hasBump = true) { document.getElementById('total-price').innerText = `$${(basePrice + (hasBump ? bumpPrice : 0)).toFixed(2)}`; }
+
+    // ── Stripe Elements initialization ────────────────────────────────────────────
+    const STRIPE_PK = 'pk_live_51S7jFvGoYUc0liSkaYyxYiwdQslPYEhVxZZ0wsrOIfcHuBP06A4v5bph0kQLEyYgxHSeFviLWQa5luV6IuR3rfqA00BRKtxdSd';
+    const stripeClient = Stripe(STRIPE_PK);
+    const elements = stripeClient.elements();
+    const cardElement = elements.create('card', {
+      style: {
+        base: {
+          fontFamily: 'Inter, sans-serif',
+          fontSize: '15px',
+          color: '#2b2b2b',
+          '::placeholder': { color: '#aab7c4' }
+        },
+        invalid: { color: '#ef4444', iconColor: '#ef4444' }
+      }
+    });
+    cardElement.mount('#card-element');
+    cardElement.on('change', ({ error }) => {
+      document.getElementById('card-errors').textContent = error ? error.message : '';
+      document.getElementById('card-element').style.borderColor = error ? '#ef4444' : '#e2e8f0';
+    });
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    async function processPurchase() {
+      const btn = document.getElementById('btn-buy');
+      const customerName = document.getElementById('cashbackName')?.value.trim() || '';
+      const customerEmail = document.getElementById('cashbackEmail')?.value.trim() || '';
+
+      // Basic validation
+      if (!customerEmail || !customerEmail.includes('@')) {
+        document.getElementById('cashbackEmail')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('card-errors').textContent = 'Please enter a valid email address.';
+        return;
+      }
+
+      btn.innerHTML = '⌛ Processing Payment...';
+      btn.style.opacity = '0.75';
+      btn.disabled = true;
+      document.getElementById('card-errors').textContent = '';
+
+      const hasBump = document.getElementById('bumpCheck')?.checked ?? true;
+      const planName = plan || 'premium';
+
+      try {
+        // ── Step 1: Create PaymentIntent via Netlify Function ──────────────
+        const piRes = await fetch('/.netlify/functions/create-payment-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plan: planName, hasBump, customerEmail, customerName })
+        });
+
+        if (!piRes.ok) throw new Error('Could not initialize payment. Please try again.');
+        const { clientSecret, customerId, intentId } = await piRes.json();
+
+        // ── Step 2: Confirm card payment with Stripe.js ────────────────────
+        const { error, paymentIntent } = await stripeClient.confirmCardPayment(clientSecret, {
+          payment_method: {
+            card: cardElement,
+            billing_details: { name: customerName, email: customerEmail }
+          },
+          receipt_email: customerEmail
+        });
+
+        if (error) {
+          document.getElementById('card-errors').textContent = error.message;
+          btn.innerHTML = 'Complete Payment 🚀';
+          btn.style.opacity = '1';
+          btn.disabled = false;
+          return;
+        }
+
+        // ── Step 3: Payment confirmed — save order to Supabase ─────────────
+        const pmId = paymentIntent.payment_method;
+
+        localStorage.setItem('snapi_customer_name', customerName);
+        localStorage.setItem('snapi_customer_email', customerEmail);
+        localStorage.setItem('snapi_plan', planName);
+
+        const order = await saveOrderToSupabase({
+          customerName,
+          customerEmail,
+          plan: planName,
+          basePrice: basePrice,
+          bumpAdded: hasBump,
+          totalPaid: basePrice + (hasBump ? bumpPrice : 0),
+          stripePaymentIntent: intentId,
+          stripeCustomerId: customerId,
+          stripePaymentMethod: pmId,
+          themesSelected: JSON.parse(localStorage.getItem('snapi_themes') || '[]'),
+          babyPhotoUrls: []
+        });
+
+        if (order) {
+          localStorage.setItem('snapi_order_id', order.id);
+          localStorage.setItem('snapi_order_number', order.order_number);
+        }
+
+        // ── Step 4: Redirect to upsell ────────────────────────────────────
+        btn.innerHTML = '✅ Payment Approved! Redirecting...';
+        const totalPaid = (basePrice + (hasBump ? bumpPrice : 0)).toFixed(2);
+        window.location.href = 'upsell.html'
+          + '?payment_method=' + encodeURIComponent(pmId)
+          + '&customer=' + encodeURIComponent(customerId || '')
+          + '&email=' + encodeURIComponent(customerEmail)
+          + '&total=' + encodeURIComponent(totalPaid)
+          + (order ? '&order_id=' + order.id : '');
+
+      } catch (err) {
+        console.error('Payment error:', err);
+        document.getElementById('card-errors').textContent = err.message || 'Payment failed. Please try again.';
+        btn.innerHTML = 'Complete Payment 🚀';
+        btn.style.opacity = '1';
+        btn.disabled = false;
+      }
+    }
+  </script>
+
+  <!-- ===== EXIT INTENT POPUP ===== -->
+  <div id="exitPopup"
+    style="display:none; position:fixed; inset:0; z-index:99999; align-items:center; justify-content:center;">
+    <!-- Overlay -->
+    <div id="exitOverlay" onclick="closeExitPopup()"
+      style="position:absolute; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px);"></div>
+
+    <!-- Card -->
+    <div id="exitCard" style="
     position:relative; z-index:2;
     background: linear-gradient(145deg, #1a0a2e, #2d0a4e);
     border-radius: 24px;
@@ -802,53 +1385,61 @@ async function processPurchase() {
     animation: exitSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   ">
 
-    <!-- Close btn -->
-    <button onclick="closeExitPopup()" style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,0.1);border:none;color:white;width:32px;height:32px;border-radius:50%;font-size:1rem;cursor:pointer;z-index:3;display:flex;align-items:center;justify-content:center;">✕</button>
+      <!-- Close btn -->
+      <button onclick="closeExitPopup()"
+        style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,0.1);border:none;color:white;width:32px;height:32px;border-radius:50%;font-size:1rem;cursor:pointer;z-index:3;display:flex;align-items:center;justify-content:center;">✕</button>
 
-    <!-- Top ribbon -->
-    <div style="background:linear-gradient(90deg,#ff4d6d,#e8003d); padding:14px 20px; text-align:center;">
-      <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.8);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Wait! Don't go yet...</div>
-      <div style="font-size:1.2rem;font-weight:900;color:white;">Your baby's memories are still here</div>
-    </div>
-
-    <!-- Body -->
-    <div style="padding:24px 28px;">
-
-      <!-- Stars + message -->
-      <div style="text-align:center; margin-bottom:18px;">
-        <div style="font-size:1.3rem;color:#f5c518;margin-bottom:8px;">★★★★★</div>
-        <p style="color:#e2e8f0;font-size:0.88rem;line-height:1.6;margin:0;">
-          We noticed you're leaving. As a special gift,<br>
-          <strong style="color:#f5c518;">we reserved a secret discount just for you.</strong>
-        </p>
+      <!-- Top ribbon -->
+      <div style="background:linear-gradient(90deg,#ff4d6d,#e8003d); padding:14px 20px; text-align:center;">
+        <div
+          style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.8);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">
+          Wait! Don't go yet...</div>
+        <div style="font-size:1.2rem;font-weight:900;color:white;">Your baby's memories are still here</div>
       </div>
 
-      <!-- SCRATCH CARD -->
-      <div id="scratchWrapper" style="position:relative; margin:0 auto 20px; width:100%; max-width:340px;">
-        <div style="background:#f0fdf4;border:3px dashed #22c55e;border-radius:16px;padding:18px;text-align:center;position:relative;">
-          <div style="font-size:0.72rem;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Scratch to reveal your discount</div>
+      <!-- Body -->
+      <div style="padding:24px 28px;">
 
-          <!-- Prize (hidden under canvas) -->
-          <div id="scratchPrize" style="padding:16px 0;">
-            <div style="font-size:3.5rem;font-weight:900;color:#ff4d6d;line-height:1;">40%</div>
-            <div style="font-size:1.1rem;font-weight:800;color:#2b2b2b;">OFF your order</div>
-            <div style="font-size:0.78rem;color:#666;margin-top:4px;">Applied automatically at checkout</div>
-          </div>
-
-          <!-- Canvas overlay (scratch effect) -->
-          <canvas id="scratchCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:14px;cursor:crosshair;touch-action:none;"></canvas>
+        <!-- Stars + message -->
+        <div style="text-align:center; margin-bottom:18px;">
+          <div style="font-size:1.3rem;color:#f5c518;margin-bottom:8px;">★★★★★</div>
+          <p style="color:#e2e8f0;font-size:0.88rem;line-height:1.6;margin:0;">
+            We noticed you're leaving. As a special gift,<br>
+            <strong style="color:#f5c518;">we reserved a secret discount just for you.</strong>
+          </p>
         </div>
-      </div>
 
-      <!-- Discount applied (hidden until revealed) -->
-      <div id="discountApplied" style="display:none;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;border-radius:14px;padding:16px;text-align:center;margin-bottom:16px;animation:popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-        <div style="font-size:1.8rem;margin-bottom:4px;">🎉</div>
-        <div style="font-size:1rem;font-weight:800;color:#166534;">40% Discount Applied!</div>
-        <div id="discountDetails" style="font-size:0.82rem;color:#15803d;margin-top:4px;"></div>
-      </div>
+        <!-- SCRATCH CARD -->
+        <div id="scratchWrapper" style="position:relative; margin:0 auto 20px; width:100%; max-width:340px;">
+          <div
+            style="background:#f0fdf4;border:3px dashed #22c55e;border-radius:16px;padding:18px;text-align:center;position:relative;">
+            <div
+              style="font-size:0.72rem;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">
+              Scratch to reveal your discount</div>
 
-      <!-- CTA Button -->
-      <button id="exitCtaBtn" onclick="applyDiscountAndClose()" style="
+            <!-- Prize (hidden under canvas) -->
+            <div id="scratchPrize" style="padding:16px 0;">
+              <div style="font-size:3.5rem;font-weight:900;color:#ff4d6d;line-height:1;">40%</div>
+              <div style="font-size:1.1rem;font-weight:800;color:#2b2b2b;">OFF your order</div>
+              <div style="font-size:0.78rem;color:#666;margin-top:4px;">Applied automatically at checkout</div>
+            </div>
+
+            <!-- Canvas overlay (scratch effect) -->
+            <canvas id="scratchCanvas"
+              style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:14px;cursor:crosshair;touch-action:none;"></canvas>
+          </div>
+        </div>
+
+        <!-- Discount applied (hidden until revealed) -->
+        <div id="discountApplied"
+          style="display:none;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;border-radius:14px;padding:16px;text-align:center;margin-bottom:16px;animation:popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+          <div style="font-size:1.8rem;margin-bottom:4px;">🎉</div>
+          <div style="font-size:1rem;font-weight:800;color:#166534;">40% Discount Applied!</div>
+          <div id="discountDetails" style="font-size:0.82rem;color:#15803d;margin-top:4px;"></div>
+        </div>
+
+        <!-- CTA Button -->
+        <button id="exitCtaBtn" onclick="applyDiscountAndClose()" style="
         width:100%; padding:16px;
         background:linear-gradient(135deg,#f5c518,#d4a017);
         color:#1a0a2e; border:none; border-radius:12px;
@@ -857,248 +1448,286 @@ async function processPurchase() {
         transition:all 0.2s; text-transform:uppercase; letter-spacing:0.5px;
         margin-bottom:10px;
       ">
-        Claim My 40% Discount Now
-      </button>
-      <div id="exitNoThanks" style="text-align:center;">
-        <button onclick="closeExitPopup()" style="background:none;border:none;color:#64748b;font-size:0.78rem;cursor:pointer;text-decoration:underline;">No thanks, I'll pay full price</button>
-      </div>
-
-      <!-- Urgency -->
-      <div style="text-align:center;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);">
-        <div style="font-size:0.72rem;color:#94a3b8;">This offer expires when you leave this page</div>
-        <div style="font-size:0.88rem;font-weight:700;color:#ff4d6d;margin-top:4px;">
-          Expires in: <span id="exitCountdown" style="font-variant-numeric:tabular-nums;">05:00</span>
+          Claim My 40% Discount Now
+        </button>
+        <div id="exitNoThanks" style="text-align:center;">
+          <button onclick="closeExitPopup()"
+            style="background:none;border:none;color:#64748b;font-size:0.78rem;cursor:pointer;text-decoration:underline;">No
+            thanks, I'll pay full price</button>
         </div>
-      </div>
 
+        <!-- Urgency -->
+        <div style="text-align:center;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);">
+          <div style="font-size:0.72rem;color:#94a3b8;">This offer expires when you leave this page</div>
+          <div style="font-size:0.88rem;font-weight:700;color:#ff4d6d;margin-top:4px;">
+            Expires in: <span id="exitCountdown" style="font-variant-numeric:tabular-nums;">05:00</span>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
-</div>
 
-<style>
-@keyframes exitSlideIn {
-  from { opacity:0; transform:scale(0.7) translateY(40px); }
-  to   { opacity:1; transform:scale(1)   translateY(0); }
-}
-@keyframes popIn {
-  from { opacity:0; transform:scale(0.8); }
-  to   { opacity:1; transform:scale(1); }
-}
-#exitCtaBtn:hover { transform:translateY(-2px); box-shadow:0 12px 30px rgba(245,197,24,0.55); }
-/* Mobile responsiveness for popup */
-@media (max-width: 520px) {
-  #exitCard { border-radius: 18px !important; }
-  #exitCard > div:last-child { padding: 16px 16px !important; }
-  #exitCard .sb-headline-big { font-size: 1.8rem !important; }
-  #scratchWrapper { max-width: 100% !important; }
-  #exitCtaBtn { font-size: 0.9rem !important; padding: 14px !important; }
-}
-</style>
+  <style>
+    @keyframes exitSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.7) translateY(40px);
+      }
 
-<script>
-// ===== EXIT INTENT =====
-let exitShown = false;
-let exitTimerInterval = null;
-let discountRevealed = false;
-let intentToLeave = false;
-
-// MOBILE: Back button detection (most common mobile exit behavior)
-// Push a fake state so pressing Back triggers popstate instead of leaving
-history.pushState({ snapiExitGuard: true }, '');
-window.addEventListener('popstate', function(e) {
-  if (!exitShown) {
-    exitShown = true;
-    // Push state again to prevent actually navigating back
-    history.pushState({ snapiExitGuard: true }, '');
-    showExitPopup();
-  }
-});
-
-// DESKTOP: Fires when user tries to close tab / navigate away
-window.addEventListener('beforeunload', function(e) {
-  if (!exitShown) {
-    intentToLeave = true;
-    e.preventDefault();
-    e.returnValue = '';
-  }
-});
-
-// DESKTOP: User clicked "Stay" on browser dialog → show our popup
-window.addEventListener('focus', function() {
-  if (intentToLeave && !exitShown) {
-    intentToLeave = false;
-    exitShown = true;
-    setTimeout(showExitPopup, 300);
-  }
-});
-
-// MOBILE fallback: user switches to another app/tab and comes back
-document.addEventListener('visibilitychange', function() {
-  if (document.visibilityState === 'hidden' && !exitShown) {
-    intentToLeave = true;
-  }
-  if (document.visibilityState === 'visible' && intentToLeave && !exitShown) {
-    intentToLeave = false;
-    exitShown = true;
-    setTimeout(showExitPopup, 400);
-  }
-});
-
-function showExitPopup() {
-  const popup = document.getElementById('exitPopup');
-  popup.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-  initScratchCard();
-  startExitCountdown();
-}
-
-function closeExitPopup() {
-  document.getElementById('exitPopup').style.display = 'none';
-  document.body.style.overflow = '';
-  if (exitTimerInterval) clearInterval(exitTimerInterval);
-}
-
-// ===== SCRATCH CARD =====
-function initScratchCard() {
-  const canvas = document.getElementById('scratchCanvas');
-  const wrapper = canvas.parentElement;
-  canvas.width  = wrapper.offsetWidth;
-  canvas.height = wrapper.offsetHeight;
-
-  const ctx = canvas.getContext('2d');
-
-  // Fill with gold gradient
-  const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  grad.addColorStop(0,   '#f5c518');
-  grad.addColorStop(0.5, '#d4a017');
-  grad.addColorStop(1,   '#f5e27a');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Hint text
-  ctx.fillStyle = 'rgba(90,58,0,0.7)';
-  ctx.font = 'bold 18px Inter, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('Scratch here!', canvas.width/2, canvas.height/2);
-
-  let isDrawing = false;
-  let revealChecked = false;
-
-  function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width  / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const src = e.touches ? e.touches[0] : e;
-    return { x: (src.clientX - rect.left)*scaleX, y: (src.clientY - rect.top)*scaleY };
-  }
-
-  function scratch(pos) {
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.beginPath();
-    ctx.arc(pos.x, pos.y, 28, 0, Math.PI*2);
-    ctx.fill();
-    if (!revealChecked) checkReveal(ctx, canvas);
-  }
-
-  canvas.addEventListener('mousedown',  function(e) { isDrawing=true; scratch(getPos(e)); });
-  canvas.addEventListener('mousemove',  function(e) { if (isDrawing) scratch(getPos(e)); });
-  canvas.addEventListener('mouseup',    function()  { isDrawing=false; });
-  canvas.addEventListener('touchstart', function(e) { e.preventDefault(); isDrawing=true; scratch(getPos(e)); }, {passive:false});
-  canvas.addEventListener('touchmove',  function(e) { e.preventDefault(); if(isDrawing) scratch(getPos(e)); }, {passive:false});
-  canvas.addEventListener('touchend',   function()  { isDrawing=false; });
-}
-
-function checkReveal(ctx, canvas) {
-  const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-  let transparent = 0;
-  for (let i=3; i<data.length; i+=4) { if (data[i] < 128) transparent++; }
-  const pct = transparent / (canvas.width * canvas.height);
-  if (pct > 0.45 && !discountRevealed) {
-    discountRevealed = true;
-    setTimeout(revealDiscount, 300);
-  }
-}
-
-function revealDiscount() {
-  // Fade out canvas
-  const canvas = document.getElementById('scratchCanvas');
-  canvas.style.transition = 'opacity 0.6s';
-  canvas.style.opacity = '0';
-  setTimeout(function() { canvas.style.display='none'; }, 600);
-
-  // Show confirmed message
-  document.getElementById('discountApplied').style.display = 'block';
-
-  // Update CTA
-  const btn = document.getElementById('exitCtaBtn');
-  btn.textContent = 'Apply My 40% Discount';
-  btn.style.background = 'linear-gradient(135deg,#22c55e,#15803d)';
-  btn.style.color = 'white';
-
-  // Calculate discount
-  const discounted = (basePrice * 0.6).toFixed(2);
-  document.getElementById('discountDetails').textContent =
-    'Your price: $' + discounted + ' (was $' + basePrice.toFixed(2) + ')';
-}
-
-function applyDiscountAndClose() {
-  // Aplica 40% de desconto no resumo visual (o desconto real é aplicado via Stripe Coupon ou Price ID separado)
-  const oldBase = basePrice;
-  basePrice = parseFloat((basePrice * 0.6).toFixed(2));
-
-  // Atualiza exibição de preço
-  document.getElementById('plan-price').innerText = '$' + basePrice.toFixed(2);
-
-  // Adiciona linha de desconto no resumo
-  let discLine = document.getElementById('discount-line');
-  if (!discLine) {
-    discLine = document.createElement('div');
-    discLine.id = 'discount-line';
-    discLine.className = 'summary-item';
-    discLine.style.color = '#22c55e';
-    discLine.style.fontWeight = '700';
-    discLine.innerHTML = '<span>40% Discount Applied</span><strong style="color:#22c55e;">-$' + (oldBase - basePrice).toFixed(2) + '</strong>';
-    const totalEl = document.querySelector('.summary-item.total');
-    totalEl.parentNode.insertBefore(discLine, totalEl);
-  }
-
-  // Recalcular total
-  const hasBump = document.getElementById('bumpCheck').checked;
-  updateTotal(hasBump);
-
-  // Flash no total
-  const totalEl = document.getElementById('total-price');
-  totalEl.style.transition = 'color 0.3s';
-  totalEl.style.color = '#22c55e';
-  setTimeout(function() { totalEl.style.color = ''; }, 2000);
-
-  // Atualizar botão
-  document.getElementById('btn-buy').innerHTML = 'Complete Payment — 40% OFF Applied ✓';
-
-  closeExitPopup();
-
-  // Scroll para o botão
-  document.getElementById('btn-buy').scrollIntoView({behavior:'smooth'});
-}
-
-// ===== COUNTDOWN =====
-function startExitCountdown() {
-  let secs = 300; // 5 min
-  exitTimerInterval = setInterval(function() {
-    secs--;
-    if (secs <= 0) {
-      clearInterval(exitTimerInterval);
-      closeExitPopup();
-      return;
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
     }
-    const m = Math.floor(secs/60).toString().padStart(2,'0');
-    const s = (secs%60).toString().padStart(2,'0');
-    const el = document.getElementById('exitCountdown');
-    if (el) el.textContent = m + ':' + s;
-  }, 1000);
-}
-</script>
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    #exitCtaBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(245, 197, 24, 0.55);
+    }
+
+    /* Mobile responsiveness for popup */
+    @media (max-width: 520px) {
+      #exitCard {
+        border-radius: 18px !important;
+      }
+
+      #exitCard>div:last-child {
+        padding: 16px 16px !important;
+      }
+
+      #exitCard .sb-headline-big {
+        font-size: 1.8rem !important;
+      }
+
+      #scratchWrapper {
+        max-width: 100% !important;
+      }
+
+      #exitCtaBtn {
+        font-size: 0.9rem !important;
+        padding: 14px !important;
+      }
+    }
+  </style>
+
+  <script>
+    // ===== EXIT INTENT =====
+    let exitShown = false;
+    let exitTimerInterval = null;
+    let discountRevealed = false;
+    let intentToLeave = false;
+
+    // MOBILE: Back button detection (most common mobile exit behavior)
+    // Push a fake state so pressing Back triggers popstate instead of leaving
+    history.pushState({ snapiExitGuard: true }, '');
+    window.addEventListener('popstate', function (e) {
+      if (!exitShown) {
+        exitShown = true;
+        // Push state again to prevent actually navigating back
+        history.pushState({ snapiExitGuard: true }, '');
+        showExitPopup();
+      }
+    });
+
+    // DESKTOP: Fires when user tries to close tab / navigate away
+    window.addEventListener('beforeunload', function (e) {
+      if (!exitShown) {
+        intentToLeave = true;
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+
+    // DESKTOP: User clicked "Stay" on browser dialog → show our popup
+    window.addEventListener('focus', function () {
+      if (intentToLeave && !exitShown) {
+        intentToLeave = false;
+        exitShown = true;
+        setTimeout(showExitPopup, 300);
+      }
+    });
+
+    // MOBILE fallback: user switches to another app/tab and comes back
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden' && !exitShown) {
+        intentToLeave = true;
+      }
+      if (document.visibilityState === 'visible' && intentToLeave && !exitShown) {
+        intentToLeave = false;
+        exitShown = true;
+        setTimeout(showExitPopup, 400);
+      }
+    });
+
+    function showExitPopup() {
+      const popup = document.getElementById('exitPopup');
+      popup.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      initScratchCard();
+      startExitCountdown();
+    }
+
+    function closeExitPopup() {
+      document.getElementById('exitPopup').style.display = 'none';
+      document.body.style.overflow = '';
+      if (exitTimerInterval) clearInterval(exitTimerInterval);
+    }
+
+    // ===== SCRATCH CARD =====
+    function initScratchCard() {
+      const canvas = document.getElementById('scratchCanvas');
+      const wrapper = canvas.parentElement;
+      canvas.width = wrapper.offsetWidth;
+      canvas.height = wrapper.offsetHeight;
+
+      const ctx = canvas.getContext('2d');
+
+      // Fill with gold gradient
+      const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      grad.addColorStop(0, '#f5c518');
+      grad.addColorStop(0.5, '#d4a017');
+      grad.addColorStop(1, '#f5e27a');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Hint text
+      ctx.fillStyle = 'rgba(90,58,0,0.7)';
+      ctx.font = 'bold 18px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Scratch here!', canvas.width / 2, canvas.height / 2);
+
+      let isDrawing = false;
+      let revealChecked = false;
+
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const src = e.touches ? e.touches[0] : e;
+        return { x: (src.clientX - rect.left) * scaleX, y: (src.clientY - rect.top) * scaleY };
+      }
+
+      function scratch(pos) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 28, 0, Math.PI * 2);
+        ctx.fill();
+        if (!revealChecked) checkReveal(ctx, canvas);
+      }
+
+      canvas.addEventListener('mousedown', function (e) { isDrawing = true; scratch(getPos(e)); });
+      canvas.addEventListener('mousemove', function (e) { if (isDrawing) scratch(getPos(e)); });
+      canvas.addEventListener('mouseup', function () { isDrawing = false; });
+      canvas.addEventListener('touchstart', function (e) { e.preventDefault(); isDrawing = true; scratch(getPos(e)); }, { passive: false });
+      canvas.addEventListener('touchmove', function (e) { e.preventDefault(); if (isDrawing) scratch(getPos(e)); }, { passive: false });
+      canvas.addEventListener('touchend', function () { isDrawing = false; });
+    }
+
+    function checkReveal(ctx, canvas) {
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let transparent = 0;
+      for (let i = 3; i < data.length; i += 4) { if (data[i] < 128) transparent++; }
+      const pct = transparent / (canvas.width * canvas.height);
+      if (pct > 0.45 && !discountRevealed) {
+        discountRevealed = true;
+        setTimeout(revealDiscount, 300);
+      }
+    }
+
+    function revealDiscount() {
+      // Fade out canvas
+      const canvas = document.getElementById('scratchCanvas');
+      canvas.style.transition = 'opacity 0.6s';
+      canvas.style.opacity = '0';
+      setTimeout(function () { canvas.style.display = 'none'; }, 600);
+
+      // Show confirmed message
+      document.getElementById('discountApplied').style.display = 'block';
+
+      // Update CTA
+      const btn = document.getElementById('exitCtaBtn');
+      btn.textContent = 'Apply My 40% Discount';
+      btn.style.background = 'linear-gradient(135deg,#22c55e,#15803d)';
+      btn.style.color = 'white';
+
+      // Calculate discount
+      const discounted = (basePrice * 0.6).toFixed(2);
+      document.getElementById('discountDetails').textContent =
+        'Your price: $' + discounted + ' (was $' + basePrice.toFixed(2) + ')';
+    }
+
+    function applyDiscountAndClose() {
+      // Aplica 40% de desconto no resumo visual (o desconto real é aplicado via Stripe Coupon ou Price ID separado)
+      const oldBase = basePrice;
+      basePrice = parseFloat((basePrice * 0.6).toFixed(2));
+
+      // Atualiza exibição de preço
+      document.getElementById('plan-price').innerText = '$' + basePrice.toFixed(2);
+
+      // Adiciona linha de desconto no resumo
+      let discLine = document.getElementById('discount-line');
+      if (!discLine) {
+        discLine = document.createElement('div');
+        discLine.id = 'discount-line';
+        discLine.className = 'summary-item';
+        discLine.style.color = '#22c55e';
+        discLine.style.fontWeight = '700';
+        discLine.innerHTML = '<span>40% Discount Applied</span><strong style="color:#22c55e;">-$' + (oldBase - basePrice).toFixed(2) + '</strong>';
+        const totalEl = document.querySelector('.summary-item.total');
+        totalEl.parentNode.insertBefore(discLine, totalEl);
+      }
+
+      // Recalcular total
+      const hasBump = document.getElementById('bumpCheck').checked;
+      updateTotal(hasBump);
+
+      // Flash no total
+      const totalEl = document.getElementById('total-price');
+      totalEl.style.transition = 'color 0.3s';
+      totalEl.style.color = '#22c55e';
+      setTimeout(function () { totalEl.style.color = ''; }, 2000);
+
+      // Atualizar botão
+      document.getElementById('btn-buy').innerHTML = 'Complete Payment — 40% OFF Applied ✓';
+
+      closeExitPopup();
+
+      // Scroll para o botão
+      document.getElementById('btn-buy').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ===== COUNTDOWN =====
+    function startExitCountdown() {
+      let secs = 300; // 5 min
+      exitTimerInterval = setInterval(function () {
+        secs--;
+        if (secs <= 0) {
+          clearInterval(exitTimerInterval);
+          closeExitPopup();
+          return;
+        }
+        const m = Math.floor(secs / 60).toString().padStart(2, '0');
+        const s = (secs % 60).toString().padStart(2, '0');
+        const el = document.getElementById('exitCountdown');
+        if (el) el.textContent = m + ':' + s;
+      }, 1000);
+    }
+  </script>
 
 </body>
+
 </html>

@@ -3,8 +3,8 @@
 // Cole sua anon key abaixo (Settings → API no Supabase)
 // ============================================================
 
-const SUPABASE_URL  = 'https://ellkwqmnidcimosllccv.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsbGt3cW1uaWRjaW1vc2xsY2N2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0OTgyMTUsImV4cCI6MjA5MzA3NDIxNX0.9TAoP7h3KdrHYhU_ujEAAG1eu_plCLgAOJZu3uLci24';
+const SUPABASE_URL  = 'https://iuznydllmsfejuypddfo.supabase.co';
+const SUPABASE_ANON = 'sb_publishable__qRTExvaQurG4cZo7XI-bw_72X0ROmo';
 
 // ============================================================
 // Inicializa o cliente Supabase (usa CDN no HTML)
@@ -71,8 +71,8 @@ async function updateOrderUpsell(orderId, { upsellAdded, downsellAdded, extraPai
     .from('orders')
     .update({
       upsell_added:   upsellAdded   ?? false,
-      downsell_added: downsellAdded ?? false,
-      total_paid:     db.rpc('increment', { row_id: orderId, amount: extraPaid })
+      downsell_added: downsellAdded ?? false
+      // total_paid é atualizado pelo stripe-webhook.js via evento payment_intent.succeeded
     })
     .eq('id', orderId);
 

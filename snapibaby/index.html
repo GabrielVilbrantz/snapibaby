@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SnapiBaby | AI Newborn Photography at Home — Studio Quality, No Studio Needed</title>
+<title>SnapiBaby | AI Newborn Photography at Home | Studio Quality, No Studio Needed</title>
 <meta name="description" content="Send a few phone photos of your newborn. Get back stunning, studio-quality portraits in minutes. No studio, no photographer. See your baby's result before you pay a cent.">
 <meta name="keywords" content="newborn photography at home, AI newborn photos, newborn photo editing, studio quality baby photos, professional newborn portraits, newborn photography without studio">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://snapibaby.netlify.app/">
-<meta property="og:title" content="SnapiBaby | Studio-Quality Newborn Photos — From Your Couch">
+<meta property="og:title" content="SnapiBaby | Studio-Quality Newborn Photos from Your Couch">
 <meta property="og:description" content="Send phone photos. Get back stunning newborn portraits in minutes. See the result before you pay a single cent.">
-<meta property="og:image" content="https://snapibaby.netlify.app/og-image.jpg">
+<meta property="og:image" content="https://snapibaby.netlify.app/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@snapibaby">
 <meta name="twitter:title" content="SnapiBaby | Studio-Quality Newborn Photos at Home">
 <meta name="twitter:description" content="Send phone photos. Get back stunning newborn portraits in minutes. Only pay if you love it.">
-<meta name="twitter:image" content="https://snapibaby.netlify.app/og-image.jpg">
+<meta name="twitter:image" content="https://snapibaby.netlify.app/og-image.png">
 <link rel="canonical" href="https://snapibaby.netlify.app/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -34,11 +34,11 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '977138755178682');
+fbq('init', '1480009823730507');
 fbq('track', 'PageView');
 </script>
 <noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=977138755178682&ev=PageView&noscript=1"
+src="https://www.facebook.com/tr?id=1480009823730507&ev=PageView&noscript=1"
 /></noscript>
 <!-- End Meta Pixel Code -->
 <script type="application/ld+json">
@@ -52,8 +52,8 @@ src="https://www.facebook.com/tr?id=977138755178682&ev=PageView&noscript=1"
   "offers": {
     "@type": "AggregateOffer",
     "offerCount": "3",
-    "lowPrice": "29.00",
-    "highPrice": "59.00",
+    "lowPrice": "19.00",
+    "highPrice": "39.00",
     "priceCurrency": "USD",
     "priceValidUntil": "2026-12-31",
     "availability": "https://schema.org/InStock"
@@ -74,7 +74,7 @@ src="https://www.facebook.com/tr?id=977138755178682&ev=PageView&noscript=1"
   "name": "How to get AI newborn photos at home",
   "description": "Transform a simple phone photo of your newborn into a studio-quality AI portrait in 3 easy steps.",
   "totalTime": "PT8M",
-  "estimatedCost": { "@type": "MonetaryAmount", "currency": "USD", "value": "29" },
+  "estimatedCost": { "@type": "MonetaryAmount", "currency": "USD", "value": "19" },
   "step": [
     { "@type": "HowToStep", "position": 1, "name": "Upload your phone photo", "text": "Enter your baby's name and upload 1-3 regular phone photos of your newborn. No professional camera needed." },
     { "@type": "HowToStep", "position": 2, "name": "Choose a theme", "text": "Pick from 20+ professional themes including Princess, Astronaut, Safari, Fairy, Superhero and more." },
@@ -87,7 +87,7 @@ src="https://www.facebook.com/tr?id=977138755178682&ev=PageView&noscript=1"
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    { "@type": "Question", "name": "How much does a newborn photoshoot cost?", "acceptedAnswer": { "@type": "Answer", "text": "Traditional newborn studio sessions typically cost $600-$950+ including session fees and edited photos. SnapiBaby delivers studio-quality AI newborn portraits from just $29, with a free preview before you pay." } },
+    { "@type": "Question", "name": "How much does a newborn photoshoot cost?", "acceptedAnswer": { "@type": "Answer", "text": "Traditional newborn studio sessions typically cost $600-$950+ including session fees and edited photos. SnapiBaby delivers studio-quality AI newborn portraits from just $19, with a free preview before you pay." } },
     { "@type": "Question", "name": "Do I need a professional camera for AI newborn photos?", "acceptedAnswer": { "@type": "Answer", "text": "No. Any smartphone photo works. Our AI transforms even simple, low-light phone photos into professional studio-quality portraits." } },
     { "@type": "Question", "name": "How long does it take to get my AI newborn photos?", "acceptedAnswer": { "@type": "Answer", "text": "Your AI newborn portraits are ready in under 8 minutes after you upload your photo." } },
     { "@type": "Question", "name": "Can I see the result before I pay?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. SnapiBaby shows you a free watermarked preview of your baby's AI portrait before you pay a single cent." } },
@@ -257,36 +257,74 @@ a.tag-tema:hover {
   opacity: .82;
   transform: scale(1.04);
 }
+/* ===== SOCIAL PROOF NOTIFICATIONS ===== */
+#snapi-notif-container {
+  position: fixed; bottom: 24px; left: 20px;
+  z-index: 99999; display: flex; flex-direction: column-reverse;
+  gap: 10px; pointer-events: none; max-width: 320px;
+}
+@media (max-width: 480px) {
+  #snapi-notif-container { left: 10px; right: 10px; max-width: calc(100vw - 20px); bottom: 14px; }
+}
+.snapi-notif {
+  display: flex; align-items: center; gap: 12px;
+  background: white; border-radius: 14px; padding: 12px 16px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.07);
+  border-left: 4px solid #f43f75; pointer-events: all; cursor: pointer;
+  transform: translateX(-110%); opacity: 0;
+  transition: transform 0.45s cubic-bezier(.22,1,.36,1), opacity 0.35s ease;
+  will-change: transform, opacity; max-width: 320px;
+}
+.snapi-notif.visible { transform: translateX(0); opacity: 1; }
+.snapi-notif.hiding  { transform: translateX(-110%); opacity: 0; }
+.snapi-notif-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, #fff0f3, #ffe4ec);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; flex-shrink: 0; border: 2px solid #ffd6e0;
+}
+.snapi-notif-body { flex: 1; min-width: 0; }
+.snapi-notif-text { font-size: 0.83rem; font-weight: 600; color: #2d2d2d; line-height: 1.4; margin-bottom: 3px; }
+.snapi-notif-meta { font-size: 0.72rem; color: #aaa; font-weight: 500; }
+.snapi-notif-dot  { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; flex-shrink: 0; animation: snapi-pulse 1.5s infinite; }
+@keyframes snapi-pulse { 0%, 100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(1.3); } }
+.snapi-notif.type-transformation { border-left-color: #f472b6; }
+.snapi-notif.type-reaction       { border-left-color: #fb923c; }
+.snapi-notif.type-purchase       { border-left-color: #f43f75; }
+.snapi-notif.type-urgency        { border-left-color: #facc15; }
 </style>
 </head>
 <body>
+
+<!-- SOCIAL PROOF NOTIFICATION CONTAINER -->
+<div id="snapi-notif-container" aria-live="polite" aria-atomic="true"></div>
 
 <!-- ANNOUNCEMENT TICKER BAR -->
 <div id="announcementBar" aria-label="Promotional announcement">
   <div class="ticker-track" id="tickerTrack">
     <!-- Content duplicated for seamless loop -->
-    <span class="ticker-item">🔥 <span class="ticker-hot">LIMITED OFFER</span> — Up to <span class="ticker-highlight">40% OFF</span> today only</span>
+    <span class="ticker-item">🔥 <span class="ticker-hot">LIMITED OFFER:</span> Up to <span class="ticker-highlight">40% OFF</span> today only</span>
     <span class="ticker-sep">✦</span>
-    <span class="ticker-item">🍼 <span class="ticker-highlight">20+ Exclusive Themes</span> — Princess, Astronaut, Safari, Fairy &amp; more</span>
+    <span class="ticker-item">🍼 <span class="ticker-highlight">20+ Exclusive Themes:</span> Princess, Astronaut, Safari, Fairy &amp; more</span>
     <span class="ticker-sep">✦</span>
-    <span class="ticker-item">⚡ Ready <span class="ticker-highlight">in minutes</span> — Studio quality from your couch</span>
+    <span class="ticker-item">⚡ Ready <span class="ticker-highlight">in minutes.</span> Studio quality from your couch</span>
     <span class="ticker-sep">✦</span>
     <span class="ticker-item">💰 Save up to <span class="ticker-highlight">$741</span> vs. a traditional studio session</span>
     <span class="ticker-sep">✦</span>
-    <span class="ticker-item">🎁 Free watermark preview — <span class="ticker-highlight">only pay if you love it</span></span>
+    <span class="ticker-item">🎁 Free preview. <span class="ticker-highlight">Only pay if you love it</span></span>
     <span class="ticker-sep">✦</span>
     <span class="ticker-item">🌟 <span class="ticker-highlight">18,247 moms</span> have already created their baby's forever photos</span>
     <span class="ticker-sep">✦</span>
     <!-- Duplicate for seamless loop -->
-    <span class="ticker-item">🔥 <span class="ticker-hot">LIMITED OFFER</span> — Up to <span class="ticker-highlight">40% OFF</span> today only</span>
+    <span class="ticker-item">🔥 <span class="ticker-hot">LIMITED OFFER:</span> Up to <span class="ticker-highlight">40% OFF</span> today only</span>
     <span class="ticker-sep">✦</span>
-    <span class="ticker-item">🍼 <span class="ticker-highlight">20+ Exclusive Themes</span> — Princess, Astronaut, Safari, Fairy &amp; more</span>
+    <span class="ticker-item">🍼 <span class="ticker-highlight">20+ Exclusive Themes:</span> Princess, Astronaut, Safari, Fairy &amp; more</span>
     <span class="ticker-sep">✦</span>
-    <span class="ticker-item">⚡ Ready <span class="ticker-highlight">in minutes</span> — Studio quality from your couch</span>
+    <span class="ticker-item">⚡ Ready <span class="ticker-highlight">in minutes.</span> Studio quality from your couch</span>
     <span class="ticker-sep">✦</span>
     <span class="ticker-item">💰 Save up to <span class="ticker-highlight">$741</span> vs. a traditional studio session</span>
     <span class="ticker-sep">✦</span>
-    <span class="ticker-item">🎁 Free watermark preview — <span class="ticker-highlight">only pay if you love it</span></span>
+    <span class="ticker-item">🎁 Free preview. <span class="ticker-highlight">Only pay if you love it</span></span>
     <span class="ticker-sep">✦</span>
     <span class="ticker-item">🌟 <span class="ticker-highlight">18,247 moms</span> have already created their baby's forever photos</span>
     <span class="ticker-sep">✦</span>
@@ -324,27 +362,27 @@ a.tag-tema:hover {
   <section class="hero">
     <div class="container hero-container">
       <div class="hero-text">
-        <div class="badge-viral">✨ 18,247 moms already created their baby's forever photos</div>
+        <div class="badge-viral">✨ 18,247+ moms already preserved their baby's tiniest moments forever</div>
         <h1 class="seo-h1">AI Newborn Photography at Home — Studio-Quality Results, No Studio Needed</h1>
         <div class="hero-headline-block">
-          <span class="hl-line1">Studio-Quality Newborn</span>
-          <span class="hl-line2">Photos at Home</span>
+          <span class="hl-line1">The newborn phase disappears</span>
+          <span class="hl-line2">in weeks…</span>
         </div>
-        <h2 class="hero-visual-h2">Studio-quality portraits from simple phone photos —<br><span class="hero-highlight">without leaving your couch.</span></h2>
-        <p class="subtitle">Send a few phone photos. Get back stunning portraits in minutes. No studio, no photographer, no stress — and you <strong>see the result before you pay a single cent.</strong></p>
+        <h2 class="hero-visual-h2">Preserve it with studio-quality photos from home.<br><span class="hero-highlight">No stressful studio appointments.</span></h2>
+        <p class="subtitle">Turn simple phone photos into magical newborn portraits in minutes. No studio. No photographer. No $800+ bill. And you <strong>see the result before you pay a single cent.</strong></p>
         <div class="hero-cta-box" id="nome-do-bebe">
-          <div class="hero-urgency">🔴 This phase passes fast. Start here — 30 seconds.</div>
+          <div class="hero-urgency">🍼 Tiny fingers. Sleepy stretches. Newborn curls. This phase changes faster than most moms expect.</div>
           <label for="babyName">What's your baby's name?</label>
           <input type="text" id="babyName" placeholder="e.g. Sophia, Noah, Luna..." class="hero-input" />
-          <button id="btnStartMagic" class="btn-hero-cta animate-pulse">See your baby's photos — free preview ✨</button>
+          <button id="btnStartMagic" class="btn-hero-cta animate-pulse">See My Baby's Free Preview ✨</button>
           <div class="hero-trust-row">
-            <span>✓ Only pay if you love it</span>
-            <span>✓ Ready in minutes</span>
-            <span>✓ From $29 vs $800+ studio</span>
+            <span>✓ Preview before paying</span>
+            <span>✓ Studio-quality at home</span>
+            <span>✓ From $19 vs $800+ studio</span>
           </div>
         </div>
         <div class="hero-mini-review">
-          "Ordered at 11pm. Photos done before my next feed. Ordered a canvas the same night." — <strong>Megan W.</strong>
+          "Uploaded during feeding time. Finished before baby woke up again." <strong>~ Jessica W.</strong>
         </div>
       </div>
 
@@ -363,8 +401,8 @@ a.tag-tema:hover {
   <section class="comparison-section" id="comparacao">
     <div class="container">
       <div class="smart-choice-badge-wrap"><span class="smart-choice-badge">THE SMART CHOICE</span></div>
-      <h2 class="section-title text-center">Why moms are switching to SnapiBaby</h2>
-      <p class="comparison-subtitle text-center">Same studio-quality result. Zero stress for your baby. A fraction of the cost.</p>
+      <h2 class="section-title text-center">Why thousands of moms are skipping stressful newborn studios</h2>
+      <p class="comparison-subtitle text-center">Same newborn photography magic. Zero stress for your baby.</p>
       <div class="comparison-table-grid">
         <div class="comp-table-card comp-traditional">
           <div class="comp-table-header">
@@ -389,27 +427,61 @@ a.tag-tema:hover {
           <div class="comp-row"><span class="comp-label">Wait time</span><span class="comp-val val-green">Under 20 min</span></div>
           <div class="comp-row"><span class="comp-label">Scheduling</span><span class="comp-val val-green">No appointment</span></div>
           <div class="comp-row"><span class="comp-label">Baby stress</span><span class="comp-val val-green">Zero — stays home</span></div>
-          <div class="comp-row"><span class="comp-label">Total cost</span><span class="comp-val val-green">From $29</span></div>
+          <div class="comp-row"><span class="comp-label">Total cost</span><span class="comp-val val-green">From $19</span></div>
         </div>
       </div>
       <div class="comp-savings-strip">
-        <p class="comp-savings-text">The average US newborn studio session costs <strong>$800 or more</strong>. SnapiBaby delivers the same studio quality for as little as <strong class="savings-green">$29</strong> — that's up to <strong class="savings-green">$745 saved</strong>, from your couch.</p>
+        <p class="comp-savings-text">The average US newborn studio session costs <strong>$800 or more</strong>. SnapiBaby delivers the same studio quality for as little as <strong class="savings-green">$19</strong> — that's up to <strong class="savings-green">$761 saved</strong>, from your couch.</p>
         <div class="comp-savings-visual">
           <div class="savings-pill savings-old"><span class="savings-price-old">$800+</span><span class="savings-label-text">STUDIO</span></div>
           <span class="savings-arrow-icon">→</span>
-          <div class="savings-pill savings-new"><span class="savings-price-new">$29</span><span class="savings-label-text">SNAPIBABY</span></div>
+          <div class="savings-pill savings-new"><span class="savings-price-new">$19</span><span class="savings-label-text">SNAPIBABY</span></div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMOTIONAL SECTION -->
+  <section style="background: linear-gradient(135deg, #fff8fa 0%, #fff3f7 100%); padding: 80px 0; border-top: 1px solid #fde8f0; border-bottom: 1px solid #fde8f0;">
+    <div class="container text-center" style="max-width: 760px;">
+      <h2 class="section-title" style="font-family:'DM Serif Display',Georgia,serif; font-style:italic; font-size:clamp(1.8rem,4vw,2.6rem); color:#1a1a2e; margin-bottom:28px;">One day… these photos will mean everything.</h2>
+      <div style="display:grid; gap:18px; text-align:left; max-width:620px; margin:0 auto 36px;">
+        <p style="font-size:1.2rem; color:#333; line-height:1.75;">The newborn phase is beautiful. But it disappears incredibly fast.</p>
+        <p style="font-size:1.2rem; color:#444; line-height:1.75;">The sleepy expressions change. The tiny wrinkles fade. The curled-up poses stop happening.</p>
+        <p style="font-size:1.2rem; color:#444; line-height:1.75;">And most moms don't realize how quickly it's gone until they're scrolling through old camera roll photos wishing they had captured more.</p>
+        <p style="font-size:1.2rem; color:#c9335a; font-weight:700; line-height:1.65;">SnapiBaby helps you preserve this tiny chapter forever — without leaving your home.</p>
+      </div>
+      <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:24px; padding:24px; background:white; border-radius:20px; box-shadow:0 4px 24px rgba(0,0,0,0.06); border:1px solid #fde8f0;">
+        <div style="text-align:center;"><div style="font-size:1.8rem; font-weight:800; color:#c9335a;">18,247+</div><div style="font-size:0.85rem; color:#888;">babies photographed</div></div>
+        <div style="width:1px; background:#eee;"></div>
+        <div style="text-align:center;"><div style="font-size:1.8rem; font-weight:800; color:#c9335a;">100%</div><div style="font-size:0.85rem; color:#888;">satisfaction guarantee</div></div>
+        <div style="width:1px; background:#eee;"></div>
+        <div style="text-align:center;"><div style="font-size:1.8rem; font-weight:800; color:#c9335a;">8 min</div><div style="font-size:0.85rem; color:#888;">average delivery</div></div>
+        <div style="width:1px; background:#eee;"></div>
+        <div style="text-align:center;"><div style="font-size:1.8rem; font-weight:800; color:#c9335a;">$741</div><div style="font-size:0.85rem; color:#888;">saved vs studios</div></div>
       </div>
     </div>
   </section>
 
   <section class="how-it-works" id="como-funciona">
     <div class="container text-center">
-      <h2 class="section-title">How does it work? 🧩</h2>
+      <h2 class="section-title">How moms create studio-quality newborn photos at home in under 10 minutes</h2>
       <div class="steps-grid">
-        <div class="step"><div class="step-icon">1️⃣</div><h3>Send your photos</h3><p>Simple phone photos taken on the couch or in the crib — that's all you need.</p></div>
-        <div class="step"><div class="step-icon">2️⃣</div><h3>Choose your themes</h3><p>Classic Newborn styles and magical Infant themes (Princess, Astronaut, Safari and more).</p></div>
-        <div class="step"><div class="step-icon">3️⃣</div><h3>Receive in minutes</h3><p>Professional portraits arrive while your baby naps — often in just minutes.</p></div>
+        <div class="step">
+          <div class="step-icon">1️⃣</div>
+          <h3>Upload a few phone photos</h3>
+          <p>Simple newborn pictures from your couch, crib, or bed are all you need. No professional camera. No special lighting. No photography experience.</p>
+        </div>
+        <div class="step">
+          <div class="step-icon">2️⃣</div>
+          <h3>Choose your dream themes</h3>
+          <p>Princess. Astronaut. Safari. Fairy. Floral. Superhero. Create magical newborn portraits that feel straight out of a storybook.</p>
+        </div>
+        <div class="step">
+          <div class="step-icon">3️⃣</div>
+          <h3>Receive breathtaking portraits in minutes</h3>
+          <p>Professional newborn photography delivered while your baby naps. Most families receive their portraits before the next feeding.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -643,7 +715,7 @@ a.tag-tema:hover {
     <div class="container text-center">
       <div class="pricing-intro">
         <div class="pricing-badge-top">Simple &amp; Transparent Pricing</div>
-        <h2 class="section-title">Newborn Photography Pricing — Studio Quality, Without the Studio Cost 💰</h2>
+        <h2 class="section-title">Newborn Photography Pricing: Studio Quality, Without the Studio Cost 💰</h2>
         <p class="pricing-subtitle">No scheduling. No studio. No stress. Send phone photos and receive professional newborn portraits in minutes.</p>
         <div class="preview-free-banner">🎉 See your baby's photos before you pay — watermark preview always <strong>free</strong></div>
       </div>
@@ -651,64 +723,56 @@ a.tag-tema:hover {
         <div class="price-card" id="plano-starter">
           <div class="plan-tagline">"Your first magical memory"</div>
           <h3>✨ Starter</h3>
-          <div class="price">$29</div>
+          <div class="price">$19</div>
           <p>Perfect for discovering the magic of SnapiBaby with your newborn.</p>
           <ul class="features">
-            <li class="feat-yes">15 professional AI photos</li>
+            <li class="feat-yes">10 professional AI photos</li>
             <li class="feat-yes">3 themes of your choice</li>
             <li class="feat-yes">Standard resolution</li>
-            <li class="feat-yes">Ready in minutes</li>
+            <li class="feat-yes">Ready in 1 hour</li>
             <li class="feat-yes">Free watermark preview</li>
             <li class="feat-no">Portrait &amp; landscape format</li>
             <li class="feat-no">Free redo</li>
           </ul>
-          <button class="btn-secondary" id="btn-starter">Get 15 photos in 20 min</button>
+          <button class="btn-secondary" id="btn-starter">Get 10 photos in 1 hour</button>
           <p class="plan-guarantee">🔒 100% Money-Back Guarantee</p>
         </div>
         <div class="price-card popular" id="plano-classic">
           <div class="popular-badge">⭐ MOST CHOSEN BY MOMS</div>
           <div class="plan-tagline">"The complete newborn story"</div>
           <h3>📸 Classic</h3>
-          <div class="price-with-old">
-            <span class="price-old-strike">$58</span>
-            <div class="price">$49</div>
-          </div>
-          <div class="plan-savings-badge plan-savings-pink">💗 Save $9 💗</div>
+          <div class="price">$29</div>
           <p>The favorite choice of thousands of moms. Everything you need to preserve this phase forever.</p>
           <ul class="features">
-            <li class="feat-yes">30 professional AI photos</li>
+            <li class="feat-yes">20 professional AI photos</li>
             <li class="feat-yes">10 themes of your choice</li>
             <li class="feat-yes">Premium resolution, ultra-realistic</li>
-            <li class="feat-yes">Ready in minutes</li>
+            <li class="feat-yes">Ready in 30 minutes</li>
             <li class="feat-yes">Free watermark preview</li>
             <li class="feat-yes">Portrait &amp; landscape format</li>
             <li class="feat-yes">Print &amp; frame quality</li>
             <li class="feat-no">Free redo</li>
           </ul>
-          <button class="btn-primary" id="btn-classic">Get 30 photos in 15 min</button>
+          <button class="btn-primary" id="btn-classic">Get 20 photos in 30 min</button>
           <p class="plan-guarantee">✅ 100% Money-Back Guarantee</p>
         </div>
         <div class="price-card premium-card" id="plano-premium">
           <div class="best-value-badge">👑 BEST VALUE</div>
           <div class="plan-tagline">"Every moment, forever"</div>
           <h3>💎 Premium</h3>
-          <div class="price-with-old">
-            <span class="price-old-strike">$96</span>
-            <div class="price">$59</div>
-          </div>
-          <div class="plan-savings-badge plan-savings-gold">💰 Save $37 😱</div>
-          <div class="price-savings-note">Studios charge $800+. You pay $59. That's <strong>$741 saved</strong> — from your couch.</div>
+          <div class="price">$39</div>
+          <div class="price-savings-note">Studios charge $800+. You pay $39. That's <strong>$761 saved</strong> — from your couch.</div>
           <ul class="features">
-            <li class="feat-yes">50 professional AI photos</li>
+            <li class="feat-yes">30 professional AI photos</li>
             <li class="feat-yes">All 20+ themes unlocked</li>
             <li class="feat-yes">4K resolution, ultra-realistic</li>
-            <li class="feat-yes">Priority — ready in under 8 minutes</li>
+            <li class="feat-yes">Priority — ready in 15 minutes</li>
             <li class="feat-yes">Free watermark preview</li>
             <li class="feat-yes">Portrait &amp; landscape format</li>
             <li class="feat-yes">1 free redo included</li>
             <li class="feat-yes">Perfect for the complete 1st year album</li>
           </ul>
-          <button class="btn-primary" id="btn-premium">Get 50 photos in 5 min</button>
+          <button class="btn-primary" id="btn-premium">Get 30 photos in 15 min</button>
           <p class="plan-guarantee">🔒 100% Money-Back Guarantee</p>
         </div>
       </div>
@@ -760,7 +824,7 @@ a.tag-tema:hover {
         </details>
         <details itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
           <summary itemprop="name">How much does newborn photography at home cost?</summary>
-          <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer"><p itemprop="text">Traditional newborn studio sessions average $800–$1,200. SnapiBaby starts at <strong>$29</strong> — for the same studio-quality result, from your couch, in minutes.</p></div>
+          <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer"><p itemprop="text">Traditional newborn studio sessions average $800–$1,200. SnapiBaby starts at <strong>$19</strong> — for the same studio-quality result, from your couch, in minutes.</p></div>
         </details>
         <details itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
           <summary itemprop="name">What newborn photography themes are available?</summary>
@@ -786,6 +850,23 @@ a.tag-tema:hover {
         <article class="blog-card"><h4>How to take great newborn photos with your phone</h4><p>Practical tips on angle, lens cleaning, and natural lighting so your phone photos look good enough for AI studio transformation...</p><a href="blog-post.html?post=newborn-phone-photo-tips">Read more</a></article>
         <article class="blog-card"><h4>Baby's first birthday photoshoot ideas</h4><p>Smash the Cake, Royalty, Frozen Kingdom and more fun ideas to celebrate the most anticipated milestone...</p><a href="blog-post.html?post=baby-first-birthday-photoshoot">Read more</a></article>
       </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- GUARANTEE SECTION -->
+  <section style="background: linear-gradient(135deg, #1a0a2e 0%, #2d0a4e 100%); padding: 80px 0; text-align:center;">
+    <div class="container" style="max-width:680px;">
+      <div style="font-size:3rem; margin-bottom:16px;">🔒</div>
+      <h2 style="font-family:'DM Serif Display',Georgia,serif; font-style:italic; font-size:clamp(1.7rem,3.5vw,2.4rem); color:white; margin-bottom:20px; line-height:1.3;">Love your baby's portraits — or pay nothing.</h2>
+      <p style="color:rgba(255,255,255,0.75); font-size:1.05rem; line-height:1.7; margin-bottom:28px;">Preview your newborn photos before purchasing. If you don't absolutely love them, you don't pay.</p>
+      <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px; margin-bottom:36px;">
+        <div style="color:white; font-size:1rem; font-weight:600;">✓ No risk</div>
+        <div style="color:white; font-size:1rem; font-weight:600;">✓ No pressure</div>
+        <div style="color:white; font-size:1rem; font-weight:600;">✓ No stressful studio appointments</div>
+      </div>
+      <a href="#nome-do-bebe" class="btn-primary" style="display:inline-block; padding:18px 44px; font-size:1.15rem; font-weight:800; border-radius:50px; text-decoration:none; background:linear-gradient(135deg,#f43f75,#ff6b95); color:white; box-shadow:0 8px 30px rgba(244,63,117,0.45);">See My Baby's Free Preview ✨</a>
+      <p style="color:rgba(255,255,255,0.5); font-size:0.82rem; margin-top:14px;">✓ Preview before paying &nbsp;·&nbsp; ✓ Studio-quality at home &nbsp;·&nbsp; ✓ Only pay if you love it</p>
     </div>
   </section>
 </main>
@@ -1232,6 +1313,69 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('snapi_cookie_consent', 'declined');
     if (banner) banner.style.display = 'none';
   });
+})();
+</script>
+
+<script>
+// SOCIAL PROOF NOTIFICATION SYSTEM — index.html
+(function() {
+  var NOTIFICATIONS = [
+    { type: 'transformation', avatar: '🌸', text: "Ava's couch photo was just transformed into a Princess portrait", meta: 'moments ago' },
+    { type: 'transformation', avatar: '🍼', text: "Liam's parents just received their newborn Astronaut gallery", meta: '4 min ago' },
+    { type: 'transformation', avatar: '✨', text: "Baby Sophia's Fairy theme preview is ready", meta: 'just now' },
+    { type: 'transformation', avatar: '🧸', text: "Noah's Teddy Bear portrait was delivered in 6 minutes", meta: '7 min ago' },
+    { type: 'transformation', avatar: '🌙', text: "Isabella's Starry Night photos are done", meta: '1 min ago' },
+    { type: 'transformation', avatar: '🦁', text: "Ethan's Safari portraits were just created from phone photos", meta: '5 min ago' },
+    { type: 'transformation', avatar: '👑', text: "Mia's Princess portrait is ready — mom hasn't stopped crying", meta: '3 min ago' },
+    { type: 'transformation', avatar: '🚀', text: "Oliver's Astronaut preview was delivered while mom was feeding", meta: '8 min ago' },
+    { type: 'transformation', avatar: '🧚', text: "Baby Emma's Fairy Magic photos just came in", meta: '6 min ago' },
+    { type: 'transformation', avatar: '🌿', text: "Charlotte's Floral Basket portrait is stunning", meta: '2 min ago' },
+    { type: 'reaction', avatar: '💗', text: '"I literally cried." — New mom from Chicago', meta: 'just now' },
+    { type: 'reaction', avatar: '😍', text: '"My husband thought I hired a real photographer." — Sarah M.', meta: '3 min ago' },
+    { type: 'reaction', avatar: '🥹', text: '"Uploaded during feeding time. Finished before baby woke up." — Jessica W.', meta: '5 min ago' },
+    { type: 'reaction', avatar: '💕', text: '"Grandma cried seeing these photos." — Amanda R.', meta: '1 min ago' },
+    { type: 'reaction', avatar: '😭', text: '"These look more real than my actual studio session." — Melissa T.', meta: '9 min ago' },
+    { type: 'reaction', avatar: '✨', text: '"SnapiBaby gave me a second chance after my C-section." — Emily C.', meta: '4 min ago' },
+    { type: 'reaction', avatar: '🍼', text: '"Ordered at midnight. Photos done before next feed." — Megan W.', meta: 'just now' },
+    { type: 'purchase', avatar: '🎀', text: 'Emily from California just unlocked all premium themes', meta: '2 min ago' },
+    { type: 'purchase', avatar: '📸', text: 'A mom in Texas just replaced a $900 studio session with SnapiBaby', meta: '6 min ago' },
+    { type: 'purchase', avatar: '💝', text: 'Valentina just upgraded to the complete keepsake collection', meta: '3 min ago' },
+    { type: 'purchase', avatar: '🛍️', text: 'Jessica from Florida just got her full newborn portrait collection', meta: '1 min ago' },
+    { type: 'urgency', avatar: '🔥', text: '23 moms created newborn portraits in the last hour', meta: 'live' },
+    { type: 'urgency', avatar: '⏳', text: "Today's 40% OFF ends soon — don't miss it", meta: 'limited time' },
+    { type: 'urgency', avatar: '👶', text: 'The newborn phase changes fast — preserve it now', meta: 'reminder' },
+    { type: 'urgency', avatar: '⚡', text: 'Average delivery: 8 minutes. Your preview is waiting.', meta: 'quick delivery' }
+  ];
+  function shuffle(arr) {
+    var a = arr.slice(), i, j, tmp;
+    for (i = a.length - 1; i > 0; i--) { j = Math.floor(Math.random() * (i + 1)); tmp = a[i]; a[i] = a[j]; a[j] = tmp; }
+    return a;
+  }
+  var queue = shuffle(NOTIFICATIONS), qIdx = 0, activeNotif = null;
+  var container = document.getElementById('snapi-notif-container');
+  if (!container) return;
+  function removeNotif(el) {
+    el.classList.remove('visible'); el.classList.add('hiding');
+    setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 470);
+  }
+  function showNotif(data) {
+    if (activeNotif) { removeNotif(activeNotif); activeNotif = null; }
+    var el = document.createElement('div');
+    el.className = 'snapi-notif type-' + data.type;
+    el.setAttribute('role', 'status');
+    el.innerHTML = '<div class="snapi-notif-avatar">' + data.avatar + '</div><div class="snapi-notif-body"><div class="snapi-notif-text">' + data.text + '</div><div class="snapi-notif-meta">' + data.meta + '</div></div><div class="snapi-notif-dot"></div>';
+    el.addEventListener('click', function() { removeNotif(el); if (activeNotif === el) activeNotif = null; });
+    container.appendChild(el);
+    activeNotif = el;
+    requestAnimationFrame(function() { requestAnimationFrame(function() { el.classList.add('visible'); }); });
+    setTimeout(function() { if (el.parentNode) { removeNotif(el); if (activeNotif === el) activeNotif = null; } }, 4500);
+  }
+  function nextNotif() {
+    if (qIdx >= queue.length) { queue = shuffle(NOTIFICATIONS); qIdx = 0; }
+    showNotif(queue[qIdx]); qIdx++;
+    setTimeout(nextNotif, 8000 + Math.floor(Math.random() * 7001) + 4500);
+  }
+  setTimeout(nextNotif, 10000);
 })();
 </script>
 

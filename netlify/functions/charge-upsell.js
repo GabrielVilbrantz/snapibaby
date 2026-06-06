@@ -62,7 +62,7 @@ exports.handler = async (event) => {
       description,
       confirm:          true,
       off_session:      true,
-      return_url:       'https://snapibaby.com/success.html' // ajuste para seu domínio
+      return_url:       'https://snapibaby.netlify.app/success.html'
     });
 
     console.log('Upsell charge succeeded:', paymentIntent.id, `$${amount / 100}`);
@@ -74,8 +74,8 @@ exports.handler = async (event) => {
 
       await db.from('orders').update({
         upsell_added:   isUpsell,
-        downsell_added: isDownsell,
-        total_paid:     db.rpc('increment_total', { row_id: order_id, amount_cents: amount / 100 })
+        downsell_added: isDownsell
+        // total_paid é atualizado pelo webhook do Stripe automaticamente
       }).eq('id', order_id);
     }
 

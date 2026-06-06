@@ -291,10 +291,11 @@ h1, h2, h3, h4 {
 /* Hero CTA Box */
 .hero-cta-box {
     background: #fff;
-    border: 1.5px solid var(--primary-dark);
+    border: 1.5px solid #e0ddd8;
     border-radius: 14px;
     padding: 22px 24px 18px;
     margin-bottom: 22px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
 }
 .hero-cta-box label {
     display: block;
@@ -305,10 +306,11 @@ h1, h2, h3, h4 {
     margin-bottom: 10px;
 }
 .hero-urgency {
-    font-size: 0.84rem;
-    color: var(--primary-dark);
-    font-weight: 600;
+    font-size: 0.88rem;
+    color: #555;
+    font-weight: 500;
     margin-bottom: 16px;
+    line-height: 1.5;
 }
 .hero-input {
     width: 100%;

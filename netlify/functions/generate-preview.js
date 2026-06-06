@@ -3,11 +3,13 @@
 // URL: /.netlify/functions/generate-preview
 //
 // Recebe a foto do bebê (base64) + nome do tema
-// Faz upload para fal.storage e gera a imagem via Fal.ai
+// Converte para Data URL e gera a imagem via KIE AI
+// (GPT Image 2 - Image to Image)
 // Retorna a URL da imagem gerada
 // ============================================================
 
-const FAL_API_KEY = process.env.FAL_API_KEY;
+const KIE_API_KEY = process.env.KIE_API_KEY;
+const KIE_BASE    = 'https://api.kie.ai/api/v1';
 
 const HEADERS = {
   'Access-Control-Allow-Origin':  '*',
@@ -17,26 +19,26 @@ const HEADERS = {
 
 // ── Theme prompts ────────────────────────────────────────────
 const THEME_PROMPTS = {
-  'Astronaut':       'professional studio newborn portrait baby astronaut costume, outer space background with stars and galaxies, ultra-realistic 4K studio lighting, soft bokeh, baby face clearly visible, photorealistic',
-  'Cute Cartoon':    'professional studio newborn portrait baby in colorful cartoon world, pastel illustrated background, studio quality lighting, adorable baby face, photorealistic portrait',
-  'Dinosaur':        'professional studio newborn portrait baby cute dinosaur costume, lush prehistoric jungle background, friendly dinosaurs, studio quality 4K lighting, photorealistic',
-  'Easter Bunny':    'professional studio newborn portrait baby Easter setting, colorful eggs, bunny ears, spring garden background, pastel colors, studio quality lighting, photorealistic',
-  'Spring Bunny':    'professional studio newborn portrait baby bunny ears, magical spring garden, blooming flowers, soft pink and green tones, studio quality, photorealistic',
-  'Fairy Magic':     'professional studio newborn portrait baby tiny fairy wings, enchanted forest with sparkles and flowers, magical golden lighting, photorealistic portrait',
-  'Fairy Portrait':  'professional studio newborn portrait baby fairy princess dress, fairy tale forest background, golden hour lighting, sparkles, ultra-realistic photorealistic',
-  'Floral Basket':   'professional studio newborn portrait baby in wicker basket surrounded by fresh roses and peonies, soft diffused studio lighting, photorealistic',
-  'Soft Floral':     'professional studio newborn portrait baby surrounded by soft fresh flowers, romantic floral arrangement, white and pink tones, studio quality, photorealistic',
-  'Minimalist':      'professional studio newborn portrait baby clean minimalist white studio setting, soft diffused light, simple elegant background, ultra-realistic photorealistic',
-  'Classic Basket':  'professional studio newborn portrait baby woven basket natural textures, neutral earth tones, warm studio lighting, photorealistic',
-  'Pirate':          'professional studio newborn portrait baby cute tiny pirate hat and costume, ship and ocean background, dramatic studio lighting, photorealistic',
-  'Pirate Adventure':'professional studio newborn portrait baby adventurous pirate treasure map background, warm golden tones, studio quality photorealistic',
-  'Princess':        'professional studio newborn portrait baby royal princess tiny crown, palace background, pink and gold tones, studio lighting, photorealistic',
-  'Princess Portrait':'professional studio newborn portrait baby princess dress fairy tale castle, magical sparkles, royal studio lighting, ultra-realistic photorealistic',
-  'Safari':          'professional studio newborn portrait baby surrounded by cute safari animals giraffe elephant lion, lush African savanna background, studio quality photorealistic',
-  'Galaxy Space':    'professional studio newborn portrait baby floating in galaxy, stars nebulae planets deep space background, ultra-realistic studio quality photorealistic',
-  'Starry Night':    'professional studio newborn portrait baby under magical starry night sky, swirling stars, soft dreamy lighting, photorealistic portrait',
-  'Superhero':       'professional studio newborn portrait baby superhero costume tiny cape, city skyline background, dramatic studio lighting, photorealistic',
-  'Cozy Teddy':      'professional studio newborn portrait baby snuggled with teddy bears cozy nursery, warm soft lighting, cream and brown tones, photorealistic'
+  'Astronaut':        'Transform this newborn baby photo into a professional studio portrait: baby in an astronaut costume floating in outer space surrounded by stars and galaxies, ultra-realistic 4K studio lighting, soft bokeh, baby face clearly visible, photorealistic',
+  'Cute Cartoon':     'Transform this newborn baby photo into a professional studio portrait: baby in a colorful cartoon world, pastel illustrated background, studio quality lighting, adorable baby face clearly visible, photorealistic portrait',
+  'Dinosaur':         'Transform this newborn baby photo into a professional studio portrait: baby in a cute dinosaur costume in a lush prehistoric jungle, friendly dinosaurs around, studio quality 4K lighting, photorealistic',
+  'Easter Bunny':     'Transform this newborn baby photo into a professional studio portrait: baby in an Easter setting with colorful eggs and bunny ears, spring garden background, pastel colors, studio quality lighting, photorealistic',
+  'Spring Bunny':     'Transform this newborn baby photo into a professional studio portrait: baby with bunny ears in a magical spring garden with blooming flowers, soft pink and green tones, studio quality, photorealistic',
+  'Fairy Magic':      'Transform this newborn baby photo into a professional studio portrait: baby with tiny fairy wings in an enchanted forest with sparkles and flowers, magical golden lighting, photorealistic portrait',
+  'Fairy Portrait':   'Transform this newborn baby photo into a professional studio portrait: baby in a fairy princess dress in a fairy tale forest, golden hour lighting with sparkles, ultra-realistic photorealistic',
+  'Floral Basket':    'Transform this newborn baby photo into a professional studio portrait: baby in a wicker basket surrounded by fresh roses and peonies, soft diffused studio lighting, photorealistic',
+  'Soft Floral':      'Transform this newborn baby photo into a professional studio portrait: baby surrounded by soft fresh flowers, romantic floral arrangement in white and pink tones, studio quality, photorealistic',
+  'Minimalist':       'Transform this newborn baby photo into a professional studio portrait: baby in a clean minimalist white studio setting with soft diffused light, simple elegant background, ultra-realistic photorealistic',
+  'Classic Basket':   'Transform this newborn baby photo into a professional studio portrait: baby in a woven basket with natural textures, neutral earth tones, warm studio lighting, photorealistic',
+  'Pirate':           'Transform this newborn baby photo into a professional studio portrait: baby with a cute tiny pirate hat and costume against a ship and ocean background, dramatic studio lighting, photorealistic',
+  'Pirate Adventure': 'Transform this newborn baby photo into a professional studio portrait: baby as an adventurous pirate with a treasure map background, warm golden tones, studio quality photorealistic',
+  'Princess':         'Transform this newborn baby photo into a professional studio portrait: baby with a royal princess tiny crown against a palace background, pink and gold tones, studio lighting, photorealistic',
+  'Princess Portrait':'Transform this newborn baby photo into a professional studio portrait: baby in a princess dress at a fairy tale castle with magical sparkles, royal studio lighting, ultra-realistic photorealistic',
+  'Safari':           'Transform this newborn baby photo into a professional studio portrait: baby surrounded by cute safari animals — giraffe, elephant, lion — in a lush African savanna, studio quality photorealistic',
+  'Galaxy Space':     'Transform this newborn baby photo into a professional studio portrait: baby floating in a galaxy with stars, nebulae and planets in the deep space background, ultra-realistic studio quality photorealistic',
+  'Starry Night':     'Transform this newborn baby photo into a professional studio portrait: baby under a magical starry night sky with swirling stars, soft dreamy lighting, photorealistic portrait',
+  'Superhero':        'Transform this newborn baby photo into a professional studio portrait: baby in a superhero costume with a tiny cape against a city skyline background, dramatic studio lighting, photorealistic',
+  'Cozy Teddy':       'Transform this newborn baby photo into a professional studio portrait: baby snuggled with teddy bears in a cozy nursery, warm soft lighting, cream and brown tones, photorealistic'
 };
 
 function getPrompt(themeName) {
@@ -46,69 +48,95 @@ function getPrompt(themeName) {
       return THEME_PROMPTS[key];
     }
   }
-  return 'professional studio newborn portrait baby magical themed setting, ultra-realistic 4K studio lighting, soft bokeh background, photorealistic';
+  return 'Transform this newborn baby photo into a professional studio portrait with a magical themed setting, ultra-realistic 4K studio lighting, soft bokeh background, photorealistic';
 }
 
-// ── Upload base64 photo to fal.storage ──────────────────────
-async function uploadToFalStorage(base64Data, mimeType = 'image/jpeg') {
-  const buffer = Buffer.from(base64Data, 'base64');
-  const ext    = mimeType.split('/')[1] || 'jpg';
-
-  // Step 1: initiate upload
-  const initRes = await fetch('https://rest.fal.run/fal-ai/storage/upload/initiate', {
-    method:  'POST',
-    headers: { 'Authorization': `Key ${FAL_API_KEY}`, 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ file_name: `baby.${ext}`, content_type: mimeType })
-  });
-  if (!initRes.ok) throw new Error(`Storage initiate failed: ${initRes.status}`);
-  const { upload_url, file_url } = await initRes.json();
-
-  // Step 2: upload file
-  await fetch(upload_url, {
-    method:  'PUT',
-    headers: { 'Content-Type': mimeType },
-    body:    buffer
-  });
-
-  return file_url;
+// ── Convert base64 to Data URL (KIE AI accepts Data URLs as input_urls) ──────
+function toDataUrl(base64Data, mimeType = 'image/jpeg') {
+  return `data:${mimeType};base64,${base64Data}`;
 }
 
-// ── Call fal-ai ip-adapter-face-id ──────────────────────────
-async function generateWithFal(faceImageUrl, prompt) {
-  const ENDPOINT = 'fal-ai/ip-adapter-face-id';
-
-  const submitRes = await fetch(`https://queue.fal.run/${ENDPOINT}`, {
+// ── Create KIE AI task ───────────────────────────────────────
+async function createKieTask(dataUrl, prompt) {
+  const res = await fetch(`${KIE_BASE}/jobs/createTask`, {
     method:  'POST',
-    headers: { 'Authorization': `Key ${FAL_API_KEY}`, 'Content-Type': 'application/json' },
+    headers: {
+      'Authorization': `Bearer ${KIE_API_KEY}`,
+      'Content-Type':  'application/json'
+    },
     body: JSON.stringify({
-      prompt,
-      face_image_url:       faceImageUrl,
-      negative_prompt:      'blurry, low quality, distorted face, ugly, bad anatomy, deformed',
-      num_inference_steps:  30,
-      guidance_scale:       7.5,
-      face_id_strength:     0.8,
-      image_size:           'portrait_4_3'
+      model: 'gpt-image-2-image-to-image',
+      input: {
+        prompt,
+        input_urls:   [dataUrl],
+        aspect_ratio: '3:4',
+        resolution:   '1K'
+      }
     })
   });
-  if (!submitRes.ok) throw new Error(`Fal submit failed: ${submitRes.status}`);
-  const { request_id } = await submitRes.json();
 
-  // Poll for result (max 3 minutes)
-  for (let i = 0; i < 60; i++) {
-    await new Promise(r => setTimeout(r, 3000));
-    const pollRes = await fetch(`https://queue.fal.run/${ENDPOINT}/requests/${request_id}`, {
-      headers: { 'Authorization': `Key ${FAL_API_KEY}` }
-    });
-    if (!pollRes.ok) continue;
-    const data = await pollRes.json();
-    if (data.status === 'COMPLETED') {
-      const images = data.images || (data.output && data.output.images) || [];
-      if (images.length > 0) return images[0].url || images[0];
-      throw new Error('No images in completed response');
-    }
-    if (data.status === 'FAILED') throw new Error('Generation failed: ' + (data.error || 'unknown'));
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`KIE createTask failed: ${res.status} — ${text}`);
   }
-  throw new Error('Timeout waiting for generation');
+
+  const json = await res.json();
+  if (json.code !== 200 || !json.data?.taskId) {
+    throw new Error(`KIE createTask error: ${JSON.stringify(json)}`);
+  }
+
+  return json.data.taskId;
+}
+
+// ── Poll KIE AI task until done ──────────────────────────────
+async function pollKieTask(taskId, maxAttempts = 60, intervalMs = 5000) {
+  for (let i = 0; i < maxAttempts; i++) {
+    await new Promise(r => setTimeout(r, intervalMs));
+
+    const res = await fetch(`${KIE_BASE}/jobs/getTaskDetail?taskId=${encodeURIComponent(taskId)}`, {
+      headers: { 'Authorization': `Bearer ${KIE_API_KEY}` }
+    });
+
+    if (!res.ok) {
+      console.warn(`Poll attempt ${i + 1} failed: ${res.status}`);
+      continue;
+    }
+
+    const json = await res.json();
+    if (json.code !== 200) {
+      console.warn(`Poll attempt ${i + 1} bad code: ${json.code}`);
+      continue;
+    }
+
+    const task = json.data;
+    const status = (task?.status || task?.taskStatus || '').toString().toLowerCase();
+
+    // Completed states
+    if (status === 'success' || status === 'completed' || status === 'done' || status === '2') {
+      // Result URL may be at different paths depending on KIE AI version
+      const url =
+        task.result?.url ||
+        task.result?.imageUrl ||
+        task.result?.image_url ||
+        (Array.isArray(task.result) && task.result[0]?.url) ||
+        task.outputUrl ||
+        task.output_url ||
+        task.imageUrl;
+
+      if (url) return url;
+      throw new Error('KIE task completed but no image URL found in response: ' + JSON.stringify(task));
+    }
+
+    // Failed states
+    if (status === 'failed' || status === 'error' || status === '3') {
+      throw new Error('KIE task failed: ' + (task.error || task.errorMsg || JSON.stringify(task)));
+    }
+
+    // Still processing — continue polling
+    console.log(`Poll ${i + 1}/${maxAttempts}: status=${status}`);
+  }
+
+  throw new Error('KIE AI task timed out after ' + (maxAttempts * intervalMs / 1000) + 's');
 }
 
 // ── Handler ──────────────────────────────────────────────────
@@ -116,7 +144,7 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: HEADERS, body: '' };
   if (event.httpMethod !== 'POST')    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
 
-  if (!FAL_API_KEY) return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'FAL_API_KEY not configured' }) };
+  if (!KIE_API_KEY) return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'KIE_API_KEY not configured' }) };
 
   let body;
   try { body = JSON.parse(event.body); }
@@ -128,11 +156,13 @@ exports.handler = async (event) => {
   }
 
   try {
-    const faceUrl   = await uploadToFalStorage(photoBase64, mimeType);
-    const prompt    = getPrompt(themeName);
-    const imageUrl  = await generateWithFal(faceUrl, prompt);
+    const dataUrl  = toDataUrl(photoBase64, mimeType);
+    const prompt   = getPrompt(themeName);
+    const taskId   = await createKieTask(dataUrl, prompt);
+    console.log(`KIE task created: ${taskId} for theme "${themeName}"`);
+    const imageUrl = await pollKieTask(taskId);
 
-    return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ imageUrl, theme: themeName }) };
+    return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ imageUrl, theme: themeName, taskId }) };
   } catch (err) {
     console.error('generate-preview error:', err.message);
     return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
