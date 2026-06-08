@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "buildCommand": "npm install",
+  "outputDirectory": "snapibaby",
+  "rewrites": [
+    { "source": "/.netlify/functions/create-payment-intent", "destination": "/api/create-payment-intent" },
+    { "source": "/.netlify/functions/charge-upsell",          "destination": "/api/charge-upsell" },
+    { "source": "/.netlify/functions/stripe-webhook",         "destination": "/api/stripe-webhook" },
+    { "source": "/.netlify/functions/generate-preview",       "destination": "/api/generate-preview" },
+    { "source": "/.netlify/functions/send-backup-email",      "destination": "/api/send-backup-email" },
+    { "source": "/.netlify/functions/get-order",              "destination": "/api/get-order" }
+  ]
+}
