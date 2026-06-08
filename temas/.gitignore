@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+netlify/functions/node_modules/
+
+# Build artifacts
+*.zip
+snapibaby-deploy.zip
+snapibaby-full.zip
+
+# Environment variables — NEVER commit real values
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local Netlify folder
+.netlify
