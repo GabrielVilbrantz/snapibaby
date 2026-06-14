@@ -213,11 +213,73 @@ body { background: #f4f6fa; }
 .btn-advance { width: 100%; max-width: 400px; padding: 15px; font-size: 1.2rem; }
 .btn-advance:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; border-color: #aaa; color: #666; }
 
-/* STEP 3: Processing */
+/* STEP 3: Processing — Blurred Teaser */
 .processing-area { display: none; margin: 40px 0; }
 .progress-bar-container { background: #eee; height: 12px; border-radius: 10px; overflow: hidden; margin-top: 20px; }
 .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: width 0.3s linear; }
 .status-text { margin-top: 15px; font-weight: 600; color: var(--text-dark); font-size: 1.1rem; }
+
+/* Blurred teaser photo */
+.teaser-photo-wrap {
+  position: relative;
+  max-width: 320px;
+  margin: 24px auto;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(244,63,117,0.22);
+}
+.teaser-photo-wrap img {
+  width: 100%;
+  display: block;
+  filter: blur(14px) brightness(0.75) saturate(1.2);
+  animation: teaserPulse 1.8s ease-in-out infinite;
+  transform: scale(1.08);
+}
+@keyframes teaserPulse {
+  0%, 100% { filter: blur(14px) brightness(0.75) saturate(1.2); box-shadow: 0 0 0 0 rgba(244,63,117,0); }
+  50%       { filter: blur(18px) brightness(0.6) saturate(1.4); box-shadow: 0 0 0 12px rgba(244,63,117,0); }
+}
+.teaser-lock-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(0,0,0,0.18);
+}
+.teaser-lock-icon {
+  font-size: 3rem;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+  animation: lockBounce 2s ease-in-out infinite;
+}
+@keyframes lockBounce {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.12); }
+}
+.teaser-lock-text {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: white;
+  background: rgba(0,0,0,0.55);
+  padding: 6px 18px;
+  border-radius: 20px;
+  letter-spacing: 1px;
+  text-align: center;
+  backdrop-filter: blur(4px);
+}
+.teaser-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 26px;
+  border: 3px solid rgba(244,63,117,0.5);
+  animation: ringPulse 1.8s ease-in-out infinite;
+}
+@keyframes ringPulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%       { opacity: 1; transform: scale(1.02); }
+}
 
 /* STEP 4: Preview Paywall */
 .preview-area { display: none; margin-top: 40px; }
@@ -478,7 +540,7 @@ body { background: #f4f6fa; }
   max-width: 320px;
 }
 @media (max-width: 480px) {
-  #snapi-notif-container { left: 10px; right: 10px; max-width: calc(100vw - 20px); bottom: 14px; }
+  #snapi-notif-container { left: 10px; right: 10px; max-width: calc(100vw - 20px); bottom: 80px; }
 }
 .snapi-notif {
   display: flex;
@@ -610,10 +672,21 @@ body { background: #f4f6fa; }
     <button class="btn-primary btn-advance" onclick="startProcessing()" id="btn-process" disabled>Generate my baby's photos — <span id="selected-count">0 themes selected</span></button>
   </div>
 
-  <!-- STEP 3: PROCESSING -->
+  <!-- STEP 3: PROCESSING — Blurred Teaser -->
   <div class="processing-area" id="step-processing">
-    <div style="font-size: 3rem; margin-bottom: 20px; color: var(--primary);">&#9679;&#9679;&#9679;</div>
-    <h2 id="processing-title">Analyzing the photo...</h2>
+    <h2 id="processing-title" style="margin-bottom:8px;">Creating the magic for <span class="baby-name-span2" style="color:var(--primary);"></span>... ✨</h2>
+    <p style="color:var(--text-muted); margin-bottom:0;">Your studio portraits are being crafted. Get ready.</p>
+
+    <!-- Blurred teaser of the user's own photo -->
+    <div class="teaser-photo-wrap" id="teaserPhotoWrap">
+      <img id="teaserPhotoImg" src="" alt="Your baby's photo preview" />
+      <div class="teaser-lock-overlay">
+        <div class="teaser-lock-icon">🔒</div>
+        <div class="teaser-lock-text">Unlock to reveal your portraits</div>
+      </div>
+      <div class="teaser-ring"></div>
+    </div>
+
     <div class="progress-bar-container">
       <div class="progress-bar" id="progress-bar"></div>
     </div>
@@ -674,16 +747,16 @@ body { background: #f4f6fa; }
         </div>
         <div class="apc-photo-pill">15 photos</div>
         <ul class="app-plan-features apc-features-v2">
-          <li>15 professional AI photos</li>
+          <li>10 professional AI photos</li>
           <li id="starter-themes-li">3 of your chosen themes unlocked</li>
           <li>Standard resolution</li>
           <li>Ready in minutes</li>
-          <li>Free watermark preview</li>
+          <li>High-resolution digital delivery</li>
           <li class="feat-no-v2">Portrait &amp; landscape format</li>
           <li class="feat-no-v2">Free redo</li>
         </ul>
-        <button class="apc-btn-v2 apc-btn-secondary" onclick="window.location.href='checkout.html?plano=starter'">Get 15 photos in 1 hour</button>
-        <p class="app-guarantee">100% Money-Back Guarantee</p>
+        <button class="apc-btn-v2 apc-btn-secondary" onclick="window.location.href='checkout.html?plano=starter'">Get 10 photos in 1 hour</button>
+        <p class="app-guarantee" style="color:#c9335a; font-weight:700; font-size:0.8rem;">💰 100% refund if you don't love it</p>
       </div>
 
       <!-- CLASSIC (popular) -->
@@ -697,16 +770,16 @@ body { background: #f4f6fa; }
 
         <div class="apc-photo-pill apc-photo-pill-accent">30 photos</div>
         <ul class="app-plan-features apc-features-v2">
-          <li>30 professional AI photos</li>
+          <li>20 professional AI photos</li>
           <li id="classic-themes-li">5 of your chosen themes unlocked</li>
           <li>Premium resolution, ultra-realistic</li>
           <li>Ready in minutes</li>
-          <li>Free watermark preview</li>
+          <li>High-resolution digital delivery</li>
           <li>Portrait &amp; landscape format</li>
           <li class="feat-no-v2">Free redo</li>
         </ul>
-        <button class="apc-btn-v2 apc-btn-primary" onclick="window.location.href='checkout.html?plano=classic'">Get 30 photos in 30 min</button>
-        <p class="app-guarantee">100% Money-Back Guarantee</p>
+        <button class="apc-btn-v2 apc-btn-primary" onclick="window.location.href='checkout.html?plano=classic'">Get 20 photos in 30 min</button>
+        <p class="app-guarantee" style="color:#c9335a; font-weight:700; font-size:0.8rem;">💰 100% refund if you don't love it</p>
       </div>
 
       <!-- PREMIUM -->
@@ -720,17 +793,17 @@ body { background: #f4f6fa; }
 
         <div class="apc-photo-pill apc-photo-pill-gold">50 photos</div>
         <ul class="app-plan-features apc-features-v2">
-          <li>50 professional AI photos</li>
+          <li>30 professional AI photos</li>
           <li id="premium-themes-li">ALL your chosen themes unlocked</li>
           <li>4K resolution, ultra-realistic</li>
           <li>Priority — ready in 15 min</li>
-          <li>Free watermark preview</li>
+          <li>High-resolution digital delivery</li>
           <li>Portrait &amp; landscape format</li>
           <li>1 free redo included</li>
           <li>Perfect for the complete 1st year album</li>
         </ul>
-        <button class="apc-btn-v2 apc-btn-gold" onclick="window.location.href='checkout.html?plano=premium'">Get 50 photos in 15 min</button>
-        <p class="app-guarantee">100% Money-Back Guarantee</p>
+        <button class="apc-btn-v2 apc-btn-gold" onclick="window.location.href='checkout.html?plano=premium'">Get 30 photos in 15 min</button>
+        <p class="app-guarantee" style="color:#c9335a; font-weight:700; font-size:0.8rem;">💰 100% refund if you don't love it</p>
       </div>
     </div>
 
@@ -927,10 +1000,20 @@ function startProcessing() {
   document.getElementById('step-upload').style.display = 'none';
   document.getElementById('upload-section').style.display = 'none';
   document.getElementById('step-processing').style.display = 'block';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  const apiKey = FAL_API_KEY;
-  const hasKey = apiKey && apiKey.length > 10;
+  // Update baby name in processing title
+  document.querySelectorAll('.baby-name-span2').forEach(s => s.textContent = babyName);
+
+  // Show the user's uploaded photo blurred & pulsing
+  if (uploadedFiles.length > 0) {
+    const teaserImg = document.getElementById('teaserPhotoImg');
+    teaserImg.src = URL.createObjectURL(uploadedFiles[0]);
+    document.getElementById('teaserPhotoWrap').style.display = 'block';
+  } else {
+    document.getElementById('teaserPhotoWrap').style.display = 'none';
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 
   let progress = 0;
   const bar = document.getElementById('progress-bar');
@@ -938,37 +1021,29 @@ function startProcessing() {
   const title = document.getElementById('processing-title');
 
   const fakeInterval = setInterval(() => {
-    if (progress < (hasKey ? 40 : 100)) {
-      progress += Math.floor(Math.random() * 4) + 1;
-      if (progress > (hasKey ? 40 : 100)) progress = hasKey ? 40 : 100;
-    }
+    progress += Math.floor(Math.random() * 4) + 1;
+    if (progress > 100) progress = 100;
     bar.style.width = progress + '%';
 
-    // Update status message dynamically
     if (progress < 20) {
       status.textContent = 'Mapping facial features... (' + progress + '%)';
     } else if (progress < 40) {
-      status.textContent = 'Analyzing baby\'s unique features... (' + progress + '%)';
-      title.textContent = 'Processing ' + babyName + '\'s photos...';
+      status.textContent = 'Analyzing ' + babyName + '\'s unique features... (' + progress + '%)';
     } else if (progress < 60) {
       status.textContent = 'Applying artistic themes... (' + progress + '%)';
-      title.textContent = 'Adding the magic for ' + babyName + '...';
     } else if (progress < 80) {
       status.textContent = 'Rendering portrait details... (' + progress + '%)';
     } else if (progress < 100) {
       status.textContent = 'Final touches — almost ready! (' + progress + '%)';
     } else {
-      status.textContent = 'Done! Preparing your preview... ✨';
+      status.textContent = 'Your portraits are ready! ✨';
     }
 
-    if (!hasKey && progress >= 100) {
+    if (progress >= 100) {
       clearInterval(fakeInterval);
-      setTimeout(showPreview, 800);
+      setTimeout(showPreview, 1000);
     }
   }, 300);
-
-  // Sempre chama a geração — a chave agora está no servidor (Netlify Function)
-  generateAllThemesFal(FAL_API_KEY, fakeInterval, bar, status);
 }
 
 // ===== FAL.AI THEME PROMPTS =====

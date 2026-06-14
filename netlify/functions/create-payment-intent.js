@@ -11,15 +11,10 @@ const Stripe = require('stripe');
 const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
 const stripe = new Stripe(STRIPE_SECRET);
 
-// 🧪 MODO TESTE — trocar para false antes de ir ao ar!
-const TEST_MODE = true;
+// Preços em centavos (BRL)
+const PLAN_PRICES = { starter: 100, classic: 100, premium: 100 }; // R$1,00 para testar
 
-// Preços em centavos
-const PLAN_PRICES = TEST_MODE
-  ? { starter: 100, classic: 100, premium: 100 }  // $1 para testar
-  : { starter: 1900, classic: 2900, premium: 3900 };
-
-const BUMP_PRICE = TEST_MODE ? 100 : 300; // $1 ou $3
+const BUMP_PRICE = 100; // R$1,00
 
 exports.handler = async (event) => {
   const headers = {
@@ -59,7 +54,7 @@ exports.handler = async (event) => {
     // Criar PaymentIntent com setup_future_usage para salvar o método de pagamento
     const paymentIntent = await stripe.paymentIntents.create({
       amount:   totalAmount,
-      currency: 'usd',
+      currency: 'brl',
       customer: customer?.id,
       setup_future_usage: 'off_session', // ← permite upsell 1 clique depois
       metadata: {

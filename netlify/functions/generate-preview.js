@@ -1,11 +1,14 @@
 // ============================================================
 // NETLIFY FUNCTION: generate-preview
-// URL: /.netlify/functions/generate-preview
+// URL: /.netlify/functions/generate-preview  (POST)
 //
-// Recebe a foto do bebê (base64) + nome do tema
-// Converte para Data URL e gera a imagem via KIE AI
-// (GPT Image 2 - Image to Image)
-// Retorna a URL da imagem gerada
+// NOVA ARQUITETURA (fix de timeout):
+//  → Cria a task no KIE AI e retorna o taskId IMEDIATAMENTE
+//  → Não faz polling aqui (evita timeout da Netlify Function)
+//  → O frontend chama poll-preview para obter o resultado
+//
+// Body esperado: { photoBase64, mimeType, themeName }
+// Resposta:      { taskId, theme }
 // ============================================================
 
 const KIE_API_KEY = process.env.KIE_API_KEY;
@@ -51,92 +54,9 @@ function getPrompt(themeName) {
   return 'Transform this newborn baby photo into a professional studio portrait with a magical themed setting, ultra-realistic 4K studio lighting, soft bokeh background, photorealistic';
 }
 
-// ── Convert base64 to Data URL (KIE AI accepts Data URLs as input_urls) ──────
+// ── Convert base64 to Data URL ────────────────────────────────
 function toDataUrl(base64Data, mimeType = 'image/jpeg') {
   return `data:${mimeType};base64,${base64Data}`;
-}
-
-// ── Create KIE AI task ───────────────────────────────────────
-async function createKieTask(dataUrl, prompt) {
-  const res = await fetch(`${KIE_BASE}/jobs/createTask`, {
-    method:  'POST',
-    headers: {
-      'Authorization': `Bearer ${KIE_API_KEY}`,
-      'Content-Type':  'application/json'
-    },
-    body: JSON.stringify({
-      model: 'gpt-image-2-image-to-image',
-      input: {
-        prompt,
-        input_urls:   [dataUrl],
-        aspect_ratio: '3:4',
-        resolution:   '1K'
-      }
-    })
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`KIE createTask failed: ${res.status} — ${text}`);
-  }
-
-  const json = await res.json();
-  if (json.code !== 200 || !json.data?.taskId) {
-    throw new Error(`KIE createTask error: ${JSON.stringify(json)}`);
-  }
-
-  return json.data.taskId;
-}
-
-// ── Poll KIE AI task until done ──────────────────────────────
-async function pollKieTask(taskId, maxAttempts = 60, intervalMs = 5000) {
-  for (let i = 0; i < maxAttempts; i++) {
-    await new Promise(r => setTimeout(r, intervalMs));
-
-    const res = await fetch(`${KIE_BASE}/jobs/getTaskDetail?taskId=${encodeURIComponent(taskId)}`, {
-      headers: { 'Authorization': `Bearer ${KIE_API_KEY}` }
-    });
-
-    if (!res.ok) {
-      console.warn(`Poll attempt ${i + 1} failed: ${res.status}`);
-      continue;
-    }
-
-    const json = await res.json();
-    if (json.code !== 200) {
-      console.warn(`Poll attempt ${i + 1} bad code: ${json.code}`);
-      continue;
-    }
-
-    const task = json.data;
-    const status = (task?.status || task?.taskStatus || '').toString().toLowerCase();
-
-    // Completed states
-    if (status === 'success' || status === 'completed' || status === 'done' || status === '2') {
-      // Result URL may be at different paths depending on KIE AI version
-      const url =
-        task.result?.url ||
-        task.result?.imageUrl ||
-        task.result?.image_url ||
-        (Array.isArray(task.result) && task.result[0]?.url) ||
-        task.outputUrl ||
-        task.output_url ||
-        task.imageUrl;
-
-      if (url) return url;
-      throw new Error('KIE task completed but no image URL found in response: ' + JSON.stringify(task));
-    }
-
-    // Failed states
-    if (status === 'failed' || status === 'error' || status === '3') {
-      throw new Error('KIE task failed: ' + (task.error || task.errorMsg || JSON.stringify(task)));
-    }
-
-    // Still processing — continue polling
-    console.log(`Poll ${i + 1}/${maxAttempts}: status=${status}`);
-  }
-
-  throw new Error('KIE AI task timed out after ' + (maxAttempts * intervalMs / 1000) + 's');
 }
 
 // ── Handler ──────────────────────────────────────────────────
@@ -156,13 +76,48 @@ exports.handler = async (event) => {
   }
 
   try {
-    const dataUrl  = toDataUrl(photoBase64, mimeType);
-    const prompt   = getPrompt(themeName);
-    const taskId   = await createKieTask(dataUrl, prompt);
-    console.log(`KIE task created: ${taskId} for theme "${themeName}"`);
-    const imageUrl = await pollKieTask(taskId);
+    const dataUrl = toDataUrl(photoBase64, mimeType);
+    const prompt  = getPrompt(themeName);
 
-    return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ imageUrl, theme: themeName, taskId }) };
+    // Cria a task — retorna IMEDIATAMENTE com o taskId
+    // O frontend vai fazer polling via /poll-preview
+    const res = await fetch(`${KIE_BASE}/jobs/createTask`, {
+      method:  'POST',
+      headers: {
+        'Authorization': `Bearer ${KIE_API_KEY}`,
+        'Content-Type':  'application/json'
+      },
+      body: JSON.stringify({
+        model: 'gpt-image-2-image-to-image',
+        input: {
+          prompt,
+          input_urls:   [dataUrl],
+          aspect_ratio: '3:4',
+          resolution:   '1K'
+        }
+      })
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`KIE createTask failed: ${res.status} — ${text}`);
+    }
+
+    const json = await res.json();
+    if (json.code !== 200 || !json.data?.taskId) {
+      throw new Error(`KIE createTask error: ${JSON.stringify(json)}`);
+    }
+
+    const taskId = json.data.taskId;
+    console.log(`KIE task created: ${taskId} for theme "${themeName}"`);
+
+    // Retorna taskId imediatamente — sem polling aqui
+    return {
+      statusCode: 200,
+      headers: HEADERS,
+      body: JSON.stringify({ taskId, theme: themeName, status: 'processing' })
+    };
+
   } catch (err) {
     console.error('generate-preview error:', err.message);
     return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };

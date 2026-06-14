@@ -59,9 +59,9 @@ snapibaby/
 
 | Plano | Fotos | Preço |
 |---|---|---|
-| Starter | 15 | $29 |
-| Classic | 30 | $49 |
-| Premium | 50 | $59 |
+| Starter | 10 | $19 |
+| Classic | 20 | $29 |
+| Premium | 30 | $39 |
 | Order Bump | Premium Frames + Editing | +$9 |
 
 URL params de plano: `?plano=starter` / `?plano=classic` / `?plano=premium`
