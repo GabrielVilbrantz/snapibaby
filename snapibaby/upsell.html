@@ -945,6 +945,12 @@ async function acceptUpsell() {
     setTimeout(function() {
       window.location.href = 'success.html?upsell=true&total=' + encodeURIComponent(upsellTotal);
     }, 1800);
+  }
+}
+
+function declineUpsell() {
+  exitGuardActive = false;
+  window.location.href = 'success.html?email=' + encodeURIComponent(CUSTOMER_EMAIL) + '&total=' + encodeURIComponent(BASE_TOTAL.toFixed(2));
 }
 
 // ===== DOWNSELL — show / close / accept =====
