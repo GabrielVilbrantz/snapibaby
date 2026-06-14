@@ -698,14 +698,7 @@ body { background: #f4f6fa; }
     <h2><span class="baby-name-span"></span>'s portraits are ready!</h2>
     <p style="color: var(--text-muted); margin-bottom: 4px;">We created portraits in all your chosen themes. Unlock the ones you want below.</p>
 
-    <!-- Smart theme preview grid -->
-    <div class="theme-previews-grid" id="themePreviewsGrid"></div>
 
-    <!-- Unlock banner -->
-    <div class="unlock-banner">
-      <span class="unlock-emoji"></span>
-      <span>You chose <strong id="unlockBannerCount">5 themes</strong> — choose a plan to unlock them now.</span>
-    </div>
 
     <!-- OFFER BANNER + COUNTDOWN -->
     <div class="offer-banner-wrap">
@@ -1228,36 +1221,13 @@ function showPreview() {
 const FAL_API_KEY = 'via-netlify-function'; // Não precisa mais da chave aqui
 
 function buildThemePreviewGrid() {
-  const grid = document.getElementById('themePreviewsGrid');
   const count = selectedThemeImages.length;
-  grid.innerHTML = '';
-  const bannerEl = document.getElementById('unlockBannerCount');
-  if (bannerEl) bannerEl.textContent = count + ' theme' + (count !== 1 ? 's' : '');
   const starterN = Math.min(3, count);
   const classicN = Math.min(5, count);
   const el = (id) => document.getElementById(id);
   if (el('starter-themes-li')) el('starter-themes-li').textContent = starterN + ' of your ' + count + ' theme' + (count !== 1 ? 's' : '') + ' unlocked';
   if (el('classic-themes-li'))  el('classic-themes-li').textContent  = classicN + ' of your ' + count + ' theme' + (count !== 1 ? 's' : '') + ' unlocked';
   if (el('premium-themes-li')) el('premium-themes-li').textContent  = 'ALL ' + count + ' of your chosen themes unlocked';
-  const themes = count > 0 ? selectedThemeImages : [{ src: ALL_PHOTOS[0].src, name: ALL_PHOTOS[0].name }];
-  themes.forEach(function(t, i) {
-    const card = document.createElement('div');
-    card.className = 'tpv-card';
-    var stateClass, overlay;
-    if (i === 0) {
-      stateClass = 'tpv-unlocked';
-      overlay = '<div class="tpv-watermark"><span class="tpv-wm-text">SNAPIBABY</span></div>';
-    } else if (i === 1) {
-      stateClass = 'tpv-partial';
-      overlay = '<div class="tpv-watermark"><span class="tpv-lock-icon">\uD83D\uDD12</span><span class="tpv-lock-label">Unlock to view</span></div>';
-    } else {
-      stateClass = 'tpv-locked';
-      overlay = '<div class="tpv-watermark"><span class="tpv-lock-icon">\uD83D\uDD12</span><span class="tpv-lock-label">Locked</span></div>';
-    }
-    card.classList.add(stateClass);
-    card.innerHTML = '<img src="' + t.src + '" alt="' + t.name + '" loading="lazy">' + overlay + '<div class="tpv-theme-name">' + t.name + '</div>';
-    grid.appendChild(card);
-  });
 }
 
 // ===== COUNTDOWN TIMER =====
