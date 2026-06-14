@@ -1348,7 +1348,7 @@
           stripeCustomerId: customerId,
           stripePaymentMethod: pmId,
           themesSelected: JSON.parse(localStorage.getItem('snapi_themes') || '[]'),
-          babyPhotoUrls: []
+          babyPhotoUrls: JSON.parse(localStorage.getItem('snapi_baby_photo_urls') || '[]')
         });
 
         if (order) {

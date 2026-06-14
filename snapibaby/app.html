@@ -667,9 +667,9 @@ body { background: #f4f6fa; }
   <!-- STEP 2: THEME SELECTION -->
   <div class="theme-selection-area" id="step-themes">
     <h2>Step 2: Choose themes for <span class="baby-name-span"></span></h2>
-    <p>Select the themes you love — you'll see a preview of each one before paying.</p>
+    <p>Select the themes you love — then choose your plan to unlock them all.</p>
     <div class="theme-grid" id="themeGrid"></div>
-    <button class="btn-primary btn-advance" onclick="startProcessing()" id="btn-process" disabled>Generate my baby's photos — <span id="selected-count">0 themes selected</span></button>
+    <button class="btn-primary btn-advance" onclick="goToPricing()" id="btn-process" disabled>See My Plan Options — <span id="selected-count">0 themes selected</span></button>
   </div>
 
   <!-- STEP 3: PROCESSING — Blurred Teaser -->
@@ -748,7 +748,7 @@ body { background: #f4f6fa; }
           <li class="feat-no-v2">Portrait &amp; landscape format</li>
           <li class="feat-no-v2">Free redo</li>
         </ul>
-        <button class="apc-btn-v2 apc-btn-secondary" onclick="window.location.href='checkout.html?plano=starter'">Get 10 photos in 1 hour</button>
+        <button class="apc-btn-v2 apc-btn-secondary" onclick="selectPlan('starter')" id="btn-starter">Get 10 photos in 1 hour</button>
         <p class="app-guarantee" style="color:#c9335a; font-weight:700; font-size:0.8rem;">💰 100% refund if you don't love it</p>
       </div>
 
@@ -771,7 +771,7 @@ body { background: #f4f6fa; }
           <li>Portrait &amp; landscape format</li>
           <li class="feat-no-v2">Free redo</li>
         </ul>
-        <button class="apc-btn-v2 apc-btn-primary" onclick="window.location.href='checkout.html?plano=classic'">Get 20 photos in 30 min</button>
+        <button class="apc-btn-v2 apc-btn-primary" onclick="selectPlan('classic')" id="btn-classic">Get 20 photos in 30 min</button>
         <p class="app-guarantee" style="color:#c9335a; font-weight:700; font-size:0.8rem;">💰 100% refund if you don't love it</p>
       </div>
 
@@ -795,7 +795,7 @@ body { background: #f4f6fa; }
           <li>1 free redo included</li>
           <li>Perfect for the complete 1st year album</li>
         </ul>
-        <button class="apc-btn-v2 apc-btn-gold" onclick="window.location.href='checkout.html?plano=premium'">Get 30 photos in 15 min</button>
+        <button class="apc-btn-v2 apc-btn-gold" onclick="selectPlan('premium')" id="btn-premium">Get 30 photos in 15 min</button>
         <p class="app-guarantee" style="color:#c9335a; font-weight:700; font-size:0.8rem;">💰 100% refund if you don't love it</p>
       </div>
     </div>
@@ -987,57 +987,75 @@ function showThemes() {
   }, 800);
 }
 
-function startProcessing() {
-  document.getElementById('step-themes').style.display = 'none';
-  document.getElementById('main-title').style.display = 'none';
-  document.getElementById('step-upload').style.display = 'none';
-  document.getElementById('upload-section').style.display = 'none';
-  document.getElementById('step-processing').style.display = 'block';
+function goToPricing() {
+  // Save selected themes to localStorage for checkout
+  const themeNames = selectedThemeImages.map(t => t.name);
+  localStorage.setItem('snapi_themes', JSON.stringify(themeNames));
 
-  // Update baby name in processing title
-  document.querySelectorAll('.baby-name-span2').forEach(s => s.textContent = babyName);
+  // Save baby photo as base64 to sessionStorage for checkout upload
+  if (uploadedFiles.length > 0) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const base64 = e.target.result.split(',')[1];
+      sessionStorage.setItem('snapi_photo_b64', base64);
+      sessionStorage.setItem('snapi_photo_mime', uploadedFiles[0].type || 'image/jpeg');
+    };
+    reader.readAsDataURL(uploadedFiles[0]);
+  }
 
-  // Show the user's uploaded photo blurred & pulsing
+  // Show the user's uploaded photo blurred in the teaser
   if (uploadedFiles.length > 0) {
     const teaserImg = document.getElementById('teaserPhotoImg');
     teaserImg.src = URL.createObjectURL(uploadedFiles[0]);
     document.getElementById('teaserPhotoWrap').style.display = 'block';
-  } else {
-    document.getElementById('teaserPhotoWrap').style.display = 'none';
   }
 
+  // Update theme count in pricing cards
+  buildThemePreviewGrid();
+
+  // Hide steps, show pricing
+  document.getElementById('step-themes').style.display = 'none';
+  document.getElementById('main-title').style.display = 'none';
+  document.getElementById('step-upload').style.display = 'none';
+  document.getElementById('upload-section').style.display = 'none';
+  document.getElementById('step-preview').style.display = 'block';
+  document.querySelectorAll('.baby-name-span').forEach(s => s.textContent = babyName);
   window.scrollTo({ top: 0, behavior: 'smooth' });
-
-  let progress = 0;
-  const bar = document.getElementById('progress-bar');
-  const status = document.getElementById('status-text');
-  const title = document.getElementById('processing-title');
-
-  const fakeInterval = setInterval(() => {
-    progress += Math.floor(Math.random() * 4) + 1;
-    if (progress > 100) progress = 100;
-    bar.style.width = progress + '%';
-
-    if (progress < 20) {
-      status.textContent = 'Mapping facial features... (' + progress + '%)';
-    } else if (progress < 40) {
-      status.textContent = 'Analyzing ' + babyName + '\'s unique features... (' + progress + '%)';
-    } else if (progress < 60) {
-      status.textContent = 'Applying artistic themes... (' + progress + '%)';
-    } else if (progress < 80) {
-      status.textContent = 'Rendering portrait details... (' + progress + '%)';
-    } else if (progress < 100) {
-      status.textContent = 'Final touches — almost ready! (' + progress + '%)';
-    } else {
-      status.textContent = 'Your portraits are ready! ✨';
-    }
-
-    if (progress >= 100) {
-      clearInterval(fakeInterval);
-      setTimeout(showPreview, 1000);
-    }
-  }, 300);
 }
+
+async function selectPlan(planName) {
+  // Disable all plan buttons and show loading
+  ['starter','classic','premium'].forEach(p => {
+    const b = document.getElementById('btn-' + p);
+    if (b) { b.disabled = true; b.textContent = p === planName ? '⌛ Preparing...' : b.textContent; }
+  });
+
+  try {
+    // Upload photo to get a real URL for KIE AI
+    const b64  = sessionStorage.getItem('snapi_photo_b64');
+    const mime = sessionStorage.getItem('snapi_photo_mime') || 'image/jpeg';
+
+    if (b64) {
+      const res = await fetch('/.netlify/functions/upload-photo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photoBase64: b64, mimeType: mime })
+      });
+      if (res.ok) {
+        const { url } = await res.json();
+        if (url) localStorage.setItem('snapi_baby_photo_urls', JSON.stringify([url]));
+      }
+    }
+  } catch(e) {
+    console.warn('Photo upload failed (non-fatal):', e.message);
+  }
+
+  window.location.href = 'checkout.html?plano=' + planName + (babyName !== 'your baby' ? '&baby=' + encodeURIComponent(babyName) : '');
+}
+
+// Keep for backward compat
+function startProcessing() { goToPricing(); }
+function showPreview() { goToPricing(); }
 
 // ===== FAL.AI THEME PROMPTS =====
 const THEME_PROMPTS = {

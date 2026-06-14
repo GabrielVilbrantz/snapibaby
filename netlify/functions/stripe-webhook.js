@@ -55,10 +55,70 @@ exports.handler = async (event) => {
   // ── 2. Processar evento de pagamento confirmado ────────────
   if (stripeEvent.type === 'payment_intent.succeeded') {
     const paymentIntent = stripeEvent.data.object;
-    const piId = paymentIntent.id;
+    const piId          = paymentIntent.id;
+    const meta          = paymentIntent.metadata || {};
 
-    console.log('Payment succeeded:', piId);
+    console.log('Payment succeeded:', piId, 'type:', meta.type || 'main');
 
+    // ── UPSELL / DOWNSELL ─────────────────────────────────────
+    if (meta.type === 'upsell' || meta.type === 'downsell') {
+      const orderId     = meta.order_id;
+      const extraThemes = (meta.extra_themes || '').split(',').filter(Boolean);
+
+      if (!orderId || !extraThemes.length) {
+        console.warn('Upsell PI missing order_id or extra_themes in metadata');
+        return { statusCode: 200, body: JSON.stringify({ received: true }) };
+      }
+
+      // Buscar pedido
+      const { data: order, error: fetchErr } = await db
+        .from('orders').select('*').eq('id', orderId).single();
+
+      if (fetchErr || !order) {
+        console.error('Order not found for upsell:', orderId);
+        return { statusCode: 200, body: JSON.stringify({ received: true }) };
+      }
+
+      const faceUrl = (order.baby_photo_urls || [])[0] || null;
+
+      try {
+        const newUrls = [];
+        for (const theme of extraThemes) {
+          const prompt = HOLIDAY_PROMPTS[theme] || THEME_PROMPTS['default'];
+          try {
+            const imgUrl = await callKieAiWithRetry(prompt, faceUrl);
+            newUrls.push({ theme, url: imgUrl, status: 'ok', source: meta.type });
+          } catch (e) {
+            console.warn(`KIE failed for holiday theme "${theme}":`, e.message);
+            newUrls.push({ theme, url: null, status: 'failed', error: e.message });
+          }
+        }
+
+        // Append to existing generated_urls
+        const existing = order.generated_urls || [];
+        const combined = [...existing, ...newUrls];
+
+        await db.from('orders').update({
+          generated_urls: combined,
+          upsell_added:   meta.type === 'upsell',
+          downsell_added: meta.type === 'downsell'
+        }).eq('id', orderId);
+
+        console.log(`Upsell: added ${newUrls.length} holiday photos to order ${order.order_number}`);
+
+        // Email de entrega das fotos extras
+        await sendDeliveryEmail(order, combined).catch(err =>
+          console.error('Upsell delivery email failed:', err.message)
+        );
+
+      } catch (genErr) {
+        console.error('Upsell generation failed:', genErr.message);
+      }
+
+      return { statusCode: 200, body: JSON.stringify({ received: true }) };
+    }
+
+    // ── PEDIDO PRINCIPAL ──────────────────────────────────────
     // Buscar pedido no Supabase
     const { data: order, error: fetchErr } = await db
       .from('orders')
@@ -78,7 +138,6 @@ exports.handler = async (event) => {
     }).eq('id', order.id);
 
     // ── 3. Email de confirmação imediata ──────────────────────
-    // Enviado enquanto as fotos ainda estão sendo geradas
     await sendConfirmationEmail(order).catch(err =>
       console.error('Confirmation email failed (non-fatal):', err.message)
     );
@@ -286,6 +345,16 @@ async function sendDeliveryEmail(order, generatedUrls) {
 
   console.log(`Delivery email sent to ${order.customer_email} with ${successUrls.length} photos`);
 }
+
+// ============================================================
+// Prompts para temas HOLIDAY (upsell / downsell)
+// ============================================================
+const HOLIDAY_PROMPTS = {
+  'Christmas': 'Transform this newborn baby photo into a professional studio portrait: baby in a cozy Christmas setting with a tiny Santa hat, fairy lights, wrapped gifts and a warm winter backdrop, soft warm studio lighting, ultra-realistic photorealistic portrait',
+  'Halloween': 'Transform this newborn baby photo into a professional studio portrait: baby in an adorable Halloween costume surrounded by friendly pumpkins, autumn leaves and candy corn, dramatic but cute studio lighting, photorealistic',
+  'Easter':    'Transform this newborn baby photo into a professional studio portrait: baby with cute Easter bunny ears surrounded by colorful Easter eggs and spring flowers, soft pastel studio lighting, photorealistic',
+  'St Patricks': 'Transform this newborn baby photo into a professional studio portrait: baby in a tiny green outfit with shamrocks and pot of gold, Irish spring background, studio quality photorealistic'
+};
 
 // ============================================================
 // Gera imagens para todos os temas do pedido via KIE AI

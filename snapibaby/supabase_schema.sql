@@ -25,16 +25,24 @@ CREATE TABLE IF NOT EXISTS orders (
   payment_status  TEXT DEFAULT 'pending' CHECK (payment_status IN ('pending','paid','failed','refunded')),
 
   -- Generation
-  themes_selected JSONB,         -- array of theme names chosen by user
-  baby_photo_urls JSONB,         -- fal.ai storage URLs of uploaded baby photos
-  generated_urls  JSONB,         -- fal.ai output image URLs
+  themes_selected   JSONB,         -- array of theme names chosen by user
+  baby_photo_urls   JSONB,         -- Supabase Storage URLs of uploaded baby photos
+  generated_urls    JSONB,         -- KIE AI output image URLs
+  upsell_themes     JSONB,         -- holiday themes bought in upsell/downsell
   generation_status TEXT DEFAULT 'pending' CHECK (generation_status IN ('pending','processing','done','failed')),
-  download_url    TEXT,          -- final ZIP or gallery URL
+  download_url      TEXT,          -- final gallery URL
 
   -- Meta
   order_number    TEXT UNIQUE,   -- SN-XXXXX display ID
   notes           TEXT
 );
+
+-- ===== MIGRATION: add upsell_themes if not exists =====
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='upsell_themes') THEN
+    ALTER TABLE orders ADD COLUMN upsell_themes JSONB;
+  END IF;
+END $$;
 
 -- ===== TABELA DE EMAIL BACKUPS =====
 CREATE TABLE IF NOT EXISTS email_backups (
