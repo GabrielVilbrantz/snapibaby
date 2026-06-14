@@ -476,7 +476,7 @@
       <span>Order <strong id="orderId">#SN-00000</strong> — Payment confirmed</span>
     </div>
 
-    <!-- Photo preview strip (demo thumbnails from your site images) -->
+    <!-- Photo preview strip -->
     <div class="photo-strip" id="photoStrip">
       <div class="photo-thumb">🍼<img src="newborn-floral-basket.jpg" alt="" onerror="this.style.display='none'"></div>
       <div class="photo-thumb">✨<img src="newborn-princess.jpg" alt="" onerror="this.style.display='none'"></div>
@@ -485,10 +485,15 @@
       <div class="photo-thumb photo-thumb-more">+<span id="moreCount">46</span><span>more</span></div>
     </div>
 
+    <!-- Real generated photos gallery (populated by JS) -->
+    <div id="photoGallery" style="display:none; margin-bottom:24px;">
+      <p style="font-size:0.82rem;color:#16a34a;font-weight:700;margin-bottom:12px;">✓ Your portraits are ready — tap to save each one:</p>
+      <div id="photoGalleryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;"></div>
+    </div>
+
     <div class="download-headline">Your complete collection is ready</div>
     <p class="download-sub">
-      All portraits in <strong>Full HD</strong>, no watermarks, ready to print, frame, and share —
-      delivered instantly as a ZIP file.
+      All portraits in <strong>Full HD</strong>, no watermarks, ready to print, frame, and share.
     </p>
 
     <button class="btn-download-all" id="btnDownload" onclick="downloadPhotos()">
@@ -578,6 +583,9 @@ const savedEmail   = localStorage.getItem('snapi_customer_email') || urlParams.g
 const savedOrderId = localStorage.getItem('snapi_order_id')       || urlParams.get('order_id') || '';
 const savedOrderNr = localStorage.getItem('snapi_order_number')   || '';
 
+// Real photo URLs fetched from Supabase
+let realPhotoUrls = [];
+
 // Hero name
 if (savedName) {
   const firstName = savedName.split(' ')[0];
@@ -608,6 +616,55 @@ const hasUpsell   = urlParams.get('upsell') === 'true';
 const totalPhotos = photoCount + (hasUpsell ? 15 : 0);
 document.getElementById('moreCount').textContent = Math.max(0, totalPhotos - 4);
 
+// ===== RENDER REAL PHOTOS GALLERY =====
+function renderRealPhotos(urls) {
+  if (!urls || urls.length === 0) return;
+  realPhotoUrls = urls;
+
+  // Update photo strip thumbnails
+  const strip = document.getElementById('photoStrip');
+  strip.innerHTML = '';
+  const stripCount = Math.min(4, urls.length);
+  for (let i = 0; i < stripCount; i++) {
+    const a = document.createElement('a');
+    a.href = urls[i]; a.target = '_blank';
+    a.className = 'photo-thumb';
+    a.style.cssText = 'cursor:pointer;';
+    const img = document.createElement('img');
+    img.src = urls[i]; img.alt = 'Portrait ' + (i + 1);
+    img.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;';
+    a.appendChild(img);
+    strip.appendChild(a);
+  }
+  if (urls.length > 4) {
+    const more = document.createElement('div');
+    more.className = 'photo-thumb photo-thumb-more';
+    more.innerHTML = '+<span>' + (urls.length - 4) + '</span><span>more</span>';
+    strip.appendChild(more);
+  }
+  document.getElementById('moreCount').textContent = Math.max(0, urls.length - 4);
+
+  // Build download gallery
+  const gallery = document.getElementById('photoGallery');
+  const grid    = document.getElementById('photoGalleryGrid');
+  grid.innerHTML = '';
+  urls.forEach(function(url, i) {
+    const card = document.createElement('div');
+    card.style.cssText = 'position:relative;border-radius:10px;overflow:hidden;background:#f3f4f6;aspect-ratio:3/4;';
+    card.innerHTML = '<img src="' + url + '" alt="Portrait ' + (i+1) + '" style="width:100%;height:100%;object-fit:cover;display:block;">'
+      + '<a href="' + url + '" download="snapibaby-portrait-' + (i+1) + '.jpg" target="_blank" '
+      + 'style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.65);color:white;text-align:center;'
+      + 'padding:7px 4px;font-size:0.72rem;font-weight:700;text-decoration:none;letter-spacing:0.5px;">'
+      + '⬇ Save</a>';
+    grid.appendChild(card);
+  });
+  gallery.style.display = 'block';
+
+  // Update download button text
+  const btn = document.getElementById('btnDownload');
+  btn.innerHTML = '📩 Send All ' + urls.length + ' Photos to Email<span class="btn-download-sub">Full HD · No watermarks · Links in your inbox</span>';
+}
+
 // ===== DELIVERY — real email via Resend =====
 async function downloadPhotos() {
   const btn   = document.getElementById('btnDownload');
@@ -633,14 +690,14 @@ async function downloadPhotos() {
         customerName:  name          || 'there',
         customerEmail: email,
         orderNumber:   savedOrderNr  || 'SN-00000',
-        photoUrls:     [],
+        photoUrls:     realPhotoUrls,
         plan:          plan
       })
     });
 
-    // Success regardless of Resend status (backup already saved to Supabase)
+    const sentCount = realPhotoUrls.length || totalPhotos;
     btn.innerHTML = '✔ Sent! Check your inbox<span class="btn-download-sub">Your '
-      + totalPhotos + ' portraits are on their way to ' + email + '</span>';
+      + sentCount + ' portraits are on their way to ' + email + '</span>';
     btn.style.background = 'linear-gradient(135deg, #16a34a, #22c55e)';
     btn.style.opacity = '1';
     btn.disabled = false;
@@ -648,9 +705,8 @@ async function downloadPhotos() {
     document.getElementById('backupSuccess').classList.add('show');
     document.getElementById('backupForm').style.display = 'none';
     document.getElementById('backupConfirmText').textContent =
-      'Your ' + totalPhotos + ' portraits are being sent to ' + email + ' — check your inbox in minutes.';
+      'Your ' + sentCount + ' portraits are being sent to ' + email + ' — check your inbox in minutes.';
 
-    // Save email to localStorage for future visits
     localStorage.setItem('snapi_customer_email', email);
     if (name) localStorage.setItem('snapi_customer_name', name);
 
@@ -711,26 +767,44 @@ async function sendBackup() {
 
 // ===== GENERATION STATUS POLLING (10-min timeout) =====
 async function pollGenerationStatus() {
-  if (!savedOrderId) return; // sem order ID, nada a fazer
+  if (!savedOrderId) return;
 
-  const MAX_WAIT_MS    = 10 * 60 * 1000; // 10 minutos
-  const POLL_INTERVAL  = 8000;           // 8 segundos
+  const MAX_WAIT_MS    = 10 * 60 * 1000;
+  const POLL_INTERVAL  = 8000;
   const startTime      = Date.now();
 
   const banner = document.getElementById('generationBanner');
   if (banner) banner.style.display = 'flex';
 
-  while (Date.now() - startTime < MAX_WAIT_MS) {
-    try {
-      const status = await getOrderStatus(savedOrderId);
-      if (!status) break;
+  // Try immediately first
+  try {
+    const order = await getOrderWithPhotos(savedOrderId);
+    if (order && order.generation_status === 'done') {
+      if (banner) banner.style.display = 'none';
+      if (order.generated_urls && order.generated_urls.length > 0) {
+        const urls = order.generated_urls.filter(x => x.status === 'ok' && x.url).map(x => x.url);
+        renderRealPhotos(urls);
+      }
+      return;
+    }
+  } catch(e) { console.warn('Initial fetch error:', e); }
 
-      if (status.generation_status === 'done') {
+  while (Date.now() - startTime < MAX_WAIT_MS) {
+    await new Promise(r => setTimeout(r, POLL_INTERVAL));
+    try {
+      const order = await getOrderWithPhotos(savedOrderId);
+      if (!order) break;
+
+      if (order.generation_status === 'done') {
         if (banner) banner.style.display = 'none';
-        return; // tudo pronto
+        if (order.generated_urls && order.generated_urls.length > 0) {
+          const urls = order.generated_urls.filter(x => x.status === 'ok' && x.url).map(x => x.url);
+          renderRealPhotos(urls);
+        }
+        return;
       }
 
-      if (status.generation_status === 'failed') {
+      if (order.generation_status === 'failed') {
         if (banner) {
           banner.innerHTML = '⚠️ <strong>Generation issue detected.</strong> We\'ll email your photos shortly. Need help? <a href="mailto:support@snapibaby.com" style="color:#ff4d6d">Contact us</a>.';
           banner.style.background = 'rgba(239,68,68,0.1)';
@@ -742,11 +816,9 @@ async function pollGenerationStatus() {
     } catch (e) {
       console.warn('Poll error:', e);
     }
-
-    await new Promise(r => setTimeout(r, POLL_INTERVAL));
   }
 
-  // Timeout: geração demorou mais de 10 minutos
+  // Timeout
   if (banner) {
     banner.innerHTML = '⏳ <strong>Your photos are taking a bit longer than expected.</strong> We\'ll send them to your email as soon as they\'re ready — usually within 15 minutes.';
     banner.style.background = 'rgba(245,197,24,0.08)';

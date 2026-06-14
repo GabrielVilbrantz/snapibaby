@@ -108,3 +108,17 @@ async function getOrderStatus(orderId) {
   if (error) return null;
   return data;
 }
+
+// ============================================================
+// Busca pedido completo incluindo URLs das fotos geradas
+// ============================================================
+async function getOrderWithPhotos(orderId) {
+  const { data, error } = await db
+    .from('orders')
+    .select('generation_status, download_url, order_number, generated_urls, customer_name, customer_email, plan')
+    .eq('id', orderId)
+    .single();
+
+  if (error) return null;
+  return data;
+}
