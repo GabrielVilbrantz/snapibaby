@@ -310,10 +310,9 @@ async function sendDeliveryEmail(order, generatedUrls) {
           Share SnapiBaby with a friend and <strong>both of you get 10% OFF</strong> your next order!<br>
           Use code <strong style="color:#ff4d6d;">SNAPIFRIEND10</strong> to redeem.
         </p>
-        <a href="https://api.whatsapp.com/send?text=I+just+got+the+most+beautiful+baby+portraits+with+SnapiBaby!+%F0%9F%8D%BC+Use+code+SNAPIFRIEND10+for+10%25+off+%E2%86%92+https%3A%2F%2Fsnapibaby.netlify.app"
-           target="_blank"
-           style="display:inline-block;padding:10px 24px;background:#25D366;color:white;border-radius:30px;text-decoration:none;font-weight:700;font-size:0.88rem;">
-          Share on WhatsApp
+        <a href="https://snapibaby.netlify.app"
+           style="display:inline-block;padding:10px 24px;background:linear-gradient(135deg,#ff4d6d,#e8003d);color:white;border-radius:30px;text-decoration:none;font-weight:700;font-size:0.88rem;">
+          Share SnapiBaby →
         </a>
       </div>
 
