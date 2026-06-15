@@ -6,6 +6,10 @@
 [functions]
   node_bundler = "esbuild"
 
+[functions."process-order-background"]
+  # Background Function — runs up to 15 minutes (required for KIE AI polling)
+  # Netlify automatically treats functions ending in -background as background functions
+
 [[plugins]]
   package = "@netlify/plugin-functions-install-core"
 

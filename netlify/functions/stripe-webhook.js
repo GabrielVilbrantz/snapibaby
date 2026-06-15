@@ -116,18 +116,20 @@ exports.handler = async (event) => {
 };
 
 // ============================================================
-// Trigger process-order function asynchronously
-// Uses a non-blocking fetch with a short timeout (fire-and-forget)
+// Trigger process-order-background (Netlify Background Function)
+// Background Functions run up to 15 minutes — required for KIE AI polling.
+// The fetch is fire-and-forget: Netlify spins up a separate background
+// function instance; we don't need to await it here.
 // ============================================================
 async function triggerProcessOrder(orderId, type = 'main') {
-  const url = `${SITE_URL}/.netlify/functions/process-order`;
-  // Fire and don't await — just send the request
+  // NOTE: Background functions are invoked at /.netlify/functions/<name>-background
+  const url = `${SITE_URL}/.netlify/functions/process-order-background`;
   fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ orderId, type })
   }).catch(e => console.error('triggerProcessOrder fetch error:', e.message));
-  console.log(`process-order triggered for order ${orderId} (${type})`);
+  console.log(`process-order-background triggered for order ${orderId} (type=${type})`);
 }
 
 // ============================================================
