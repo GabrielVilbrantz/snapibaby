@@ -1450,7 +1450,7 @@ a.tag-tema:hover {
         <!-- Vó (1 only) -->
         <div class="vsp-card">
           <div class="vsp-video-wrap">
-            <video data-src="videos/video-grandma.mp4" preload="none" playsinline id="v1" poster=""></video>
+            <video src="videos/video-grandma.mp4" preload="metadata" playsinline id="v1"></video>
             <div class="vsp-play-overlay" id="vplay1" onclick="playVid('v1','vplay1')">
               <div class="vsp-play-btn">▶</div>
             </div>
@@ -1465,7 +1465,7 @@ a.tag-tema:hover {
         <!-- Mom 1 -->
         <div class="vsp-card">
           <div class="vsp-video-wrap">
-            <video data-src="videos/video-mom-1.mp4" preload="none" playsinline id="v2" poster=""></video>
+            <video src="videos/video-mom-1.mp4" preload="metadata" playsinline id="v2"></video>
             <div class="vsp-play-overlay" id="vplay2" onclick="playVid('v2','vplay2')">
               <div class="vsp-play-btn">▶</div>
             </div>
@@ -1480,7 +1480,7 @@ a.tag-tema:hover {
         <!-- Mom 2 -->
         <div class="vsp-card">
           <div class="vsp-video-wrap">
-            <video data-src="videos/video-mom-2.mp4" preload="none" playsinline id="v3" poster=""></video>
+            <video src="videos/video-mom-2.mp4" preload="metadata" playsinline id="v3"></video>
             <div class="vsp-play-overlay" id="vplay3" onclick="playVid('v3','vplay3')">
               <div class="vsp-play-btn">▶</div>
             </div>
@@ -1495,7 +1495,7 @@ a.tag-tema:hover {
         <!-- Mom 3 -->
         <div class="vsp-card">
           <div class="vsp-video-wrap">
-            <video data-src="videos/video-mom-3.mp4" preload="none" playsinline id="v4" poster=""></video>
+            <video src="videos/video-mom-3.mp4" preload="metadata" playsinline id="v4"></video>
             <div class="vsp-play-overlay" id="vplay4">
               <div class="vsp-play-btn">▶</div>
             </div>
@@ -1510,7 +1510,7 @@ a.tag-tema:hover {
         <!-- Mamá en español 1 -->
         <div class="vsp-card">
           <div class="vsp-video-wrap">
-            <video data-src="videos/video-es-mom-1.mp4" preload="none" playsinline id="v5" poster=""></video>
+            <video src="videos/video-es-mom-1.mp4" preload="metadata" playsinline id="v5"></video>
             <div class="vsp-play-overlay" id="vplay5">
               <div class="vsp-play-btn">▶</div>
             </div>
@@ -1525,7 +1525,7 @@ a.tag-tema:hover {
         <!-- Mamá en español 2 -->
         <div class="vsp-card">
           <div class="vsp-video-wrap">
-            <video data-src="videos/video-es-mom-2.mp4" preload="none" playsinline id="v6" poster=""></video>
+            <video src="videos/video-es-mom-2.mp4" preload="metadata" playsinline id="v6"></video>
             <div class="vsp-play-overlay" id="vplay6">
               <div class="vsp-play-btn">▶</div>
             </div>
@@ -1549,39 +1549,21 @@ a.tag-tema:hover {
 
     <script>
     (function() {
-      // ── Lazy load videos via IntersectionObserver ──────────────
-      var lazyVids = document.querySelectorAll('video[data-src]');
-      if ('IntersectionObserver' in window) {
-        var obs = new IntersectionObserver(function(entries) {
-          entries.forEach(function(e) {
-            if (e.isIntersecting) {
-              var v = e.target;
-              if (!v.src) {
-                v.src = v.dataset.src;
-                v.load();
-              }
-              obs.unobserve(v);
-            }
-          });
-        }, { rootMargin: '200px' });
-        lazyVids.forEach(function(v) { obs.observe(v); });
-      } else {
-        // Fallback: load immediately
-        lazyVids.forEach(function(v) { v.src = v.dataset.src; });
-      }
-
-      // ── Play/pause handlers ────────────────────────────────────
+      // ── Play/pause handlers (src already set directly on <video>) ──
       function playVid(vid, overlay) {
         var v = document.getElementById(vid);
         var o = document.getElementById(overlay);
         if (!v || !o) return;
-        // Ensure src is loaded before playing
-        if (!v.src && v.dataset.src) {
-          v.src = v.dataset.src;
-          v.load();
+        var p = v.play();
+        if (p !== undefined) {
+          p.then(function() {
+            o.classList.add('hidden');
+          }).catch(function() {
+            // Autoplay blocked — user must tap the overlay button
+          });
+        } else {
+          o.classList.add('hidden');
         }
-        v.play();
-        o.classList.add('hidden');
       }
       window.playVid = playVid;
 
@@ -1590,6 +1572,7 @@ a.tag-tema:hover {
         var v = document.getElementById(p[0]);
         var o = document.getElementById(p[1]);
         if (!v || !o) return;
+        o.addEventListener('click', function() { playVid(p[0], p[1]); });
         v.addEventListener('click', function() { v.pause(); o.classList.remove('hidden'); });
         v.addEventListener('ended', function() { v.currentTime = 0; o.classList.remove('hidden'); });
       });
@@ -1763,7 +1746,7 @@ a.tag-tema:hover {
       <div class="blog-grid">
         <article class="blog-card"><h4>At-home newborn photoshoot ideas — no studio required</h4><p>Discover how to get stunning newborn photos using only your phone and natural light from your living room...</p><a href="blog-post.html?post=newborn-at-home-ideas">Read more</a></article>
         <article class="blog-card"><h4>When is the best time for a newborn photoshoot? (Days 1–30 explained)</h4><p>The ideal window (days 5–15) when your newborn is sleepiest and most poseable...</p><a href="blog-post.html?post=best-time-newborn-photoshoot">Read more</a></article>
-        <article class="blog-card"><h4>How much does a newborn photographer cost? (And a $29 alternative)</h4><p>Breaking down the real cost of traditional studio sessions vs. AI newborn photo editing at home...</p><a href="blog-post.html?post=newborn-photography-cost">Read more</a></article>
+        <article class="blog-card"><h4>How much does a newborn photographer cost? (And a $19 alternative)</h4><p>Breaking down the real cost of traditional studio sessions vs. AI newborn photo editing at home...</p><a href="blog-post.html?post=newborn-photography-cost">Read more</a></article>
         <article class="blog-card"><h4>Monthly baby photoshoot ideas — months 1 through 12</h4><p>Creative themes to document every milestone of your baby's first year with studio-quality results...</p><a href="blog-post.html?post=monthly-baby-photoshoot-ideas">Read more</a></article>
         <article class="blog-card"><h4>How to take great newborn photos with your phone</h4><p>Practical tips on angle, lens cleaning, and natural lighting so your phone photos look good enough for AI studio transformation...</p><a href="blog-post.html?post=newborn-phone-photo-tips">Read more</a></article>
         <article class="blog-card"><h4>Baby's first birthday photoshoot ideas</h4><p>Smash the Cake, Royalty, Frozen Kingdom and more fun ideas to celebrate the most anticipated milestone...</p><a href="blog-post.html?post=baby-first-birthday-photoshoot">Read more</a></article>
@@ -2148,7 +2131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- MOBILE STICKY BUY BAR -->
 <div class="sticky-buy-bar" id="stickyBuyBar">
-  <div class="sticky-price">From <strong>$29</strong> <span>$59</span></div>
+  <div class="sticky-price">From <strong>$19</strong> <span>$59</span></div>
   <button class="sticky-cta" onclick="document.getElementById('babyName').scrollIntoView({behavior:'smooth'}); document.getElementById('babyName').focus();">Create My Baby's Photos ✨</button>
 </div>
 
