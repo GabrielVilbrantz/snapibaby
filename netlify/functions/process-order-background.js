@@ -372,14 +372,23 @@ async function sendSupportAlert(order, errorMsg) {
 // ============================================================
 // Prompt lookup
 // ============================================================
-function findPrompt(cleanThemeName) {
-  const lower = cleanThemeName.toLowerCase();
+function findPrompt(rawThemeName) {
+  // 1. Strip emojis and extra whitespace
+  const clean = rawThemeName.replace(/[^\w\s]/g, '').trim();
+  const lower  = clean.toLowerCase();
+
+  // 2. Exact match first (case-insensitive)
   for (const key of Object.keys(THEME_PROMPTS)) {
-    if (lower.includes(key.toLowerCase()) || key.toLowerCase().includes(lower)) {
-      return THEME_PROMPTS[key];
-    }
+    if (key.toLowerCase() === lower) return THEME_PROMPTS[key];
   }
-  console.warn(`No prompt found for theme "${cleanThemeName}" — using default`);
+
+  // 3. Substring match
+  for (const key of Object.keys(THEME_PROMPTS)) {
+    const kl = key.toLowerCase();
+    if (lower.includes(kl) || kl.includes(lower)) return THEME_PROMPTS[key];
+  }
+
+  console.warn(`No prompt found for theme "${rawThemeName}" (cleaned: "${clean}") — using default`);
   return THEME_PROMPTS['default'];
 }
 
@@ -391,25 +400,40 @@ const HOLIDAY_PROMPTS = {
 };
 
 const THEME_PROMPTS = {
-  'Astronaut':   'Transform this newborn baby photo into a professional studio portrait: baby in an astronaut costume floating in outer space surrounded by stars and galaxies, ultra-realistic 4K studio lighting, soft bokeh, baby face clearly visible, photorealistic',
-  'Christmas':   'Transform this newborn baby photo into a professional studio portrait: baby in a Christmas theme with a Santa hat, fairy lights and cozy winter setting, soft warm studio lighting, photorealistic',
-  'Halloween':   'Transform this newborn baby photo into a professional studio portrait: baby in a cute Halloween costume surrounded by pumpkins and friendly ghosts, dramatic studio lighting, photorealistic',
-  'Easter':      'Transform this newborn baby photo into a professional studio portrait: baby with Easter bunny ears in a spring pastel garden with colorful eggs, soft studio lighting, photorealistic',
-  'Princess':    'Transform this newborn baby photo into a professional studio portrait: baby with a royal princess tiny crown against a palace background, pink and gold tones, studio lighting, photorealistic',
-  'Safari':      'Transform this newborn baby photo into a professional studio portrait: baby surrounded by cute safari animals — giraffe, elephant, lion — in a lush African savanna, studio quality photorealistic',
-  'Fairy':       'Transform this newborn baby photo into a professional studio portrait: baby with tiny fairy wings in an enchanted forest with sparkles and flowers, magical golden lighting, photorealistic portrait',
-  'Floral':      'Transform this newborn baby photo into a professional studio portrait: baby in a wicker basket surrounded by fresh roses and peonies, soft diffused studio lighting, photorealistic',
-  'Galaxy':      'Transform this newborn baby photo into a professional studio portrait: baby floating in a galaxy with stars, nebulae and planets in the deep space background, ultra-realistic studio quality photorealistic',
-  'Teddy':       'Transform this newborn baby photo into a professional studio portrait: baby snuggled with teddy bears in a cozy nursery, warm soft lighting, cream and brown tones, photorealistic',
-  'Pirate':      'Transform this newborn baby photo into a professional studio portrait: baby in a cute tiny pirate hat and costume, ship and ocean background, dramatic studio lighting, photorealistic',
-  'Superhero':   'Transform this newborn baby photo into a professional studio portrait: baby in a superhero costume with a tiny cape, city skyline background, dramatic studio lighting, photorealistic',
-  'Minimalist':  'Transform this newborn baby photo into a professional studio portrait: baby in a clean minimalist white studio setting, soft diffused light, simple elegant background, ultra-realistic photorealistic',
-  'Cartoon':     'Transform this newborn baby photo into a professional studio portrait: baby in a colorful cartoon world, pastel illustrated background, studio quality lighting, adorable baby face, photorealistic portrait',
-  'Dinosaur':    'Transform this newborn baby photo into a professional studio portrait: baby in a cute dinosaur costume, lush prehistoric jungle background, friendly dinosaurs, studio quality 4K lighting, photorealistic',
-  'Starry':      'Transform this newborn baby photo into a professional studio portrait: baby under a magical starry night sky, swirling stars, soft dreamy lighting, photorealistic portrait',
-  'Natural':     'Transform this newborn baby photo into a professional studio portrait: baby in a woven basket with natural textures, neutral earth tones, warm studio lighting, photorealistic',
-  'Space':       'Transform this newborn baby photo into a professional studio portrait: baby floating in outer space surrounded by stars, planets and nebulae, ultra-realistic studio quality photorealistic',
-  'default':     'Transform this newborn baby photo into a professional studio portrait with a magical themed setting, ultra-realistic 4K studio lighting, soft bokeh background, photorealistic'
+  // ── Exact names from app.html ────────────────────────────────────────────
+  'Astronaut':          'Transform this newborn baby photo into a professional studio portrait: baby in an astronaut costume floating in outer space surrounded by stars and galaxies, ultra-realistic 4K studio lighting, soft bokeh, baby face clearly visible, photorealistic',
+  'Cute Cartoon':       'Transform this newborn baby photo into a professional studio portrait: baby in a colorful cartoon world, pastel illustrated background, studio quality lighting, adorable baby face clearly visible, photorealistic portrait',
+  'Dinosaur':           'Transform this newborn baby photo into a professional studio portrait: baby in a cute dinosaur costume, lush prehistoric jungle background, friendly dinosaurs, studio quality 4K lighting, photorealistic',
+  'Easter Bunny':       'Transform this newborn baby photo into a professional studio portrait: baby with Easter bunny ears in a spring pastel garden with colorful eggs, soft studio lighting, photorealistic',
+  'Spring Bunny':       'Transform this newborn baby photo into a professional studio portrait: baby with cute bunny ears in a magical spring garden with blooming flowers, soft pink and green tones, studio quality, photorealistic',
+  'Fairy Magic':        'Transform this newborn baby photo into a professional studio portrait: baby with tiny fairy wings in an enchanted forest with sparkles and flowers, magical golden lighting, photorealistic portrait',
+  'Fairy Portrait':     'Transform this newborn baby photo into a professional studio portrait: baby in a fairy princess dress in a fairy tale forest, golden hour lighting with sparkles, ultra-realistic photorealistic',
+  'Floral Basket':      'Transform this newborn baby photo into a professional studio portrait: baby in a wicker basket surrounded by fresh roses and peonies, soft diffused studio lighting, photorealistic',
+  'Soft Floral':        'Transform this newborn baby photo into a professional studio portrait: baby surrounded by soft fresh flowers, romantic floral arrangement in white and pink tones, studio quality, photorealistic',
+  'Minimalist':         'Transform this newborn baby photo into a professional studio portrait: baby in a clean minimalist white studio setting, soft diffused light, simple elegant background, ultra-realistic photorealistic',
+  'Classic Basket':     'Transform this newborn baby photo into a professional studio portrait: baby in a woven basket with natural textures and neutral earth tones, warm studio lighting, photorealistic',
+  'Pirate':             'Transform this newborn baby photo into a professional studio portrait: baby in a cute tiny pirate hat and costume, ship and ocean background, dramatic studio lighting, photorealistic',
+  'Pirate Adventure':   'Transform this newborn baby photo into a professional studio portrait: baby as an adventurous pirate with a treasure map background, warm golden tones, studio quality photorealistic',
+  'Princess':           'Transform this newborn baby photo into a professional studio portrait: baby with a royal princess tiny crown against a palace background, pink and gold tones, studio lighting, photorealistic',
+  'Princess Portrait':  'Transform this newborn baby photo into a professional studio portrait: baby in a princess dress at a fairy tale castle with magical sparkles, royal studio lighting, ultra-realistic photorealistic',
+  'Safari':             'Transform this newborn baby photo into a professional studio portrait: baby surrounded by cute safari animals — giraffe, elephant, lion — in a lush African savanna, studio quality photorealistic',
+  'Galaxy Space':       'Transform this newborn baby photo into a professional studio portrait: baby floating in a galaxy with stars, nebulae and planets in the deep space background, ultra-realistic studio quality photorealistic',
+  'Starry Night':       'Transform this newborn baby photo into a professional studio portrait: baby under a magical starry night sky with swirling stars, soft dreamy lighting, photorealistic portrait',
+  'Superhero':          'Transform this newborn baby photo into a professional studio portrait: baby in a superhero costume with a tiny cape, city skyline background, dramatic studio lighting, photorealistic',
+  'Cozy Teddy':         'Transform this newborn baby photo into a professional studio portrait: baby snuggled with teddy bears in a cozy nursery, warm soft lighting, cream and brown tones, photorealistic',
+  // ── Fallback aliases ────────────────────────────────────────────────────
+  'Fairy':              'Transform this newborn baby photo into a professional studio portrait: baby with tiny fairy wings in an enchanted forest with sparkles and flowers, magical golden lighting, photorealistic portrait',
+  'Floral':             'Transform this newborn baby photo into a professional studio portrait: baby in a wicker basket surrounded by fresh roses and peonies, soft diffused studio lighting, photorealistic',
+  'Cartoon':            'Transform this newborn baby photo into a professional studio portrait: baby in a colorful cartoon world, pastel illustrated background, studio quality lighting, adorable baby face, photorealistic portrait',
+  'Teddy':              'Transform this newborn baby photo into a professional studio portrait: baby snuggled with teddy bears in a cozy nursery, warm soft lighting, cream and brown tones, photorealistic',
+  'Galaxy':             'Transform this newborn baby photo into a professional studio portrait: baby floating in a galaxy with stars, nebulae and planets in the deep space background, ultra-realistic studio quality photorealistic',
+  'Starry':             'Transform this newborn baby photo into a professional studio portrait: baby under a magical starry night sky, swirling stars, soft dreamy lighting, photorealistic portrait',
+  'Easter':             'Transform this newborn baby photo into a professional studio portrait: baby with Easter bunny ears in a spring pastel garden with colorful eggs, soft studio lighting, photorealistic',
+  'Christmas':          'Transform this newborn baby photo into a professional studio portrait: baby in a Christmas theme with a Santa hat, fairy lights and cozy winter setting, soft warm studio lighting, photorealistic',
+  'Halloween':          'Transform this newborn baby photo into a professional studio portrait: baby in a cute Halloween costume surrounded by pumpkins and friendly ghosts, dramatic studio lighting, photorealistic',
+  'Natural':            'Transform this newborn baby photo into a professional studio portrait: baby in a woven basket with natural textures, neutral earth tones, warm studio lighting, photorealistic',
+  'Space':              'Transform this newborn baby photo into a professional studio portrait: baby floating in outer space surrounded by stars, planets and nebulae, ultra-realistic studio quality photorealistic',
+  'default':            'Transform this newborn baby photo into a professional studio portrait with a magical themed setting, ultra-realistic 4K studio lighting, soft bokeh background, photorealistic'
 };
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
