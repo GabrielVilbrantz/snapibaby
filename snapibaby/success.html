@@ -243,15 +243,16 @@ async function pollStatus() {
   async function triggerGenerationFallback(order) {
     if (fallbackFired) return;
     fallbackFired = true;
-    console.log('Fallback: triggering process-order for order', order.id);
+    console.log('Fallback: triggering process-order-background for order', order.id);
     document.getElementById('progressLabel').textContent = 'Iniciando geração de imagens...';
     try {
-      await fetch('/.netlify/functions/process-order', {
+      // Chama a background function (roda até 15 min — ideal para KIE AI)
+      await fetch('/.netlify/functions/process-order-background', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId: order.id, type: 'main' })
       });
-      console.log('Fallback: process-order called successfully');
+      console.log('Fallback: process-order-background triggered');
     } catch(e) {
       console.warn('Fallback trigger failed:', e.message);
     }

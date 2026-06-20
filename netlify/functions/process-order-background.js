@@ -20,12 +20,23 @@ const SITE_URL         = 'https://snapibaby.netlify.app';
 const db = createClient(SUPABASE_URL, SUPABASE_SERVICE);
 
 exports.handler = async (event) => {
+  const CORS_HEADERS = {
+    'Access-Control-Allow-Origin':  '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json'
+  };
+
+  // Handle preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers: CORS_HEADERS, body: '' };
+  }
+
   // Background functions always return 202 immediately
   // but keep running until handler resolves
 
   let body;
   try { body = JSON.parse(event.body); }
-  catch { console.error('Invalid JSON body'); return; }
+  catch { console.error('Invalid JSON body'); return { statusCode: 400, headers: CORS_HEADERS, body: 'Invalid JSON' }; }
 
   const { orderId, type = 'main' } = body;
   if (!orderId) { console.error('orderId required'); return; }
@@ -49,8 +60,7 @@ exports.handler = async (event) => {
 
   if (!faceUrl) {
     console.error(`No baby_photo_urls for order ${order.order_number}`);
-    await db.from('orders').update({ generation_status: 'failed_no_photo' }).eq('id', orderId);
-    // Still send an email notifying support
+    await db.from('orders').update({ generation_status: 'failed' }).eq('id', orderId);
     await sendSupportAlert(order, 'No baby photo URL found in order');
     return;
   }
