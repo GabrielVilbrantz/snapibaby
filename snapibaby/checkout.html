@@ -1369,10 +1369,23 @@
           return;
         }
 
-        // ── Step 4: Redirect to upsell ────────────────────────────────────
+        // ── Step 4: Disparar geração IMEDIATAMENTE após pagamento confirmado ─
+        // Fire-and-forget: não espera resposta, não bloqueia o redirect.
+        // É a forma mais confiável — sem depender de webhook nem de fallback.
+        if (order && order.id) {
+          fetch('/.netlify/functions/process-order-background', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: order.id, type: 'main' })
+          }).catch(e => console.warn('Background trigger failed:', e));
+          console.log('[checkout] process-order-background triggered for', order.id);
+        }
+
+        // ── Step 5: Redirect to upsell ────────────────────────────────────
         const pmId = paymentIntent.payment_method;
-        paymentCompleted = true; // desabilita exit popup - pagamento concluido
-        exitShown = true;        // previne popup de disparar no redirect
+        paymentCompleted = true;
+        exitShown = true;
+        window.onbeforeunload = null; // remove popup "Sair do site?" do Stripe.js
         btn.innerHTML = '✅ Payment Approved! Redirecting...';
         const totalPaid = (basePrice + (hasBump ? bumpPrice : 0)).toFixed(2);
         window.location.href = 'upsell.html'
