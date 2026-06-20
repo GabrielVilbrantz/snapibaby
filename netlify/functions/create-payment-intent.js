@@ -11,10 +11,10 @@ const Stripe = require('stripe');
 const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
 const stripe = new Stripe(STRIPE_SECRET);
 
-// Preços em centavos de USD
-const PLAN_PRICES = { starter: 1900, classic: 2900, premium: 3900 };
+// ⚠️ TESTE — R$1,00 — trocar para produção após validar o fluxo
+const PLAN_PRICES = { starter: 100, classic: 100, premium: 100 };
 
-const BUMP_PRICE = 300; // $3.00
+const BUMP_PRICE = 100; // R$1,00
 
 exports.handler = async (event) => {
   const headers = {
