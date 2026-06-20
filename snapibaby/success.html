@@ -234,7 +234,7 @@ async function pollStatus() {
 
   const MAX_MS         = 15 * 60 * 1000; // 15 min
   const INTERVAL       = 8000;
-  const FALLBACK_MS    = 45000; // 45s sem progresso → dispara geração manualmente
+  const FALLBACK_MS    = 15000; // 15s sem progresso → dispara geração manualmente
   const start          = Date.now();
   let   elapsed        = 0;
   let   fallbackFired  = false;
