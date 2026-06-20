@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1371,6 +1371,8 @@
 
         // ── Step 4: Redirect to upsell ────────────────────────────────────
         const pmId = paymentIntent.payment_method;
+        paymentCompleted = true; // desabilita exit popup - pagamento concluido
+        exitShown = true;        // previne popup de disparar no redirect
         btn.innerHTML = '✅ Payment Approved! Redirecting...';
         const totalPaid = (basePrice + (hasBump ? bumpPrice : 0)).toFixed(2);
         window.location.href = 'upsell.html'
@@ -1549,6 +1551,7 @@
 
   <script>
     // ===== EXIT INTENT =====
+    let paymentCompleted = false; // desabilita exit popup apos pagamento confirmado
     let exitShown = false;
     let exitTimerInterval = null;
     let discountRevealed = false;
@@ -1568,7 +1571,8 @@
 
     // DESKTOP: Fires when user tries to close tab / navigate away
     window.addEventListener('beforeunload', function (e) {
-      if (!exitShown) {
+      // Nao bloquear redirect apos pagamento confirmado
+      if (!exitShown && !paymentCompleted) {
         intentToLeave = true;
         e.preventDefault();
         e.returnValue = '';

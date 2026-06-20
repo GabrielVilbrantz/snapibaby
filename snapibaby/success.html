@@ -219,14 +219,43 @@ function downloadAll(e) {
 // ── Poll Supabase until done ──
 async function pollStatus() {
   if (!savedOrderId) {
-    document.getElementById('progressLabel').textContent = 'Waiting for order data...';
+    document.getElementById('progressLabel').textContent = 'Carregando dados do pedido...';
+    // Tentar novamente em 3s — o localStorage pode ainda estar sendo salvo
+    setTimeout(async function() {
+      const latestId = localStorage.getItem('snapi_order_id') || urlParams.get('order_id') || '';
+      if (latestId) {
+        window.location.reload();
+      } else {
+        document.getElementById('progressLabel').textContent = 'Aguardando confirmação... (pode levar até 1 min)';
+      }
+    }, 3000);
     return;
   }
 
-  const MAX_MS   = 15 * 60 * 1000; // 15 min
-  const INTERVAL = 8000;
-  const start    = Date.now();
-  let   elapsed  = 0;
+  const MAX_MS         = 15 * 60 * 1000; // 15 min
+  const INTERVAL       = 8000;
+  const FALLBACK_MS    = 45000; // 45s sem progresso → dispara geração manualmente
+  const start          = Date.now();
+  let   elapsed        = 0;
+  let   fallbackFired  = false;
+
+  // Função de fallback: dispara a geração manualmente se o webhook não tiver disparado
+  async function triggerGenerationFallback(order) {
+    if (fallbackFired) return;
+    fallbackFired = true;
+    console.log('Fallback: triggering process-order for order', order.id);
+    document.getElementById('progressLabel').textContent = 'Iniciando geração de imagens...';
+    try {
+      await fetch('/.netlify/functions/process-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id, type: 'main' })
+      });
+      console.log('Fallback: process-order called successfully');
+    } catch(e) {
+      console.warn('Fallback trigger failed:', e.message);
+    }
+  }
 
   // Check immediately
   try {
@@ -240,7 +269,7 @@ async function pollStatus() {
     const mins = Math.floor(elapsed / 60000);
     const secs = Math.floor((elapsed % 60000) / 1000);
     document.getElementById('progressLabel').textContent =
-      'Working... ' + mins + 'm ' + secs + 's elapsed';
+      'Criando retratos... ' + mins + 'm ' + secs + 's';
 
     if (elapsed >= MAX_MS) {
       clearInterval(timer);
@@ -251,12 +280,16 @@ async function pollStatus() {
     try {
       const order = await getOrderWithPhotos(savedOrderId);
       if (!order) return;
+
       if (order.generation_status === 'done') {
         clearInterval(timer);
         showPhotos(order.generated_urls);
-      } else if (order.generation_status === 'failed') {
+      } else if (order.generation_status === 'failed' || order.generation_status === 'failed_no_photo') {
         clearInterval(timer);
         showFailed();
+      } else if ((order.generation_status === 'pending' || order.generation_status === 'paid') && elapsed >= FALLBACK_MS && !fallbackFired) {
+        // Webhook não disparou a geração — acionar manualmente
+        await triggerGenerationFallback(order);
       }
     } catch(e) { console.warn('Poll error:', e); }
 
