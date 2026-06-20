@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1299,21 +1299,60 @@
       btn.disabled = true;
       document.getElementById('card-errors').textContent = '';
 
-      const hasBump = document.getElementById('bumpCheck')?.checked ?? true;
-      const planName = plan || 'premium';
+      const hasBump    = document.getElementById('bumpCheck')?.checked ?? true;
+      const planName   = plan || 'premium';
+      const themesSelected = JSON.parse(localStorage.getItem('snapi_themes') || '[]');
+      const babyPhotoUrls  = JSON.parse(localStorage.getItem('snapi_baby_photo_urls') || '[]');
+
+      localStorage.setItem('snapi_customer_name', customerName);
+      localStorage.setItem('snapi_customer_email', customerEmail);
+      localStorage.setItem('snapi_plan', planName);
 
       try {
-        // ── Step 1: Create PaymentIntent via Netlify Function ──────────────
+        // ── Step 1: Create PaymentIntent ──────────────────────────────────
         const piRes = await fetch('/.netlify/functions/create-payment-intent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plan: planName, hasBump, customerEmail, customerName })
+          body: JSON.stringify({ plan: planName, hasBump, customerEmail, customerName, babyPhotoUrls, themesSelected })
         });
 
         if (!piRes.ok) throw new Error('Could not initialize payment. Please try again.');
         const { clientSecret, customerId, intentId } = await piRes.json();
 
-        // ── Step 2: Confirm card payment with Stripe.js ────────────────────
+        // ── Step 2: Criar pedido no Supabase ANTES de confirmar pagamento ──
+        // CRÍTICO: garante que o pedido existe quando o webhook Stripe chegar.
+        let order = null;
+        try {
+          const orderRes = await fetch('/.netlify/functions/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              customerName,
+              customerEmail,
+              plan: planName,
+              basePrice,
+              bumpAdded:           hasBump,
+              totalPaid:           basePrice + (hasBump ? bumpPrice : 0),
+              stripePaymentIntent: intentId,
+              stripeCustomerId:    customerId,
+              stripePaymentMethod: null,
+              themesSelected,
+              babyPhotoUrls
+            })
+          });
+          if (orderRes.ok) {
+            order = await orderRes.json();
+            localStorage.setItem('snapi_order_id',     order.id);
+            localStorage.setItem('snapi_order_number', order.order_number);
+            console.log('Order pre-created:', order.order_number, order.id);
+          } else {
+            console.error('create-order failed:', await orderRes.text());
+          }
+        } catch (orderErr) {
+          console.error('create-order error:', orderErr.message);
+        }
+
+        // ── Step 3: Confirm card payment with Stripe.js ───────────────────
         const { error, paymentIntent } = await stripeClient.confirmCardPayment(clientSecret, {
           payment_method: {
             card: cardElement,
@@ -1330,33 +1369,8 @@
           return;
         }
 
-        // ── Step 3: Payment confirmed — save order to Supabase ─────────────
-        const pmId = paymentIntent.payment_method;
-
-        localStorage.setItem('snapi_customer_name', customerName);
-        localStorage.setItem('snapi_customer_email', customerEmail);
-        localStorage.setItem('snapi_plan', planName);
-
-        const order = await saveOrderToSupabase({
-          customerName,
-          customerEmail,
-          plan: planName,
-          basePrice: basePrice,
-          bumpAdded: hasBump,
-          totalPaid: basePrice + (hasBump ? bumpPrice : 0),
-          stripePaymentIntent: intentId,
-          stripeCustomerId: customerId,
-          stripePaymentMethod: pmId,
-          themesSelected: JSON.parse(localStorage.getItem('snapi_themes') || '[]'),
-          babyPhotoUrls: JSON.parse(localStorage.getItem('snapi_baby_photo_urls') || '[]')
-        });
-
-        if (order) {
-          localStorage.setItem('snapi_order_id', order.id);
-          localStorage.setItem('snapi_order_number', order.order_number);
-        }
-
         // ── Step 4: Redirect to upsell ────────────────────────────────────
+        const pmId = paymentIntent.payment_method;
         btn.innerHTML = '✅ Payment Approved! Redirecting...';
         const totalPaid = (basePrice + (hasBump ? bumpPrice : 0)).toFixed(2);
         window.location.href = 'upsell.html'

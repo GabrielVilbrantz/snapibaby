@@ -11,10 +11,10 @@ const Stripe = require('stripe');
 const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
 const stripe = new Stripe(STRIPE_SECRET);
 
-// ⚠️ TESTE — R$1,00 — trocar para produção quando funcionar
-const PLAN_PRICES = { starter: 100, classic: 100, premium: 100 };
+// Preços em centavos de USD
+const PLAN_PRICES = { starter: 1900, classic: 2900, premium: 3900 };
 
-const BUMP_PRICE = 100; // R$1,00
+const BUMP_PRICE = 300; // $3.00
 
 exports.handler = async (event) => {
   const headers = {
@@ -30,7 +30,7 @@ exports.handler = async (event) => {
   try { body = JSON.parse(event.body); }
   catch { return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
-  const { plan = 'premium', hasBump = true, customerEmail, customerName } = body;
+  const { plan = 'premium', hasBump = true, customerEmail, customerName, babyPhotoUrls = [], themesSelected = [] } = body;
 
   const planAmount = PLAN_PRICES[plan] ?? PLAN_PRICES.premium;
   const totalAmount = planAmount + (hasBump ? BUMP_PRICE : 0);
@@ -59,9 +59,12 @@ exports.handler = async (event) => {
       setup_future_usage: 'off_session', // ← permite upsell 1 clique depois
       metadata: {
         plan,
-        hasBump:       String(hasBump),
-        customerEmail: customerEmail || '',
-        customerName:  customerName  || ''
+        hasBump:         String(hasBump),
+        customerEmail:   customerEmail || '',
+        customerName:    customerName  || '',
+        // Passados para o webhook poder criar/achar o pedido
+        has_photo:       babyPhotoUrls.length > 0 ? 'true' : 'false',
+        themes_count:    String(themesSelected.length)
       },
       description: `SnapiBaby – ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan${hasBump ? ' + Frames' : ''}`
     });

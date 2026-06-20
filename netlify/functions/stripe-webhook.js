@@ -82,17 +82,24 @@ exports.handler = async (event) => {
   }
 
   // ── MAIN ORDER ────────────────────────────────────────────
-  // Find order in Supabase
-  const { data: order, error: fetchErr } = await db
-    .from('orders')
-    .select('*')
-    .eq('stripe_payment_intent', piId)
-    .single();
+  // Busca o pedido com retry (pode levar alguns ms para aparecer no Supabase)
+  let order = null;
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    const { data, error: fetchErr } = await db
+      .from('orders')
+      .select('*')
+      .eq('stripe_payment_intent', piId)
+      .single();
 
-  if (fetchErr || !order) {
-    console.error('Order not found for PI:', piId, fetchErr?.message);
-    // Still return 200 so Stripe doesn't retry
-    return { statusCode: 200, body: 'OK (order not found)' };
+    if (!fetchErr && data) { order = data; break; }
+
+    if (attempt < 5) {
+      console.warn(`Order not found (attempt ${attempt}/5) for PI ${piId}. Retrying in 2s...`);
+      await new Promise(r => setTimeout(r, 2000));
+    } else {
+      console.error('Order not found after 5 attempts for PI:', piId, fetchErr?.message);
+      return { statusCode: 200, body: 'OK (order not found after retries)' };
+    }
   }
 
   // Update to paid + processing
@@ -122,14 +129,22 @@ exports.handler = async (event) => {
 // function instance; we don't need to await it here.
 // ============================================================
 async function triggerProcessOrder(orderId, type = 'main') {
-  // NOTE: Background functions are invoked at /.netlify/functions/<name>-background
+  // Background functions são invocadas em /.netlify/functions/<name>-background
+  // Usamos fetch com timeout para garantir que a invocação seja registrada
   const url = `${SITE_URL}/.netlify/functions/process-order-background`;
-  fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ orderId, type })
-  }).catch(e => console.error('triggerProcessOrder fetch error:', e.message));
-  console.log(`process-order-background triggered for order ${orderId} (type=${type})`);
+  try {
+    const res = await Promise.race([
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, type })
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
+    ]);
+    console.log(`process-order-background triggered for order ${orderId} (type=${type}), status=${res.status}`);
+  } catch (e) {
+    console.error('triggerProcessOrder error:', e.message);
+  }
 }
 
 // ============================================================
