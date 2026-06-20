@@ -286,12 +286,19 @@ async function pollStatus() {
       if (order.generation_status === 'done') {
         clearInterval(timer);
         showPhotos(order.generated_urls);
-      } else if (order.generation_status === 'failed' || order.generation_status === 'failed_no_photo') {
+      } else if (order.generation_status === 'failed') {
         clearInterval(timer);
         showFailed();
-      } else if ((order.generation_status === 'pending' || order.generation_status === 'paid') && elapsed >= FALLBACK_MS && !fallbackFired) {
-        // Webhook não disparou a geração — acionar manualmente
-        await triggerGenerationFallback(order);
+      } else {
+        // Dispara fallback se:
+        // - status 'pending'/'paid' por mais de 15s (webhook nao disparou)
+        // - status 'processing' por mais de 2min (background function nao correu)
+        const isPendingTooLong    = (order.generation_status === 'pending' || order.generation_status === 'paid') && elapsed >= FALLBACK_MS;
+        const isProcessingStuck   = order.generation_status === 'processing' && elapsed >= 120000;
+        if ((isPendingTooLong || isProcessingStuck) && !fallbackFired) {
+          console.log(`[success] status=${order.generation_status}, elapsed=${elapsed}ms → triggering fallback`);
+          await triggerGenerationFallback(order);
+        }
       }
     } catch(e) { console.warn('Poll error:', e); }
 
