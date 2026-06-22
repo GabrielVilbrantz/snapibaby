@@ -3,6 +3,10 @@
   functions = "netlify/functions"
   command = "npm install && npm --prefix netlify/functions install"
 
+[build.environment]
+  # SUPABASE_URL é uma URL pública usada no frontend — não é um segredo real
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL"
+
 [functions]
   node_bundler = "esbuild"
 
