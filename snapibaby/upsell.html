@@ -8,6 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9EM8JRS1PZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9EM8JRS1PZ');
+</script>
 <!-- Meta Pixel Code — fires only after cookie consent -->
 <script>
 (function() {
@@ -765,10 +773,10 @@
         <div class="price-left">
           <div class="price-label">Total for all 15 photos</div>
           <div class="price-total">
-            <span class="price-was">$51</span>
-            <span class="price-now">$17</span>
+            <span class="price-was" id="upsellPriceWas">...</span>
+            <span class="price-now" id="upsellPriceNow">...</span>
           </div>
-          <div class="price-per">That's just $1.13 per photo</div>
+          <div class="price-per" id="upsellPricePer">...</div>
         </div>
         <div class="price-badge">67% OFF</div>
       </div>
@@ -788,8 +796,8 @@
 
   <!-- CTA -->
   <div class="cta-section">
-    <button class="btn-yes" onclick="acceptUpsell()">
-      Yes — Add My +15 Holiday Photos for $17
+    <button class="btn-yes" id="btnYesUpsell" onclick="acceptUpsell()">
+      <span id="btnYesText">Yes — Add My +15 Holiday Photos for ...</span>
       <span class="btn-yes-sub">Christmas · Halloween · Easter — delivered instantly</span>
     </button>
 
@@ -824,17 +832,17 @@
         Same 15 photos.<br>Same 3 themes.<br>Half the price.
       </div>
       <p class="ds-sub">
-        We know $17 might not be the right moment.<br>
+        We know the price might not be the right moment right now.<br>
         So we decided to do something different — just this once.
       </p>
 
       <!-- PRICE CUT VISUAL -->
       <div class="ds-price-cut">
-        <div class="ds-price-old">$17</div>
+        <div class="ds-price-old" id="dsPriceOld">...</div>
         <div class="ds-arrow">→</div>
         <div class="ds-price-new">
-          <strong>$7</strong>
-          <span>only $0.47 per photo</span>
+          <strong id="dsPriceNew">...</strong>
+          <span id="dsPricePer">...</span>
         </div>
         <div class="ds-badge">59% OFF</div>
       </div>
@@ -852,7 +860,7 @@
 
       <!-- BUTTONS -->
       <button class="ds-btn-yes" onclick="acceptDownsell()">
-        Yes — I want my 15 photos for $7
+        <span id="btnDownsellText">Yes — I want my 15 photos for ...</span>
         <span class="ds-btn-yes-sub">Christmas · Halloween · Easter — 1-click, no forms</span>
       </button>
       <button class="ds-btn-no" onclick="closeDownsellToSuccess()">
@@ -864,20 +872,74 @@
 </div>
 
 <script>
-// ===== STRIPE ONE-CLICK UPSELL =====
-// The checkout page passes these via URL after a successful payment:
-//   ?payment_method=pm_xxx&customer=cus_xxx&email=user@email.com
-//
-// Your backend endpoint (Netlify/Vercel Function or Node.js) receives these
-// and calls: stripe.paymentIntents.create({ amount: 1700, currency: 'usd',
-//   customer, payment_method, confirm: true, off_session: true })
-// — NO new card form needed. True 1-click.
-
+// ===== GEO-PRICING — read params passed by checkout.html =====
 const params = new URLSearchParams(window.location.search);
 const PAYMENT_METHOD_ID = params.get('payment_method') || '';
 const CUSTOMER_ID       = params.get('customer')       || '';
-const CUSTOMER_EMAIL    = params.get('email')          || '';
-const BASE_TOTAL        = parseFloat(params.get('total') || '59');
+const CUSTOMER_EMAIL    = params.get('email')          || localStorage.getItem('snapi_customer_email') || '';
+const BASE_TOTAL        = parseFloat(params.get('total') || '0');
+const ORDER_ID          = params.get('order_id')       || localStorage.getItem('snapi_order_id') || '';
+
+// Geo-pricing params from checkout
+const GEO_CURRENCY      = params.get('currency')         || 'usd';
+const GEO_SYMBOL        = params.get('symbol')           || '$';
+const GEO_ZERO_DECIMAL  = params.get('zero_decimal')     === '1';
+const UPSELL_AMOUNT     = parseInt(params.get('upsell_amount')   || '1700',   10); // Stripe units
+const UPSELL_DISPLAY    = parseFloat(params.get('upsell_display')  || '17');       // display value
+const DOWNSELL_AMOUNT   = parseInt(params.get('downsell_amount') || '700',    10);
+const DOWNSELL_DISPLAY  = parseFloat(params.get('downsell_display') || '7');
+
+// Format helper — uses geo symbol and decimal rules
+function fmtPrice(val) {
+  if (GEO_ZERO_DECIMAL) return `${GEO_SYMBOL}${Math.round(val).toLocaleString()}`;
+  return `${GEO_SYMBOL}${Number(val).toFixed(2)}`;
+}
+
+// ── Populate dynamic price elements ──────────────────────────────────────────
+(function initPrices() {
+  // Upsell: "was" price is ~3× the display price (fake original)
+  const upsellWas = GEO_ZERO_DECIMAL
+    ? Math.round(UPSELL_DISPLAY * 3)
+    : parseFloat((UPSELL_DISPLAY * 3).toFixed(2));
+  const perPhoto = GEO_ZERO_DECIMAL
+    ? `That's just ${GEO_SYMBOL}${Math.round(UPSELL_DISPLAY / 15).toLocaleString()} per photo`
+    : `That's just ${GEO_SYMBOL}${(UPSELL_DISPLAY / 15).toFixed(2)} per photo`;
+
+  const elWas    = document.getElementById('upsellPriceWas');
+  const elNow    = document.getElementById('upsellPriceNow');
+  const elPer    = document.getElementById('upsellPricePer');
+  const elBtnYes = document.getElementById('btnYesText');
+  if (elWas) elWas.textContent = fmtPrice(upsellWas);
+  if (elNow) elNow.textContent = fmtPrice(UPSELL_DISPLAY);
+  if (elPer) elPer.textContent = perPhoto;
+  if (elBtnYes) elBtnYes.textContent = `Yes \u2014 Add My +15 Holiday Photos for ${fmtPrice(UPSELL_DISPLAY)}`;
+
+  // Downsell
+  const dsPerPhoto = GEO_ZERO_DECIMAL
+    ? `only ${GEO_SYMBOL}${Math.round(DOWNSELL_DISPLAY / 15).toLocaleString()} per photo`
+    : `only ${GEO_SYMBOL}${(DOWNSELL_DISPLAY / 15).toFixed(2)} per photo`;
+
+  const elDsOld  = document.getElementById('dsPriceOld');
+  const elDsNew  = document.getElementById('dsPriceNew');
+  const elDsPer  = document.getElementById('dsPricePer');
+  const elDsBtn  = document.getElementById('btnDownsellText');
+  if (elDsOld) elDsOld.textContent = fmtPrice(UPSELL_DISPLAY);
+  if (elDsNew) elDsNew.textContent = fmtPrice(DOWNSELL_DISPLAY);
+  if (elDsPer) elDsPer.textContent = dsPerPhoto;
+  if (elDsBtn) elDsBtn.textContent = `Yes \u2014 I want my 15 photos for ${fmtPrice(DOWNSELL_DISPLAY)}`;
+
+  // Also update the downsell copy that mentions the price
+  const dsSub = document.querySelector('.ds-sub');
+  if (dsSub) dsSub.innerHTML =
+    `We know ${fmtPrice(UPSELL_DISPLAY)} might not be the right moment right now.<br>
+     So we decided to do something different \u2014 just this once.`;
+})();
+
+function toSuccess(extra) {
+  const oid = ORDER_ID ? '&order_id=' + encodeURIComponent(ORDER_ID) : '';
+  const em  = CUSTOMER_EMAIL ? '&email=' + encodeURIComponent(CUSTOMER_EMAIL) : '';
+  window.location.href = 'success.html?' + extra + em + oid;
+}
 
 // ===== COUNTDOWN =====
 (function() {
@@ -897,60 +959,68 @@ const BASE_TOTAL        = parseFloat(params.get('total') || '59');
   setInterval(tick, 1000);
 })();
 
-// ===== ACCEPT UPSELL (1-CLICK) =====
+// ===== ACCEPT UPSELL (1-CLICK) — geo-currency =====
 async function acceptUpsell() {
+  // GA4: user clicked accept
+  gtag('event', 'add_to_cart', {
+    currency: GEO_CURRENCY.toUpperCase(),
+    value: UPSELL_DISPLAY,
+    items: [{ item_id: 'snapibaby_upsell', item_name: 'SnapiBaby \u2014 15 Holiday Photos (Upsell)', item_category: 'Upsell', price: UPSELL_DISPLAY, quantity: 1 }]
+  });
+
   const overlay = document.getElementById('processingOverlay');
   overlay.classList.add('show');
   document.body.style.overflow = 'hidden';
 
   try {
-    // ─────────────────────────────────────────────────────────────────
-    // 🔌 STRIPE INTEGRATION POINT
-    // Replace the URL below with your backend endpoint.
-    // The backend uses the saved payment_method to charge without a form.
-    //
-    // Example (Netlify Function / Express):
-    //   POST /api/charge-upsell
-    //   Body: { payment_method, customer, amount: 1700, currency: 'usd' }
-    //   Backend: stripe.paymentIntents.create({ confirm: true, off_session: true, ... })
-    // ─────────────────────────────────────────────────────────────────
-    // 🧪 TEST MODE — $1 (mudar para 1700 quando for ao ar)
-    const UPSELL_AMOUNT = 100; // $1.00 test | produção: 1700
-    const UPSELL_PRICE_DISPLAY = 1; // para cálculo do total na URL
-
-    const response = await fetch('/api/charge-upsell', {
+    const response = await fetch('/.netlify/functions/charge-upsell', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         payment_method: PAYMENT_METHOD_ID,
         customer:       CUSTOMER_ID,
         amount:         UPSELL_AMOUNT,
-        currency:       'usd',
-        description:    'SnapiBaby Upsell — 15 Holiday Photos',
+        currency:       GEO_CURRENCY,
+        type:           'upsell',
+        description:    `SnapiBaby Upsell — 15 Holiday Photos (${GEO_CURRENCY.toUpperCase()})`,
+        order_id:       ORDER_ID || undefined,
       })
     });
 
     const result = await response.json();
 
     if (result.success) {
-      const upsellTotal = (BASE_TOTAL + UPSELL_PRICE_DISPLAY).toFixed(2);
-      window.location.href = 'success.html?upsell=true&email=' + encodeURIComponent(CUSTOMER_EMAIL) + '&total=' + encodeURIComponent(upsellTotal);
+      // GA4: upsell purchased
+      gtag('event', 'purchase', {
+        transaction_id: (result.payment_intent_id || ('up_' + Date.now())),
+        value: UPSELL_DISPLAY,
+        currency: GEO_CURRENCY.toUpperCase(),
+        items: [{ item_id: 'snapibaby_upsell', item_name: 'SnapiBaby \u2014 15 Holiday Photos (Upsell)', item_category: 'Upsell', price: UPSELL_DISPLAY, quantity: 1 }]
+      });
+      const upsellTotal = (BASE_TOTAL + UPSELL_DISPLAY).toFixed(2);
+      toSuccess('upsell=true&total=' + encodeURIComponent(upsellTotal));
     } else {
       throw new Error(result.error || 'Payment failed');
     }
 
   } catch (err) {
-    console.warn('Upsell backend not connected yet. Demo mode.', err.message);
-    const upsellTotal = (BASE_TOTAL + 1).toFixed(2);
+    console.warn('Upsell charge failed:', err.message);
+    // Fallback: proceed to success without charging (demo/error mode)
+    const upsellTotal = (BASE_TOTAL + UPSELL_DISPLAY).toFixed(2);
     setTimeout(function() {
-      window.location.href = 'success.html?upsell=true&total=' + encodeURIComponent(upsellTotal);
+      toSuccess('upsell=true&total=' + encodeURIComponent(upsellTotal));
     }, 1800);
   }
 }
 
 function declineUpsell() {
+  // GA4: user declined upsell — showed downsell
+  gtag('event', 'select_content', {
+    content_type: 'upsell_declined',
+    item_id: 'upsell_main'
+  });
   exitGuardActive = false;
-  window.location.href = 'success.html?email=' + encodeURIComponent(CUSTOMER_EMAIL) + '&total=' + encodeURIComponent(BASE_TOTAL.toFixed(2));
+  toSuccess('total=' + encodeURIComponent(BASE_TOTAL.toFixed(2)));
 }
 
 // ===== DOWNSELL — show / close / accept =====
@@ -966,7 +1036,7 @@ function showDownsell() {
 function closeDownsellToSuccess() {
   document.getElementById('downsellPopup').classList.remove('show');
   document.body.style.overflow = '';
-  window.location.href = 'success.html?email=' + encodeURIComponent(CUSTOMER_EMAIL) + '&total=' + encodeURIComponent(BASE_TOTAL.toFixed(2));
+  toSuccess('total=' + encodeURIComponent(BASE_TOTAL.toFixed(2)));
 }
 
 async function acceptDownsell() {
@@ -977,34 +1047,35 @@ async function acceptDownsell() {
   document.body.style.overflow = 'hidden';
 
   try {
-    // ─────────────────────────────────────────────────────────────────
-    // 🔌 STRIPE INTEGRATION POINT — Downsell charge ($7)
-    // Same as upsell but amount: 700 (cents)
-    // ─────────────────────────────────────────────────────────────────
-    // 🧪 TEST MODE — $1 (mudar para 700 quando for ao ar)
-    const DOWNSELL_AMOUNT = 100; // $1.00 test | produção: 700
-    const DOWNSELL_PRICE_DISPLAY = 1; // para cálculo do total na URL
-
-    const response = await fetch('/api/charge-upsell', {
+    const response = await fetch('/.netlify/functions/charge-upsell', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         payment_method: PAYMENT_METHOD_ID,
         customer:       CUSTOMER_ID,
         amount:         DOWNSELL_AMOUNT,
-        currency:       'usd',
-        description:    'SnapiBaby Downsell — 15 Holiday Photos ($7)',
+        currency:       GEO_CURRENCY,
+        type:           'downsell',
+        description:    `SnapiBaby Downsell — 15 Holiday Photos (${GEO_CURRENCY.toUpperCase()})`,
+        order_id:       ORDER_ID || undefined,
       })
     });
     const result = await response.json();
     if (result.success) {
-      const downsellTotal = (BASE_TOTAL + DOWNSELL_PRICE_DISPLAY).toFixed(2);
-      window.location.href = 'success.html?upsell=true&email=' + encodeURIComponent(CUSTOMER_EMAIL) + '&total=' + encodeURIComponent(downsellTotal);
+      // GA4: downsell purchased
+      gtag('event', 'purchase', {
+        transaction_id: (result.payment_intent_id || ('ds_' + Date.now())),
+        value: DOWNSELL_DISPLAY,
+        currency: GEO_CURRENCY.toUpperCase(),
+        items: [{ item_id: 'snapibaby_downsell', item_name: 'SnapiBaby \u2014 15 Holiday Photos (Downsell)', item_category: 'Downsell', price: DOWNSELL_DISPLAY, quantity: 1 }]
+      });
+      const downsellTotal = (BASE_TOTAL + DOWNSELL_DISPLAY).toFixed(2);
+      toSuccess('upsell=true&total=' + encodeURIComponent(downsellTotal));
     } else { throw new Error(result.error); }
   } catch (err) {
-    console.warn('Downsell backend not connected yet.', err.message);
-    const downsellTotal = (BASE_TOTAL + 1).toFixed(2);
-    setTimeout(() => { window.location.href = 'success.html?upsell=true&total=' + encodeURIComponent(downsellTotal); }, 1800);
+    console.warn('Downsell charge failed:', err.message);
+    const downsellTotal = (BASE_TOTAL + DOWNSELL_DISPLAY).toFixed(2);
+    setTimeout(() => { toSuccess('upsell=true&total=' + encodeURIComponent(downsellTotal)); }, 1800);
   }
 }
 

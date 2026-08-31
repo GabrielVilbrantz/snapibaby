@@ -10,6 +10,14 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-client.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9EM8JRS1PZ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-9EM8JRS1PZ');
+  </script>
   <!-- Meta Pixel Code — fires only after cookie consent -->
   <script>
     (function () {
@@ -813,15 +821,8 @@
 
           <!-- STRIPE CARD ELEMENT -->
           <div class="form-group">
-            <label>Card Details</label>
-            <div id="card-element" style="
-            border: 1.5px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 14px 16px;
-            background: #fafafa;
-            font-size: 1rem;
-            transition: border-color 0.2s;
-          "></div>
+            <label>💳 Dados do Cartão</label>
+            <div id="card-element" style="border:1.5px solid #e2e8f0;border-radius:10px;padding:14px 16px;background:#fafafa;font-size:1rem;transition:border-color 0.2s;"></div>
             <div id="card-errors" style="color:#ef4444;font-size:0.83rem;margin-top:6px;min-height:18px;"></div>
           </div>
 
@@ -841,7 +842,6 @@
                       <span class="bump-item-desc">Professional studio frames ready for printing for each photo</span>
                     </div>
                     <div class="bump-item-price">
-                      <s>$12.90</s>
                       <strong>included</strong>
                     </div>
                   </div>
@@ -851,7 +851,6 @@
                       <span class="bump-item-desc">Professional color grading and retouching on every photo</span>
                     </div>
                     <div class="bump-item-price">
-                      <s>$14.90</s>
                       <strong>included</strong>
                     </div>
                   </div>
@@ -904,7 +903,7 @@
 
           <div class="summary-item">
             <span style="color:var(--text-muted);">Package Price</span>
-            <strong id="plan-price">$39.00</strong>
+            <strong id="plan-price" style="min-width:60px;display:inline-block;">...</strong>
           </div>
           <div class="summary-item" id="bump-line" style="display:none;color:#d97706;align-items:center;gap:8px;">
             <button id="bump-toggle-btn" onclick="toggleBumpFromSummary()" title="Remove this item" style="
@@ -914,11 +913,11 @@
             flex-shrink:0;transition:all 0.2s;padding:0;line-height:1;
           ">✓</button>
             <span style="flex:1;">+ Premium Frames &amp; Editing</span>
-            <strong>$3.00</strong>
+            <strong id="bump-price-summary">...</strong>
           </div>
           <div class="summary-item total">
             <span>Total:</span>
-            <span id="total-price">$39.00</span>
+            <span id="total-price" style="min-width:60px;display:inline-block;">...</span>
           </div>
 
           <button class="btn-buy" id="btn-buy" onclick="processPurchase()">
@@ -942,6 +941,11 @@
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png"
               alt="Visa">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo%E2%80%94pix_powered_by_Banco_Central_%28Brazil%2C_2020%29.svg"
+              alt="Pix"
+              style="height:20px;width:auto;"
+              onerror="this.style.display='none'">
           </div>
         </div>
       </div>
@@ -1206,15 +1210,68 @@
     document.getElementById('ctPrev').addEventListener('click', () => { ctIndex = (ctIndex - 1 + checkoutTestimonials.length) % checkoutTestimonials.length; renderCt(); });
     document.addEventListener('DOMContentLoaded', () => { renderCt(); setInterval(() => { ctIndex = (ctIndex + 1) % checkoutTestimonials.length; renderCt(); }, 5000); });
 
-    // ===== PRICING =====
-    const plans = { starter: { name: 'Starter — 10 Photos', price: 19.00 }, classic: { name: 'Classic — 20 Photos', price: 29.00 }, premium: { name: 'Premium — 30 Photos', price: 39.00 } };
-    const bumpPrice = 3.00;
-    let basePrice = 39.00;
+    // ===== PRICING — Geo-detection via get-pricing (Netlify x-country) =====
     const urlParams = new URLSearchParams(window.location.search);
     const plan = urlParams.get('plano') || 'premium';
-    if (plans[plan]) { basePrice = plans[plan].price; document.getElementById('plan-name').innerText = plans[plan].name; }
-    document.getElementById('plan-price').innerText = `$${basePrice.toFixed(2)}`;
+
+    const PLAN_NAMES = {
+      starter: 'Starter — 10 Photos',
+      classic:  'Classic — 20 Photos',
+      premium:  'Premium Package — 30 Photos',
+    };
+
+    // State — default BRL pra não ficar vazio enquanto carrega
+    let detectedCountry  = 'BR';
+    let detectedCurrency = 'brl';
+    let detectedSymbol   = 'R$';
+    let detectedZeroDecimal = false;
+    let basePrice  = 97.00;
+    let bumpPrice  = 37.00;
+
+    document.getElementById('plan-name').innerText = PLAN_NAMES[plan] || PLAN_NAMES.premium;
+    // Não exibe preço antes da detecção geo — evita flash de preço errado
+    document.getElementById('plan-price').innerText = '...';
+    document.getElementById('total-price').innerText = '...';
     updateTotal(false);
+
+    // Formata número de acordo com a moeda
+    function formatPrice(amount) {
+      if (detectedZeroDecimal) return `${detectedSymbol}${Math.round(amount).toLocaleString()}`;
+      return `${detectedSymbol}${Number(amount).toFixed(2)}`;
+    }
+
+    // Carrega preço real do backend (usa header x-country da Netlify)
+    (async () => {
+      try {
+        const res = await fetch('/.netlify/functions/get-pricing', { signal: AbortSignal.timeout(4000) });
+        if (!res.ok) return;
+        const d = await res.json();
+
+        detectedCountry    = d.country;
+        detectedCurrency   = d.currency;
+        detectedSymbol     = d.symbol;
+        detectedZeroDecimal = d.zeroDecimal || false;
+
+        const planData = d.plans[plan] || d.plans.premium;
+        basePrice  = planData.display;
+        bumpPrice  = d.bump.display;
+
+        // Atualizar UI
+        document.getElementById('plan-name').innerText  = planData.name;
+        document.getElementById('plan-price').innerText = formatPrice(basePrice);
+
+        // Atualizar bump values no HTML
+        const bumpNowEl = document.querySelector('.bump-total-now');
+        if (bumpNowEl) bumpNowEl.textContent = `+ ${formatPrice(bumpPrice)}`;
+        const bumpLinePrice = document.getElementById('bump-price-summary');
+        if (bumpLinePrice) bumpLinePrice.textContent = formatPrice(bumpPrice);
+
+        updateTotal(document.getElementById('bumpCheck')?.checked ?? false);
+      } catch(e) {
+        console.warn('get-pricing failed, usando default BRL:', e.message);
+      }
+    })();
+
 
     function toggleBump() {
       const isChecked = document.getElementById('bumpCheck').checked;
@@ -1248,7 +1305,11 @@
         document.getElementById('bump-line').style.display = 'flex';
       }
     }
-    function updateTotal(hasBump = true) { document.getElementById('total-price').innerText = `$${(basePrice + (hasBump ? bumpPrice : 0)).toFixed(2)}`; }
+    function updateTotal(hasBump = false) {
+      const total = basePrice + (hasBump ? bumpPrice : 0);
+      document.getElementById('total-price').innerText = formatPrice(total);
+    }
+
 
     // ── Limpar params Stripe da URL (payment_intent expirado causa erro visual) ──
     (function cleanStripeUrlParams() {
@@ -1260,18 +1321,13 @@
       if (changed) window.history.replaceState({}, '', url.toString());
     })();
 
-    // ── Stripe Elements initialization ────────────────────────────────────────────
+    // ─── STRIPE CARD ELEMENT (sync, always visible) ──────────────────────────
     const STRIPE_PK = 'pk_live_51TRiyy0pb3rIcyseWcsniG2X4ervxCl3IybCjghrBQGZVb9Yd0sr0GguR2XBaRK9WVihTyAur2khLEGszC95wGPh0072374w6q';
     const stripeClient = Stripe(STRIPE_PK);
     const elements = stripeClient.elements();
     const cardElement = elements.create('card', {
       style: {
-        base: {
-          fontFamily: 'Inter, sans-serif',
-          fontSize: '15px',
-          color: '#2b2b2b',
-          '::placeholder': { color: '#aab7c4' }
-        },
+        base: { fontFamily: 'Inter, sans-serif', fontSize: '15px', color: '#2b2b2b', '::placeholder': { color: '#aab7c4' } },
         invalid: { color: '#ef4444', iconColor: '#ef4444' }
       }
     });
@@ -1281,6 +1337,8 @@
       document.getElementById('card-element').style.borderColor = error ? '#ef4444' : '#e2e8f0';
     });
     // ─────────────────────────────────────────────────────────────────────────────
+
+    // detectedCountry/Currency/Symbol são definidos no bloco get-pricing acima
 
     async function processPurchase() {
       const btn = document.getElementById('btn-buy');
@@ -1294,12 +1352,12 @@
         return;
       }
 
-      btn.innerHTML = '⌛ Processing Payment...';
+      btn.innerHTML = '⌛ Processando Pagamento...';
       btn.style.opacity = '0.75';
       btn.disabled = true;
       document.getElementById('card-errors').textContent = '';
 
-      const hasBump    = document.getElementById('bumpCheck')?.checked ?? true;
+      const hasBump    = document.getElementById('bumpCheck')?.checked ?? false;
       const planName   = plan || 'premium';
       const themesSelected = JSON.parse(localStorage.getItem('snapi_themes') || '[]');
       const babyPhotoUrls  = JSON.parse(localStorage.getItem('snapi_baby_photo_urls') || '[]');
@@ -1309,18 +1367,26 @@
       localStorage.setItem('snapi_plan', planName);
 
       try {
-        // ── Step 1: Create PaymentIntent ──────────────────────────────────
+        // ── Step 1: Create PaymentIntent with detected currency ───────────────
         const piRes = await fetch('/.netlify/functions/create-payment-intent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plan: planName, hasBump, customerEmail, customerName, babyPhotoUrls, themesSelected })
+          body: JSON.stringify({
+            plan: planName,
+            hasBump,
+            customerEmail,
+            customerName,
+            babyPhotoUrls,
+            themesSelected,
+            country: detectedCountry,
+            exitDiscount: exitDiscountApplied // <-- flag real do desconto 10%
+          })
         });
 
-        if (!piRes.ok) throw new Error('Could not initialize payment. Please try again.');
+        if (!piRes.ok) throw new Error('Não foi possível inicializar o pagamento. Tente novamente.');
         const { clientSecret, customerId, intentId } = await piRes.json();
 
         // ── Step 2: Criar pedido no Supabase ANTES de confirmar pagamento ──
-        // CRÍTICO: garante que o pedido existe quando o webhook Stripe chegar.
         let order = null;
         try {
           const orderRes = await fetch('/.netlify/functions/create-order', {
@@ -1352,7 +1418,7 @@
           console.error('create-order error:', orderErr.message);
         }
 
-        // ── Step 3: Confirm card payment with Stripe.js ───────────────────
+        // ── Step 3: Confirmar pagamento com cartão via Stripe.js ───────────────
         const { error, paymentIntent } = await stripeClient.confirmCardPayment(clientSecret, {
           payment_method: {
             card: cardElement,
@@ -1363,16 +1429,14 @@
 
         if (error) {
           document.getElementById('card-errors').textContent = error.message;
-          btn.innerHTML = 'Complete Payment 🚀';
+          btn.innerHTML = 'Finalizar Pagamento 🚀';
           btn.style.opacity = '1';
           btn.disabled = false;
           return;
         }
 
-        // ── Step 4: Disparar geração IMEDIATAMENTE após pagamento confirmado ─
-        // Fire-and-forget: não espera resposta, não bloqueia o redirect.
-        // É a forma mais confiável — sem depender de webhook nem de fallback.
-        if (order && order.id) {
+        // ── Step 4: Disparar geração após pagamento ─────────────────────────────
+        if (order?.id) {
           fetch('/.netlify/functions/process-order-background', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1381,18 +1445,58 @@
           console.log('[checkout] process-order-background triggered for', order.id);
         }
 
-        // ── Step 5: Redirect to upsell ────────────────────────────────────
+        // ── Step 5: Redirect to upsell ──────────────────────────────────────
         const pmId = paymentIntent.payment_method;
+        const totalPaid = (basePrice + (hasBump ? bumpPrice : 0)).toFixed(2);
         paymentCompleted = true;
         exitShown = true;
-        window.onbeforeunload = null; // remove popup "Sair do site?" do Stripe.js
-        btn.innerHTML = '✅ Payment Approved! Redirecting...';
-        const totalPaid = (basePrice + (hasBump ? bumpPrice : 0)).toFixed(2);
+        window.onbeforeunload = null;
+        btn.innerHTML = '✅ Pagamento Aprovado! Redirecionando...';
+
+        // ── GA4: purchase event ──────────────────────────────────────────────
+        const gaTotalPaid = parseFloat((basePrice + (hasBump ? bumpPrice : 0)).toFixed(2));
+        gtag('event', 'purchase', {
+          transaction_id: paymentIntent.id,
+          value:          gaTotalPaid,
+          currency:       (detectedCurrency || 'usd').toUpperCase(),
+          items: [{
+            item_id:       'snapibaby_' + (planName || 'plan').toLowerCase().replace(/\s+/g, '_'),
+            item_name:     'SnapiBaby — ' + (planName || 'AI Newborn Portraits'),
+            item_category: 'Photography',
+            price:         basePrice,
+            quantity:      1
+          }].concat(hasBump ? [{
+            item_id:       'snapibaby_order_bump',
+            item_name:     'SnapiBaby — Order Bump (Extra Themes)',
+            item_category: 'Photography',
+            price:         bumpPrice,
+            quantity:      1
+          }] : [])
+        });
+        // ── /GA4 ─────────────────────────────────────────────────────────────
+        // Calcular preços do upsell/downsell baseado no bumpPrice geo-detectado
+        // Upsell = 15 fotos holiday (~2.4× bump), Downsell = metade do upsell
+        const upsellDisplayPrice  = detectedZeroDecimal
+          ? Math.round(bumpPrice * 2.4)
+          : parseFloat((bumpPrice * 2.4).toFixed(2));
+        const downsellDisplayPrice = detectedZeroDecimal
+          ? Math.round(upsellDisplayPrice * 0.41)
+          : parseFloat((upsellDisplayPrice * 0.41).toFixed(2));
+        // Amounts em Stripe units (cents para two-decimal, valor direto para zero-decimal)
+        const upsellStripeAmount   = detectedZeroDecimal ? upsellDisplayPrice  : Math.round(upsellDisplayPrice  * 100);
+        const downsellStripeAmount = detectedZeroDecimal ? downsellDisplayPrice : Math.round(downsellDisplayPrice * 100);
         window.location.href = 'upsell.html'
           + '?payment_method=' + encodeURIComponent(pmId)
           + '&customer=' + encodeURIComponent(customerId || '')
           + '&email=' + encodeURIComponent(customerEmail)
           + '&total=' + encodeURIComponent(totalPaid)
+          + '&currency=' + encodeURIComponent(detectedCurrency)
+          + '&symbol=' + encodeURIComponent(detectedSymbol)
+          + '&zero_decimal=' + (detectedZeroDecimal ? '1' : '0')
+          + '&upsell_amount=' + encodeURIComponent(upsellStripeAmount)
+          + '&upsell_display=' + encodeURIComponent(upsellDisplayPrice)
+          + '&downsell_amount=' + encodeURIComponent(downsellStripeAmount)
+          + '&downsell_display=' + encodeURIComponent(downsellDisplayPrice)
           + (order ? '&order_id=' + order.id : '');
 
       } catch (err) {
@@ -1458,7 +1562,7 @@
 
             <!-- Prize (hidden under canvas) -->
             <div id="scratchPrize" style="padding:16px 0;">
-              <div style="font-size:3.5rem;font-weight:900;color:#ff4d6d;line-height:1;">40%</div>
+              <div style="font-size:3.5rem;font-weight:900;color:#ff4d6d;line-height:1;">10%</div>
               <div style="font-size:1.1rem;font-weight:800;color:#2b2b2b;">OFF your order</div>
               <div style="font-size:0.78rem;color:#666;margin-top:4px;">Applied automatically at checkout</div>
             </div>
@@ -1473,7 +1577,7 @@
         <div id="discountApplied"
           style="display:none;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;border-radius:14px;padding:16px;text-align:center;margin-bottom:16px;animation:popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
           <div style="font-size:1.8rem;margin-bottom:4px;">🎉</div>
-          <div style="font-size:1rem;font-weight:800;color:#166534;">40% Discount Applied!</div>
+          <div style="font-size:1rem;font-weight:800;color:#166534;">10% Discount Applied!</div>
           <div id="discountDetails" style="font-size:0.82rem;color:#15803d;margin-top:4px;"></div>
         </div>
 
@@ -1487,7 +1591,7 @@
         transition:all 0.2s; text-transform:uppercase; letter-spacing:0.5px;
         margin-bottom:10px;
       ">
-          Claim My 40% Discount Now
+          Claim My 10% Discount Now
         </button>
         <div id="exitNoThanks" style="text-align:center;">
           <button onclick="closeExitPopup()"
@@ -1569,6 +1673,7 @@
     let exitTimerInterval = null;
     let discountRevealed = false;
     let intentToLeave = false;
+    let exitDiscountApplied = false; // flag real — enviado ao backend
 
     // MOBILE: Back button detection (most common mobile exit behavior)
     // Push a fake state so pressing Back triggers popstate instead of leaving
@@ -1601,17 +1706,10 @@
       }
     });
 
-    // MOBILE fallback: user switches to another app/tab and comes back
-    document.addEventListener('visibilitychange', function () {
-      if (document.visibilityState === 'hidden' && !exitShown) {
-        intentToLeave = true;
-      }
-      if (document.visibilityState === 'visible' && intentToLeave && !exitShown) {
-        intentToLeave = false;
-        exitShown = true;
-        setTimeout(showExitPopup, 400);
-      }
-    });
+    // NOTA: visibilitychange removido intencionalmente.
+    // Disparava o popup quando o cliente saía para pegar o número do cartão virtual
+    // no app do banco — falso positivo que prejudicava a conversão.
+    // Abandono real já é coberto por: popstate (botão Voltar) + beforeunload+focus (desktop).
 
     function showExitPopup() {
       const popup = document.getElementById('exitPopup');
@@ -1701,7 +1799,7 @@
 
       // Update CTA
       const btn = document.getElementById('exitCtaBtn');
-      btn.textContent = 'Apply My 40% Discount';
+      btn.textContent = 'Apply My 10% Discount';
       btn.style.background = 'linear-gradient(135deg,#22c55e,#15803d)';
       btn.style.color = 'white';
 
@@ -1712,12 +1810,14 @@
     }
 
     function applyDiscountAndClose() {
-      // Aplica 40% de desconto no resumo visual (o desconto real é aplicado via Stripe Coupon ou Price ID separado)
+      // ── Aplica 10% de desconto REAL: atualiza basePrice e seta flag para o backend ──
+      exitDiscountApplied = true; // <-- backend vai usar isso
+
       const oldBase = basePrice;
-      basePrice = parseFloat((basePrice * 0.6).toFixed(2));
+      basePrice = parseFloat((basePrice * 0.9).toFixed(2)); // 10% off
 
       // Atualiza exibição de preço
-      document.getElementById('plan-price').innerText = '$' + basePrice.toFixed(2);
+      document.getElementById('plan-price').innerText = formatPrice(basePrice);
 
       // Adiciona linha de desconto no resumo
       let discLine = document.getElementById('discount-line');
@@ -1727,7 +1827,8 @@
         discLine.className = 'summary-item';
         discLine.style.color = '#22c55e';
         discLine.style.fontWeight = '700';
-        discLine.innerHTML = '<span>40% Discount Applied</span><strong style="color:#22c55e;">-$' + (oldBase - basePrice).toFixed(2) + '</strong>';
+        const savedAmt = formatPrice(parseFloat((oldBase - basePrice).toFixed(2)));
+        discLine.innerHTML = '<span>10% Discount Applied 🎉</span><strong style="color:#22c55e;">-' + savedAmt + '</strong>';
         const totalEl = document.querySelector('.summary-item.total');
         totalEl.parentNode.insertBefore(discLine, totalEl);
       }
@@ -1743,7 +1844,7 @@
       setTimeout(function () { totalEl.style.color = ''; }, 2000);
 
       // Atualizar botão
-      document.getElementById('btn-buy').innerHTML = 'Complete Payment — 40% OFF Applied ✓';
+      document.getElementById('btn-buy').innerHTML = 'Complete Payment — 10% OFF Applied ✓';
 
       closeExitPopup();
 

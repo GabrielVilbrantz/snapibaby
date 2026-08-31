@@ -6,6 +6,14 @@
 <title>Your Portraits Are Ready! | SnapiBaby</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9EM8JRS1PZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9EM8JRS1PZ');
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
 <style>
@@ -29,39 +37,55 @@
   /* CARD */
   .card{background:white;border-radius:22px;padding:32px 28px;box-shadow:0 8px 40px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);margin-bottom:24px}
 
-  /* ORDER INFO */
+  /* ORDER BADGE */
   .order-badge{display:inline-flex;align-items:center;gap:8px;background:#f0fdf4;border:1px solid #d1fae5;border-radius:10px;padding:10px 18px;font-size:.88rem;font-weight:700;color:#16a34a;margin-bottom:28px}
 
   /* LOADING STATE */
-  #stateLoading{text-align:center;padding:20px 0}
-  .spinner{width:64px;height:64px;border:5px solid #fde8f0;border-top-color:#ff4d6d;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+  #stateLoading{text-align:center;padding:4px 0 20px}
+  .spinner-wrap{margin-bottom:16px}
+  .spinner{width:52px;height:52px;border:4px solid #fde8f0;border-top-color:#ff4d6d;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto;transition:opacity .5s}
   @keyframes spin{to{transform:rotate(360deg)}}
-  .loading-title{font-size:1.15rem;font-weight:800;color:#1e1b2e;margin-bottom:8px}
-  .loading-sub{font-size:.88rem;color:#64748b;line-height:1.6}
-  .progress-bar-wrap{background:#f1f5f9;border-radius:99px;height:8px;margin:20px 0 8px;overflow:hidden}
-  .progress-bar{height:100%;background:linear-gradient(90deg,#ff4d6d,#ff8fa3);border-radius:99px;width:10%;animation:progress 90s linear forwards}
-  @keyframes progress{0%{width:5%}80%{width:85%}100%{width:90%}}
-  .progress-label{font-size:.78rem;color:#94a3b8;text-align:center}
+  .loading-title{font-size:1.1rem;font-weight:800;color:#1e1b2e;margin-bottom:6px}
+  .loading-sub{font-size:.85rem;color:#64748b;line-height:1.6;margin-bottom:16px}
+  .progress-bar-wrap{background:#f1f5f9;border-radius:99px;height:6px;margin:0 0 8px;overflow:hidden}
+  .progress-bar{height:100%;background:linear-gradient(90deg,#ff4d6d,#ff8fa3);border-radius:99px;width:5%;transition:width 1.5s ease}
+  .progress-label{font-size:.78rem;color:#94a3b8;text-align:center;font-weight:600}
+
+  /* LIVE COUNTER BADGE */
+  #liveBadge{display:none;background:linear-gradient(135deg,#fff0f3,#fce7f3);border:1.5px solid #fda4af;border-radius:12px;padding:10px 16px;margin:16px 0 0;font-size:.88rem;font-weight:700;color:#be185d}
+
+  /* PROGRESSIVE PHOTO GRID */
+  #progressiveGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:20px;text-align:left}
+
+  /* Photo card — with entrance animation */
+  .photo-card{border-radius:14px;overflow:hidden;background:#f3f4f6;aspect-ratio:3/4;position:relative;box-shadow:0 4px 14px rgba(0,0,0,.1);opacity:0;transform:translateY(24px) scale(.95);animation:slideIn .55s cubic-bezier(.22,1,.36,1) forwards}
+  @keyframes slideIn{to{opacity:1;transform:translateY(0) scale(1)}}
+  .photo-card img{width:100%;height:100%;object-fit:cover;display:block}
+  .photo-card .dl-btn{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(0,0,0,.75),transparent);color:white;text-align:center;padding:28px 8px 10px;font-size:.72rem;font-weight:800;text-decoration:none;display:block;letter-spacing:.5px;transition:background .2s}
+  .photo-card .dl-btn:hover{background:linear-gradient(0deg,rgba(255,77,109,.9),rgba(255,77,109,.3))}
+  .photo-card .theme-label{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);color:white;font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px;backdrop-filter:blur(4px)}
+
+  /* New photo pulse */
+  .photo-card.just-arrived{box-shadow:0 0 0 3px #ff4d6d,0 4px 20px rgba(255,77,109,.35)}
 
   /* DONE STATE */
   #stateDone{display:none}
-  .done-header{text-align:center;margin-bottom:24px}
+  .done-header{text-align:center;margin-bottom:20px}
   .done-header h2{font-size:1.3rem;font-weight:900;color:#1e1b2e;margin-bottom:6px}
   .done-header p{font-size:.88rem;color:#64748b}
 
-  /* PHOTO GRID */
+  /* Full grid (done state) */
   .photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:24px}
-  .photo-card{border-radius:14px;overflow:hidden;background:#f3f4f6;aspect-ratio:3/4;position:relative;box-shadow:0 4px 14px rgba(0,0,0,.1)}
-  .photo-card img{width:100%;height:100%;object-fit:cover;display:block}
-  .photo-card .dl-btn{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(0,0,0,.75),transparent);color:white;text-align:center;padding:24px 8px 10px;font-size:.75rem;font-weight:800;text-decoration:none;display:block;letter-spacing:.5px;transition:background .2s}
-  .photo-card .dl-btn:hover{background:linear-gradient(0deg,rgba(255,77,109,.9),rgba(255,77,109,.3))}
-  .photo-label{font-size:.7rem;color:#94a3b8;text-align:center;margin-top:5px;font-weight:600}
 
   /* DOWNLOAD ALL */
   .btn-dl-all{display:block;width:100%;background:linear-gradient(135deg,#ff4d6d,#e8003d);color:white;border:none;border-radius:14px;padding:18px 24px;font-size:1.1rem;font-weight:900;cursor:pointer;box-shadow:0 8px 28px rgba(255,77,109,.42);font-family:'Inter',sans-serif;text-decoration:none;text-align:center;line-height:1.3;transition:transform .2s,box-shadow .2s;animation:glow 2s ease-in-out infinite}
   @keyframes glow{0%,100%{box-shadow:0 8px 28px rgba(255,77,109,.42)}50%{box-shadow:0 14px 40px rgba(255,77,109,.65)}}
   .btn-dl-all:hover{transform:translateY(-3px)}
   .btn-dl-all small{display:block;font-size:.78rem;font-weight:600;opacity:.85;margin-top:4px}
+
+  /* Download while loading */
+  #earlyDownloadAll{display:none;width:100%;margin-top:16px;background:linear-gradient(135deg,#ff4d6d,#e8003d);color:white;border:none;border-radius:12px;padding:14px 20px;font-size:.95rem;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(255,77,109,.38);font-family:'Inter',sans-serif;transition:transform .2s}
+  #earlyDownloadAll:hover{transform:translateY(-2px)}
 
   /* FAILED STATE */
   #stateFailed{display:none;text-align:center;padding:20px}
@@ -81,21 +105,22 @@
   @media(max-width:520px){
     .wrap{padding:28px 14px 60px}
     .card{padding:24px 18px}
-    .photo-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+    .photo-grid,.photo-grid-full{grid-template-columns:repeat(2,1fr);gap:8px}
+    #progressiveGrid{grid-template-columns:repeat(2,1fr)}
   }
 </style>
 </head>
 <body>
 
-<div class="top-bar">✓ Payment Confirmed — Creating your baby's portraits now!</div>
+<div class="top-bar" id="topBar">✓ Payment Confirmed — Creating your baby's portraits now!</div>
 
 <div class="wrap">
 
   <!-- HERO -->
   <div class="hero">
     <div class="check">✓</div>
-    <h1>Payment approved!<br><span>Creating your portraits...</span></h1>
-    <p>Your AI portraits are being generated. This page updates automatically.</p>
+    <h1 id="heroTitle">Payment approved!<br><span id="heroSpan">Creating your portraits...</span></h1>
+    <p id="heroSub">Your AI portraits are being generated. Photos appear as each one is ready!</p>
   </div>
 
   <!-- MAIN CARD -->
@@ -105,19 +130,28 @@
       ✓ Order <strong id="orderId">#SN-00000</strong> — Payment confirmed
     </div>
 
-    <!-- LOADING -->
+    <!-- LOADING (stays visible while generating) -->
     <div id="stateLoading">
-      <div class="spinner"></div>
-      <div class="loading-title">🎨 Creating your baby's portraits...</div>
-      <p class="loading-sub">Our AI is working on your photos right now.<br>This page will update automatically when they're ready.</p>
-      <div class="progress-bar-wrap"><div class="progress-bar"></div></div>
-      <div class="progress-label" id="progressLabel">Estimated time: 2–10 minutes</div>
+      <div class="spinner-wrap"><div class="spinner" id="spinner"></div></div>
+      <div class="loading-title" id="loadingTitle">🎨 Creating your baby's portraits...</div>
+      <p class="loading-sub" id="loadingSub">Each portrait appears <strong>as soon as it's ready</strong>.<br>No need to wait for all of them!</p>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="progress-label" id="progressLabel">Estimated time: 1–3 min per portrait</div>
+
+      <!-- LIVE badge: "2 of 3 portraits ready!" -->
+      <div id="liveBadge"></div>
+
+      <!-- Photos appear here progressively -->
+      <div id="progressiveGrid"></div>
+
+      <!-- Download button appears after first photo -->
+      <button id="earlyDownloadAll" onclick="downloadEarly()">⬇ Save Ready Photos Now</button>
     </div>
 
-    <!-- DONE -->
+    <!-- ALL DONE -->
     <div id="stateDone">
       <div class="done-header">
-        <h2>🎉 Your portraits are ready!</h2>
+        <h2>🎉 All your portraits are ready!</h2>
         <p>Tap each photo to download it to your device</p>
       </div>
       <div class="photo-grid" id="photoGrid"></div>
@@ -153,7 +187,7 @@
 </div>
 
 <script>
-// ── Order info from localStorage ──
+// ── Order info ──
 const urlParams    = new URLSearchParams(window.location.search);
 const savedOrderId = localStorage.getItem('snapi_order_id') || urlParams.get('order_id') || '';
 const savedOrderNr = localStorage.getItem('snapi_order_number') || '';
@@ -162,120 +196,322 @@ const savedName    = localStorage.getItem('snapi_customer_name') || '';
 if (savedOrderNr) document.getElementById('orderId').textContent = '#' + savedOrderNr;
 if (savedName) {
   const first = savedName.split(' ')[0];
-  document.querySelector('.hero h1').innerHTML =
-    'Payment approved!<br><span>' + first + "'s portraits are almost ready!</span>";
+  document.getElementById('heroSpan').textContent = first + "'s portraits are almost ready!";
 }
 
-// ── Collected photo URLs ──
-let allPhotoUrls = [];
+// ── State tracking ──
+let allPhotoUrls   = [];
+let shownPhotoUrls = new Set(); // URLs already rendered
+let totalThemes    = 0;
+let isDone         = false;
 
-// ── Render photos when generation is done ──
-function showPhotos(generatedUrls) {
-  const urls = (generatedUrls || []).filter(x => x.status === 'ok' && x.url);
-  if (urls.length === 0) { showFailed(); return; }
+// ── Build a photo card DOM element ──
+function makePhotoCard(item, index) {
+  const card  = document.createElement('div');
+  card.className = 'photo-card just-arrived';
+  card.style.animationDelay = '0s';
+  card.dataset.url = item.url;
 
-  allPhotoUrls = urls;
+  const img = document.createElement('img');
+  img.src = item.url;
+  img.alt = item.theme || ('Portrait ' + (index + 1));
+  img.loading = 'lazy';
+
+  const lbl = document.createElement('div');
+  lbl.className = 'theme-label';
+  lbl.textContent = item.theme || ('Photo ' + (index + 1));
+
+  const link = document.createElement('a');
+  link.href = item.url;
+  link.target = '_blank';
+  link.className = 'dl-btn';
+  link.textContent = '⬇ Save Photo';
+  link.onclick = (e) => e.stopPropagation();
+
+  card.appendChild(img);
+  card.appendChild(lbl);
+  card.appendChild(link);
+
+  // Remove glow after 3s
+  setTimeout(() => card.classList.remove('just-arrived'), 3000);
+
+  return card;
+}
+
+// ── Progressive reveal: show new photos as they arrive ──
+function showPhotosProgressive(generatedUrls, done) {
+  const okUrls = (generatedUrls || []).filter(x => x.status === 'ok' && x.url);
+  const newUrls = okUrls.filter(x => !shownPhotoUrls.has(x.url));
+
+  if (newUrls.length > 0) {
+    const grid = document.getElementById('progressiveGrid');
+
+    newUrls.forEach((item, i) => {
+      setTimeout(() => {
+        shownPhotoUrls.add(item.url);
+        allPhotoUrls.push(item);
+        grid.appendChild(makePhotoCard(item, allPhotoUrls.length - 1));
+
+        // Update progress bar
+        const pct = totalThemes > 0
+          ? Math.round((allPhotoUrls.length / totalThemes) * 85) + 5
+          : 50;
+        document.getElementById('progressBar').style.width = pct + '%';
+
+        // Update live badge
+        const badge = document.getElementById('liveBadge');
+        badge.style.display = 'block';
+        const total = totalThemes || okUrls.length;
+        badge.innerHTML = `✨ <strong>${allPhotoUrls.length} of ${total}</strong> portraits ready!`;
+
+        // Show early download button after first photo
+        document.getElementById('earlyDownloadAll').style.display = 'block';
+
+        // Dim spinner (AI still working)
+        document.getElementById('spinner').style.opacity = allPhotoUrls.length > 0 ? '0.4' : '1';
+
+        // Update top bar
+        document.getElementById('topBar').textContent =
+          `✨ ${allPhotoUrls.length} portrait${allPhotoUrls.length > 1 ? 's' : ''} ready — more coming!`;
+
+      }, i * 400);
+    });
+  }
+
+  if (done && !isDone) {
+    isDone = true;
+    // Transition to done state after last card animates in
+    const delay = newUrls.length * 400 + 600;
+    setTimeout(() => transitionToDone(), delay);
+  }
+}
+
+// ── Transition: loading → all done ──
+async function transitionToDone() {
+  // Guard: if we somehow have 0 photos, fetch from DB before giving up
+  if (allPhotoUrls.length === 0) {
+    try {
+      const order = await getOrderWithPhotos(savedOrderId);
+      const okUrls = (order?.generated_urls || []).filter(x => x.status === 'ok' && x.url);
+      if (okUrls.length > 0) {
+        okUrls.forEach(item => { shownPhotoUrls.add(item.url); allPhotoUrls.push(item); });
+      } else {
+        // Status is 'done' but no photos — order was stuck. Re-trigger generation.
+        console.warn('done status but 0 photos — re-triggering generation');
+        document.getElementById('stateLoading').style.display = 'block';
+        document.getElementById('loadingTitle').textContent = '🔄 Restarting portrait generation...';
+        document.getElementById('loadingSub').innerHTML = 'The previous attempt had an issue. Starting again — please wait!';
+        isDone = false;
+        try {
+          await fetch('/.netlify/functions/process-order-background', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: savedOrderId, type: 'main' })
+          });
+          // Reset DB status so polling detects progress
+          pollStatus();
+        } catch(e) { console.warn('Re-trigger failed:', e); }
+        return;
+      }
+    } catch(e) { console.warn('transitionToDone fetch:', e); }
+  }
+
+  document.getElementById('stateLoading').style.display = 'none';
+
+  // Render all photos in the final done grid
   const grid = document.getElementById('photoGrid');
   grid.innerHTML = '';
-
-  urls.forEach(function(item, i) {
-    const card = document.createElement('div');
-    card.className = 'photo-card';
-    const img = document.createElement('img');
-    img.src = item.url;
-    img.alt = item.theme || ('Portrait ' + (i+1));
-    img.loading = 'lazy';
-    const link = document.createElement('a');
-    link.href = item.url;
-    link.target = '_blank';
-    link.className = 'dl-btn';
-    link.textContent = '⬇ Save Photo';
-    card.appendChild(img);
-    card.appendChild(link);
+  allPhotoUrls.forEach((item, i) => {
+    const card = makePhotoCard(item, i);
+    card.style.animationDelay = (i * 80) + 'ms';
     grid.appendChild(card);
   });
 
-  document.getElementById('stateLoading').style.display = 'none';
   document.getElementById('stateDone').style.display = 'block';
-  document.querySelector('.top-bar').textContent = '🎉 Your ' + urls.length + ' portraits are ready — save them now!';
-  document.querySelector('.hero h1').innerHTML = 'Your portraits<br><span>are ready! 🎉</span>';
-  document.querySelector('.hero p').textContent = 'Tap any photo to save it to your device.';
+  document.getElementById('progressBar').style.width = '100%';
+
+  // Update top bar + hero
+  document.getElementById('topBar').textContent =
+    `🎉 Todos os ${allPhotoUrls.length} retratos prontos — salve agora!`;
+  document.getElementById('heroTitle').innerHTML =
+    'Seus retratos<br><span style="background:linear-gradient(135deg,#ff4d6d,#c2185b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">estão prontos! 🎉</span>';
+  document.getElementById('heroSub').textContent = 'Toque em cada foto para salvar no seu dispositivo.';
 }
 
+let _failedAlertFired = false;
 function showFailed() {
+  if (allPhotoUrls.length > 0) {
+    transitionToDone();
+    return;
+  }
   document.getElementById('stateLoading').style.display = 'none';
   document.getElementById('stateFailed').style.display = 'block';
+  document.getElementById('topBar').textContent = '⚠️ Issue generating portraits — our team has been notified';
+
+  // Safety-net: fire a re-trigger so the order gets another chance automatically
+  if (!_failedAlertFired && savedOrderId) {
+    _failedAlertFired = true;
+    fetch('/.netlify/functions/process-order-background', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId: savedOrderId, type: 'main' })
+    })
+    .then(() => {
+      // Switch UI back to loading — we just re-triggered generation
+      document.getElementById('stateFailed').style.display = 'none';
+      document.getElementById('stateLoading').style.display = 'block';
+      document.getElementById('loadingTitle').textContent = '🔄 Retrying portrait generation...';
+      document.getElementById('loadingSub').innerHTML =
+        'The first attempt had an issue. <strong>Starting again automatically</strong> — please wait!';
+      document.getElementById('topBar').textContent = '🔄 Retrying... portraits coming shortly!';
+      // Resume polling
+      pollStatus();
+    })
+    .catch(e => {
+      console.warn('Auto re-trigger failed:', e.message);
+      // Show the failed UI with manual retry button as fallback
+      document.getElementById('stateFailed').innerHTML = `
+        <div class="failed-icon">⚠️</div>
+        <h3>Generation issue detected</h3>
+        <p>Something went wrong generating your portraits.<br>
+          <button onclick="manualRetry()" style="margin:16px 0;padding:12px 28px;background:linear-gradient(135deg,#ff4d6d,#e8003d);color:white;border:none;border-radius:12px;font-size:1rem;font-weight:800;cursor:pointer;font-family:Inter,sans-serif">
+            🔄 Try Again
+          </button><br>
+          Or contact us at <a href="mailto:support@snapibaby.com" style="color:#ff4d6d">support@snapibaby.com</a><br>
+          with your order number and we'll fix it immediately.</p>`;
+    });
+  }
 }
 
-// ── Download all (open each in new tab) ──
+function manualRetry() {
+  if (!savedOrderId) { alert('Order ID not found. Please contact support@snapibaby.com'); return; }
+  document.getElementById('stateFailed').style.display = 'none';
+  document.getElementById('stateLoading').style.display = 'block';
+  document.getElementById('loadingTitle').textContent = '🔄 Retrying portrait generation...';
+  document.getElementById('loadingSub').innerHTML = '<strong>Starting again</strong> — please wait a few minutes!';
+  fetch('/.netlify/functions/process-order-background', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ orderId: savedOrderId, type: 'main' })
+  }).catch(e => console.warn('Manual retry failed:', e.message));
+  pollStatus();
+}
+
+// ── Download helpers — uses anchor click (works on mobile, no popup blocker) ──
+function triggerDownload(url, filename) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';      // opens in new tab if download attr is blocked cross-origin
+  a.rel = 'noopener';
+  a.download = filename || 'snapibaby-portrait.jpg';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => document.body.removeChild(a), 500);
+}
+
 function downloadAll(e) {
-  e.preventDefault();
-  if (allPhotoUrls.length === 0) return;
-  allPhotoUrls.forEach(function(item, i) {
-    setTimeout(function() { window.open(item.url, '_blank'); }, i * 300);
+  if (e) e.preventDefault();
+  if (allPhotoUrls.length === 0) {
+    alert('Nenhuma foto carregada ainda. Aguarde as fotos aparecerem e tente novamente.');
+    return;
+  }
+  allPhotoUrls.forEach((item, i) => {
+    setTimeout(() => triggerDownload(item.url, `snapibaby-${item.theme || i + 1}.jpg`), i * 600);
   });
+}
+
+function downloadEarly() {
+  downloadAll(null);
 }
 
 // ── Poll Supabase until done ──
 async function pollStatus() {
   if (!savedOrderId) {
-    document.getElementById('progressLabel').textContent = 'Carregando dados do pedido...';
-    // Tentar novamente em 3s — o localStorage pode ainda estar sendo salvo
-    setTimeout(async function() {
+    document.getElementById('progressLabel').textContent = 'Loading order data...';
+    setTimeout(async () => {
       const latestId = localStorage.getItem('snapi_order_id') || urlParams.get('order_id') || '';
-      if (latestId) {
-        window.location.reload();
-      } else {
-        document.getElementById('progressLabel').textContent = 'Aguardando confirmação... (pode levar até 1 min)';
-      }
+      if (latestId) window.location.reload();
+      else document.getElementById('progressLabel').textContent = 'Waiting for confirmation...';
     }, 3000);
     return;
   }
 
-  const MAX_MS         = 15 * 60 * 1000; // 15 min
-  const INTERVAL       = 8000;
-  const FALLBACK_MS    = 15000; // 15s sem progresso → dispara geração manualmente
-  const start          = Date.now();
-  let   elapsed        = 0;
-  let   fallbackFired  = false;
+  const MAX_MS      = 15 * 60 * 1000; // 15 min
+  const INTERVAL    = 5000;            // poll every 5s (faster for progressive)
+  const FALLBACK_MS = 15000;           // trigger fallback after 15s
+  const start       = Date.now();
+  let   elapsed     = 0;
+  let   fallbackFired = false;
 
-  // Função de fallback: dispara a geração manualmente se o webhook não tiver disparado
-  async function triggerGenerationFallback(order) {
+  async function triggerFallback() {
     if (fallbackFired) return;
     fallbackFired = true;
-    console.log('Fallback: triggering process-order-background for order', savedOrderId);
-    document.getElementById('progressLabel').textContent = 'Iniciando geração de imagens...';
+    document.getElementById('progressLabel').textContent = 'Starting portrait generation...';
     try {
-      // Chama a background function (roda até 15 min — ideal para KIE AI)
-      // IMPORTANTE: usa savedOrderId (do localStorage), NÃO order.id (que é undefined no select)
-      const res = await fetch('/.netlify/functions/process-order-background', {
+      await fetch('/.netlify/functions/process-order-background', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId: savedOrderId, type: 'main' })
       });
-      console.log('Fallback: process-order-background triggered, status=', res.status);
-    } catch(e) {
-      console.warn('Fallback trigger failed:', e.message);
-    }
+    } catch(e) { console.warn('Fallback trigger failed:', e.message); }
   }
 
-  // Check immediately
+  // Immediate check
   try {
     const order = await getOrderWithPhotos(savedOrderId);
-    if (order && order.generation_status === 'done') { showPhotos(order.generated_urls); return; }
-    if (order && order.generation_status === 'failed') { showFailed(); return; }
-  } catch(e) { console.warn('Initial poll error:', e); }
+    if (order) {
+      // Read total themes count
+      if (order.plan === 'starter') totalThemes = 10;
+      else if (order.plan === 'classic') totalThemes = 20;
+      else totalThemes = 3; // fallback
 
-  const timer = setInterval(async function() {
+      const hasOkPhotos = (order.generated_urls || []).some(x => x.status === 'ok' && x.url);
+
+      if (order.generation_status === 'done') {
+        if (hasOkPhotos) {
+          showPhotosProgressive(order.generated_urls, true);
+          return;
+        } else {
+          // Marked done but no photos — re-trigger silently
+          console.warn('Order done but no photos — auto-retrigger');
+          document.getElementById('loadingTitle').textContent = '🔄 Reiniciando geração...';
+          document.getElementById('loadingSub').innerHTML = 'A tentativa anterior teve um problema. Tentando novamente!';
+          try {
+            await fetch('/.netlify/functions/process-order-background', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ orderId: savedOrderId, type: 'main' })
+            });
+          } catch(e) { console.warn('Re-trigger failed:', e); }
+          // Don't return — continue to poll
+        }
+      }
+      if (order.generation_status === 'failed' && !hasOkPhotos) {
+        showFailed();
+        return;
+      }
+      // Show any photos already in DB
+      if (hasOkPhotos) {
+        showPhotosProgressive(order.generated_urls, false);
+      }
+    }
+  } catch(e) { console.warn('Initial poll:', e); }
+
+  const timer = setInterval(async () => {
     elapsed = Date.now() - start;
+
+    // Update time label
     const mins = Math.floor(elapsed / 60000);
     const secs = Math.floor((elapsed % 60000) / 1000);
-    document.getElementById('progressLabel').textContent =
-      'Criando retratos... ' + mins + 'm ' + secs + 's';
+    if (allPhotoUrls.length === 0) {
+      document.getElementById('progressLabel').textContent =
+        `AI working... ${mins > 0 ? mins + 'm ' : ''}${secs}s`;
+    }
 
     if (elapsed >= MAX_MS) {
       clearInterval(timer);
-      showFailed();
+      if (allPhotoUrls.length > 0) transitionToDone();
+      else showFailed();
       return;
     }
 
@@ -283,29 +519,76 @@ async function pollStatus() {
       const order = await getOrderWithPhotos(savedOrderId);
       if (!order) return;
 
+      // Progressive: show any new photos even while status === 'processing'
+      if (order.generated_urls?.length > 0) {
+        showPhotosProgressive(order.generated_urls, order.generation_status === 'done');
+      }
+
       if (order.generation_status === 'done') {
         clearInterval(timer);
-        showPhotos(order.generated_urls);
-      } else if (order.generation_status === 'failed') {
+        return;
+      }
+
+      if (order.generation_status === 'failed' && !order.generated_urls?.some(u => u.status === 'ok')) {
         clearInterval(timer);
         showFailed();
-      } else {
-        // Dispara fallback se:
-        // - status 'pending'/'paid' por mais de 15s (webhook nao disparou)
-        // - status 'processing' por mais de 2min (background function nao correu)
-        const isPendingTooLong    = (order.generation_status === 'pending' || order.generation_status === 'paid') && elapsed >= FALLBACK_MS;
-        const isProcessingStuck   = order.generation_status === 'processing' && elapsed >= 120000;
-        if ((isPendingTooLong || isProcessingStuck) && !fallbackFired) {
-          console.log(`[success] status=${order.generation_status}, elapsed=${elapsed}ms → triggering fallback`);
-          await triggerGenerationFallback(order);
-        }
+        return;
       }
+
+      // Fallback trigger
+      const isPendingTooLong   = ['pending', 'paid'].includes(order.generation_status) && elapsed >= FALLBACK_MS;
+      const isProcessingStuck  = order.generation_status === 'processing' && elapsed >= 120000 && allPhotoUrls.length === 0;
+      if ((isPendingTooLong || isProcessingStuck) && !fallbackFired) {
+        await triggerFallback();
+      }
+
     } catch(e) { console.warn('Poll error:', e); }
 
   }, INTERVAL);
 }
 
 pollStatus();
+
+// ── GA4: purchase confirmation on success page load ──────────────────────────────
+(function() {
+  var sp = new URLSearchParams(window.location.search);
+  var orderId   = savedOrderId || sp.get('order_id') || '';
+  var totalRaw  = parseFloat(sp.get('total') || '0');
+  var hasUpsell = sp.get('upsell') === 'true';
+  var currency  = (sp.get('currency') || 'USD').toUpperCase();
+  var planLs    = localStorage.getItem('snapi_plan') || 'plan';
+
+  // Only fire once per order (guard with sessionStorage)
+  var gaKey = 'snapi_ga_purchase_fired_' + orderId;
+  if (orderId && sessionStorage.getItem(gaKey)) return;
+  if (orderId) sessionStorage.setItem(gaKey, '1');
+
+  var items = [{
+    item_id:       'snapibaby_' + planLs.toLowerCase().replace(/\s+/g, '_'),
+    item_name:     'SnapiBaby \u2014 ' + planLs,
+    item_category: 'Photography',
+    price:         totalRaw,
+    quantity:      1
+  }];
+
+  if (hasUpsell) {
+    items.push({
+      item_id:       'snapibaby_upsell_bundle',
+      item_name:     'SnapiBaby \u2014 Holiday Themes Bundle',
+      item_category: 'Upsell',
+      price:         0,
+      quantity:      1
+    });
+  }
+
+  gtag('event', 'purchase', {
+    transaction_id: orderId || ('sn_' + Date.now()),
+    value:          totalRaw || 0,
+    currency:       currency,
+    items:          items
+  });
+})();
+// ── /GA4 ─────────────────────────────────────────────────────────────
 
 // ── Share ──
 async function nativeShare() {

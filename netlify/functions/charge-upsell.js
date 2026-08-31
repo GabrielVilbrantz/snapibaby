@@ -36,15 +36,17 @@ exports.handler = async (event) => {
   try { body = JSON.parse(event.body); }
   catch { return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
-  const { payment_method, customer, amount, currency = 'usd', description, order_id } = body;
+  const { payment_method, customer, amount, currency = 'usd', description, order_id, type } = body;
 
   if (!payment_method || !customer || !amount) {
     return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Missing required fields' }) };
   }
 
-  // Determine which themes to generate based on amount
-  const isUpsell   = amount >= 1700;
-  const isDownsell = !isUpsell;
+  // Determine which themes to generate based on the explicit 'type' field.
+  // Using amount-based detection would break for non-USD currencies
+  // where amounts are in different orders of magnitude.
+  const isUpsell   = type !== 'downsell'; // 'upsell' or undefined → upsell
+  const isDownsell = type === 'downsell';
   const extraThemes = isUpsell ? UPSELL_THEMES : DOWNSELL_THEMES;
 
   try {
@@ -66,7 +68,7 @@ exports.handler = async (event) => {
       }
     });
 
-    console.log('Upsell charge succeeded:', paymentIntent.id, `$${amount / 100}`, extraThemes.join(','));
+    console.log('Upsell charge succeeded:', paymentIntent.id, `${amount} ${currency.toUpperCase()}`, extraThemes.join(','));
 
     // ── Marcar no Supabase ────────────────────────────────────
     if (order_id) {

@@ -24,6 +24,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="styles.css">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9EM8JRS1PZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9EM8JRS1PZ');
+</script>
 <!-- Meta Pixel Code — loads only after cookie consent -->
 <script id="metaPixelScript" type="text/plain" data-cookiecategory="analytics">
 !function(f,b,e,v,n,t,s)
@@ -308,7 +316,7 @@ a.tag-tema:hover {
     <span class="ticker-sep">✦</span>
     <span class="ticker-item">⚡ Ready <span class="ticker-highlight">in minutes.</span> Studio quality from your couch</span>
     <span class="ticker-sep">✦</span>
-    <span class="ticker-item">💰 Save up to <span class="ticker-highlight">$741</span> vs. a traditional studio session</span>
+    <span class="ticker-item">💰 Save up to <span class="ticker-highlight" id="ticker-saving-1">$741</span> vs. a traditional studio session</span>
     <span class="ticker-sep">✦</span>
     <span class="ticker-item">🎁 Studio quality <span class="ticker-highlight">from your couch</span></span>
     <span class="ticker-sep">✦</span>
@@ -321,7 +329,7 @@ a.tag-tema:hover {
     <span class="ticker-sep">✦</span>
     <span class="ticker-item">⚡ Ready <span class="ticker-highlight">in minutes.</span> Studio quality from your couch</span>
     <span class="ticker-sep">✦</span>
-    <span class="ticker-item">💰 Save up to <span class="ticker-highlight">$741</span> vs. a traditional studio session</span>
+    <span class="ticker-item">💰 Save up to <span class="ticker-highlight" id="ticker-saving-2">$741</span> vs. a traditional studio session</span>
     <span class="ticker-sep">✦</span>
     <span class="ticker-item">🎁 Studio quality <span class="ticker-highlight">from your couch</span></span>
     <span class="ticker-sep">✦</span>
@@ -377,7 +385,7 @@ a.tag-tema:hover {
           <div class="hero-trust-row">
             <span>✓ Ready in minutes</span>
             <span>✓ Studio-quality at home</span>
-            <span>✓ From $19 vs $800+ studio</span>
+            <span>✓ From <span id="hero-price-from">$19</span> vs $800+ studio</span>
           </div>
         </div>
         <div class="hero-mini-review">
@@ -1321,7 +1329,7 @@ a.tag-tema:hover {
             <div class="comp-row-new"><span class="comp-label-new">Wait time</span><span class="comp-val-new val-good">Under 20 min</span></div>
             <div class="comp-row-new"><span class="comp-label-new">Scheduling</span><span class="comp-val-new val-good">No appointment</span></div>
             <div class="comp-row-new"><span class="comp-label-new">Baby stress</span><span class="comp-val-new val-good">Zero — stays home</span></div>
-            <div class="comp-row-new"><span class="comp-label-new">Total cost</span><span class="comp-val-new val-good">From $19</span></div>
+            <div class="comp-row-new"><span class="comp-label-new">Total cost</span><span class="comp-val-new val-good">From <span id="comp-price-from">$19</span></span></div>
           </div>
         </div>
 
@@ -1329,7 +1337,7 @@ a.tag-tema:hover {
 
       <!-- Savings Strip -->
       <div class="comp-savings-strip-new">
-        <p class="savings-text-new">The average US newborn studio session costs <strong>$800 or more</strong>. SnapiBaby delivers the same studio quality for as little as <strong>$19</strong> — that's up to <strong>$761 saved</strong>, from your couch.</p>
+        <p class="savings-text-new">The average US newborn studio session costs <strong>$800 or more</strong>. SnapiBaby delivers the same studio quality for as little as <strong id="savings-price-text">$19</strong> — that's up to <strong id="savings-saved-text">$761 saved</strong>, from your couch.</p>
         <div class="savings-price-block">
           <div class="savings-price-col">
             <div class="savings-old-price-new">$800+</div>
@@ -1337,7 +1345,7 @@ a.tag-tema:hover {
           </div>
           <div class="savings-arrow-sep">→</div>
           <div class="savings-price-col">
-            <div class="savings-new-price-new">$19</div>
+            <div class="savings-new-price-new" id="savings-big-price">$19</div>
             <div class="savings-tiny-label savings-tiny-new">SNAPIBABY</div>
           </div>
         </div>
@@ -1440,143 +1448,146 @@ a.tag-tema:hover {
 
     <div class="vsp-wrap">
       <div class="vsp-header">
-        <div class="vsp-badge">📹 Real Moms, Real Reactions</div>
-        <h2 class="vsp-title">See What Moms Are Saying</h2>
-        <p class="vsp-subtitle">Unscripted. Unfiltered. Real moms sharing their SnapiBaby moment.</p>
+        <div class="vsp-badge" id="vsp-badge">📹 Real Moms, Real Reactions</div>
+        <h2 class="vsp-title" id="vsp-title">See What Moms Are Saying</h2>
+        <p class="vsp-subtitle" id="vsp-subtitle">Unscripted. Unfiltered. Real moms sharing their SnapiBaby moment.</p>
       </div>
 
-      <div class="vsp-grid">
-
-        <!-- Vó (1 only) -->
-        <div class="vsp-card">
-          <div class="vsp-video-wrap">
-            <video src="videos/video-grandma.mp4" preload="metadata" playsinline id="v1"></video>
-            <div class="vsp-play-overlay" id="vplay1" onclick="playVid('v1','vplay1')">
-              <div class="vsp-play-btn">▶</div>
-            </div>
-          </div>
-          <div class="vsp-card-footer">
-            <div class="vsp-stars">★★★★★</div>
-            <div class="vsp-quote">"My granddaughter's portraits made the whole family cry. The most beautiful gift."</div>
-            <div class="vsp-author">— Patricia L., proud grandma</div>
-          </div>
-        </div>
-
-        <!-- Mom 1 -->
-        <div class="vsp-card">
-          <div class="vsp-video-wrap">
-            <video src="videos/video-mom-1.mp4" preload="metadata" playsinline id="v2"></video>
-            <div class="vsp-play-overlay" id="vplay2" onclick="playVid('v2','vplay2')">
-              <div class="vsp-play-btn">▶</div>
-            </div>
-          </div>
-          <div class="vsp-card-footer">
-            <div class="vsp-stars">★★★★★</div>
-            <div class="vsp-quote">"Ordered at midnight. Done before the next feeding. I couldn't believe it."</div>
-            <div class="vsp-author">— Dorothy K., mom of newborn Noah</div>
-          </div>
-        </div>
-
-        <!-- Mom 2 -->
-        <div class="vsp-card">
-          <div class="vsp-video-wrap">
-            <video src="videos/video-mom-2.mp4" preload="metadata" playsinline id="v3"></video>
-            <div class="vsp-play-overlay" id="vplay3" onclick="playVid('v3','vplay3')">
-              <div class="vsp-play-btn">▶</div>
-            </div>
-          </div>
-          <div class="vsp-card-footer">
-            <div class="vsp-stars">★★★★★</div>
-            <div class="vsp-quote">"I cried when I saw the princess portrait. It looked just like a real studio photo."</div>
-            <div class="vsp-author">— Ashley B., mom of 3-week-old Emma</div>
-          </div>
-        </div>
-
-        <!-- Mom 3 -->
-        <div class="vsp-card">
-          <div class="vsp-video-wrap">
-            <video src="videos/video-mom-3.mp4" preload="metadata" playsinline id="v4"></video>
-            <div class="vsp-play-overlay" id="vplay4">
-              <div class="vsp-play-btn">▶</div>
-            </div>
-          </div>
-          <div class="vsp-card-footer">
-            <div class="vsp-stars">★★★★★</div>
-            <div class="vsp-quote">"My husband thought I hired a real photographer. I did it from the couch!"</div>
-            <div class="vsp-author">— Lauren M., first-time mom</div>
-          </div>
-        </div>
-
-        <!-- Mamá en español 1 -->
-        <div class="vsp-card">
-          <div class="vsp-video-wrap">
-            <video src="videos/video-es-mom-1.mp4" preload="metadata" playsinline id="v5"></video>
-            <div class="vsp-play-overlay" id="vplay5">
-              <div class="vsp-play-btn">▶</div>
-            </div>
-          </div>
-          <div class="vsp-card-footer">
-            <div class="vsp-stars">★★★★★</div>
-            <div class="vsp-quote">"Mi esposo creyó que contraté un fotógrafo real. ¡Lo hice desde el sofá!"</div>
-            <div class="vsp-author">— Valeria R., mamá primeriza</div>
-          </div>
-        </div>
-
-        <!-- Mamá en español 2 -->
-        <div class="vsp-card">
-          <div class="vsp-video-wrap">
-            <video src="videos/video-es-mom-2.mp4" preload="metadata" playsinline id="v6"></video>
-            <div class="vsp-play-overlay" id="vplay6">
-              <div class="vsp-play-btn">▶</div>
-            </div>
-          </div>
-          <div class="vsp-card-footer">
-            <div class="vsp-stars">★★★★★</div>
-            <div class="vsp-quote">"Pedí a medianoche. Listo antes de la siguiente toma. Increíble."</div>
-            <div class="vsp-author">— Camila T., mamá de recién nacido</div>
-          </div>
-        </div>
-
-      </div>
+      <!-- Grid built dynamically by geo-lang script below -->
+      <div class="vsp-grid" id="vsp-grid"></div>
 
       <div class="vsp-cta-row">
-        <a href="#nome-do-bebe" class="btn-primary" style="display:inline-block; padding:16px 40px; font-size:1.05rem; border-radius:50px; text-decoration:none;">
+        <a href="#nome-do-bebe" id="vsp-cta-btn" class="btn-primary" style="display:inline-block; padding:16px 40px; font-size:1.05rem; border-radius:50px; text-decoration:none;">
           Create My Baby's Portraits ✨
         </a>
-        <p style="margin-top:12px; font-size:0.85rem; color:#aaa;">Ready in minutes · 100% Money-Back Guarantee</p>
+        <p id="vsp-cta-sub" style="margin-top:12px; font-size:0.85rem; color:#aaa;">Ready in minutes · 100% Money-Back Guarantee</p>
       </div>
     </div>
 
     <script>
-    (function() {
-      // ── Play/pause handlers (src already set directly on <video>) ──
-      function playVid(vid, overlay) {
-        var v = document.getElementById(vid);
-        var o = document.getElementById(overlay);
-        if (!v || !o) return;
-        var p = v.play();
-        if (p !== undefined) {
-          p.then(function() {
-            o.classList.add('hidden');
-          }).catch(function() {
-            // Autoplay blocked — user must tap the overlay button
-          });
-        } else {
-          o.classList.add('hidden');
-        }
+    // ── Language + Video data ──────────────────────────────────────────
+    window.SNAPI_LANG_DATA = {
+      en: {
+        badge:   '📹 Real Moms, Real Reactions',
+        title:   'See What Moms Are Saying',
+        subtitle:'Unscripted. Unfiltered. Real moms sharing their SnapiBaby moment.',
+        cta:     'Create My Baby\'s Portraits ✨',
+        ctaSub:  'Ready in minutes · 100% Money-Back Guarantee',
+        videos: [
+          { src:'videos/video-en-1.mp4', quote:'"My granddaughter\'s portraits made the whole family cry. The most beautiful gift."', author:'— Patricia L., proud grandma' },
+          { src:'videos/video-en-2.mp4', quote:'"Ordered at midnight. Done before the next feeding. I couldn\'t believe it."',        author:'— Dorothy K., mom of newborn Noah' },
+          { src:'videos/video-en-3.mp4', quote:'"I cried when I saw the princess portrait. It looked just like a real studio photo."', author:'— Ashley B., mom of 3-week-old Emma' },
+          { src:'videos/video-en-4.mp4', quote:'"My husband thought I hired a real photographer. I did it from the couch!"',          author:'— Lauren M., first-time mom' }
+        ]
+      },
+      es: {
+        badge:   '📹 Mamás Reales, Reacciones Reales',
+        title:   'Lo Que Dicen Las Mamás',
+        subtitle:'Sin guión. Sin filtros. Mamás reales compartiendo su momento SnapiBaby.',
+        cta:     'Crear los Retratos de Mi Bebé ✨',
+        ctaSub:  'Listo en minutos · Garantía de devolución 100%',
+        videos: [
+          { src:'videos/video-es-new-1.mp4', quote:'"Mi esposo creyó que contraté un fotógrafo real. ¡Lo hice desde el sofá!"',          author:'— Valeria R., mamá primeriza' },
+          { src:'videos/video-es-new-2.mp4', quote:'"Pedí a medianoche. Listo antes de la siguiente toma. ¡Increíble!"',                   author:'— Camila T., mamá de recién nacido' },
+          { src:'videos/video-es-new-3.mp4', quote:'"Lloré cuando vi el retrato de princesa. Parecía una foto de estudio real."',         author:'— Sofia M., mamá de Emma de 3 semanas' },
+          { src:'videos/video-es-new-4.mp4', quote:'"La abuela lloró de alegría al ver las fotos. El regalo más especial."',              author:'— Gabriela L., orgullosa abuela' }
+        ]
+      },
+      de: {
+        badge:   '📹 Echte Mamas, Echte Reaktionen',
+        title:   'Was Mamas Sagen',
+        subtitle:'Ungestellt. Ungefiltert. Echte Mamas teilen ihren SnapiBaby-Moment.',
+        cta:     'Portraits Meines Babys Erstellen ✨',
+        ctaSub:  'In Minuten fertig · 100% Geld-zurück-Garantie',
+        videos: [
+          { src:'videos/video-de-1.mp4', quote:'"Mein Mann dachte, ich hätte einen echten Fotografen engagiert. Ich habe es vom Sofa aus gemacht!"', author:'— Laura K., Erstmama' },
+          { src:'videos/video-de-2.mp4', quote:'"Die Portraits haben die ganze Familie zum Weinen gebracht. Das schönste Geschenk."',               author:'— Maria S., stolze Oma' }
+        ]
+      },
+      fr: {
+        badge:   '📹 Vraies Mamans, Vraies Réactions',
+        title:   'Ce Que Disent Les Mamans',
+        subtitle:'Sans script. Sans filtre. De vraies mamans partagent leur moment SnapiBaby.',
+        cta:     'Créer les Portraits de Mon Bébé ✨',
+        ctaSub:  'Prêt en minutes · Garantie satisfait ou remboursé 100%',
+        videos: [
+          { src:'videos/video-fr-1.mp4', quote:'"Mon mari pensait que j\'avais engagé un vrai photographe. Je l\'ai fait depuis le canapé !"', author:'— Chloé M., maman pour la première fois' }
+        ]
       }
-      window.playVid = playVid;
+    };
 
-      var pairs = [['v1','vplay1'],['v2','vplay2'],['v3','vplay3'],['v4','vplay4'],['v5','vplay5'],['v6','vplay6']];
-      pairs.forEach(function(p) {
-        var v = document.getElementById(p[0]);
-        var o = document.getElementById(p[1]);
+    // ── Country → language map ─────────────────────────────────────────
+    window.SNAPI_COUNTRY_LANG = {
+      // Spanish
+      ES:'es', MX:'es', AR:'es', CO:'es', PE:'es', CL:'es', UY:'es',
+      VE:'es', EC:'es', BO:'es', PY:'es', CR:'es', PA:'es', GT:'es',
+      HN:'es', SV:'es', NI:'es', DO:'es', CU:'es', PR:'es',
+      // German
+      DE:'de', AT:'de', CH:'de',
+      // French
+      FR:'fr', BE:'fr', LU:'fr', MC:'fr', SN:'fr', CI:'fr', ML:'fr',
+      BF:'fr', NE:'fr', TG:'fr', BJ:'fr', GA:'fr', CM:'fr', CD:'fr',
+      CG:'fr', MG:'fr', DZ:'fr', MA:'fr', TN:'fr', HT:'fr'
+    };
+
+    // ── Build video card HTML ──────────────────────────────────────────
+    function buildVideoCard(item, idx) {
+      var vid = 'vlng' + idx;
+      var ovl = 'vplng' + idx;
+      return '<div class="vsp-card">' +
+        '<div class="vsp-video-wrap">' +
+          '<video src="' + item.src + '" preload="metadata" playsinline id="' + vid + '"></video>' +
+          '<div class="vsp-play-overlay" id="' + ovl + '">' +
+            '<div class="vsp-play-btn">▶</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="vsp-card-footer">' +
+          '<div class="vsp-stars">★★★★★</div>' +
+          '<div class="vsp-quote">' + item.quote + '</div>' +
+          '<div class="vsp-author">' + item.author + '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    // ── Render videos for a given lang ────────────────────────────────
+    function renderVideoSection(lang) {
+      var data = window.SNAPI_LANG_DATA[lang] || window.SNAPI_LANG_DATA.en;
+      // Header texts
+      var badge = document.getElementById('vsp-badge');
+      var title = document.getElementById('vsp-title');
+      var sub   = document.getElementById('vsp-subtitle');
+      var cta   = document.getElementById('vsp-cta-btn');
+      var ctaSub= document.getElementById('vsp-cta-sub');
+      if (badge)  badge.textContent  = data.badge;
+      if (title)  title.textContent  = data.title;
+      if (sub)    sub.textContent    = data.subtitle;
+      if (cta)    cta.textContent    = data.cta;
+      if (ctaSub) ctaSub.textContent = data.ctaSub;
+      // Build grid
+      var grid = document.getElementById('vsp-grid');
+      if (!grid) return;
+      grid.innerHTML = data.videos.map(buildVideoCard).join('');
+      // Attach play/pause events
+      data.videos.forEach(function(_, i) {
+        var vid = 'vlng' + i;
+        var ovl = 'vplng' + i;
+        var v = document.getElementById(vid);
+        var o = document.getElementById(ovl);
         if (!v || !o) return;
-        o.addEventListener('click', function() { playVid(p[0], p[1]); });
-        v.addEventListener('click', function() { v.pause(); o.classList.remove('hidden'); });
-        v.addEventListener('ended', function() { v.currentTime = 0; o.classList.remove('hidden'); });
+        function play() {
+          var pr = v.play();
+          if (pr) pr.then(function(){ o.classList.add('hidden'); }).catch(function(){});
+          else o.classList.add('hidden');
+        }
+        o.addEventListener('click', play);
+        v.addEventListener('click', function(){ v.pause(); o.classList.remove('hidden'); });
+        v.addEventListener('ended', function(){ v.currentTime=0; o.classList.remove('hidden'); });
       });
-    })();
+    }
+
+    // ── Init: default EN immediately, geo-pricing script will update lang ──
+    renderVideoSection('en');
+    window.SNAPI_RENDER_VIDEOS = renderVideoSection;
     </script>
   </section>
 
@@ -1624,7 +1635,7 @@ a.tag-tema:hover {
         <div class="price-card" id="plano-starter">
           <div class="plan-tagline">"Your first magical memory"</div>
           <h3>✨ Starter</h3>
-          <div class="price">$19</div>
+          <div class="price" id="price-starter" style="min-height:1.2em;">$19</div>
           <p>Perfect for discovering the magic of SnapiBaby with your newborn.</p>
           <ul class="features">
             <li class="feat-yes">10 professional AI photos</li>
@@ -1642,7 +1653,7 @@ a.tag-tema:hover {
           <div class="popular-badge">⭐ MOST CHOSEN BY MOMS</div>
           <div class="plan-tagline">"The complete newborn story"</div>
           <h3>📸 Classic</h3>
-          <div class="price">$29</div>
+          <div class="price" id="price-classic" style="min-height:1.2em;">$29</div>
           <p>The favorite choice of thousands of moms. Everything you need to preserve this phase forever.</p>
           <ul class="features">
             <li class="feat-yes">20 professional AI photos</li>
@@ -1661,8 +1672,8 @@ a.tag-tema:hover {
           <div class="best-value-badge">👑 BEST VALUE</div>
           <div class="plan-tagline">"Every moment, forever"</div>
           <h3>💎 Premium</h3>
-          <div class="price">$39</div>
-          <div class="price-savings-note">Studios charge $800+. You pay $39. That's <strong>$761 saved</strong> — from your couch.</div>
+          <div class="price" id="price-premium" style="min-height:1.2em;">$39</div>
+          <div class="price-savings-note" id="price-savings-note">Studios charge $800+. You pay <span id="premium-price-inline">$39</span>. That's <strong>a huge saving</strong> — from your couch.</div>
           <ul class="features">
             <li class="feat-yes">30 professional AI photos</li>
             <li class="feat-yes">All 20+ themes unlocked</li>
@@ -1796,6 +1807,104 @@ a.tag-tema:hover {
 </footer>
 
 <script>
+// ── Geo-pricing + Language Detection ──────────────────────────────
+(async () => {
+  try {
+    const res = await fetch('/.netlify/functions/get-pricing', { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return;
+    const d = await res.json();
+
+    const isZero = d.zeroDecimal;
+    const sym    = d.symbol;
+
+    // Formata valor para exibição
+    const fmt = (v) => {
+      if (isZero) return `${sym}${Math.round(v).toLocaleString()}`;
+      return Number.isInteger(v) ? `${sym}${v}` : `${sym}${Number(v).toFixed(2)}`;
+    };
+
+    const s = d.plans.starter.display;
+    const c = d.plans.classic.display;
+    const p = d.plans.premium.display;
+    const fmtS = fmt(s);
+    const fmtC = fmt(c);
+    const fmtP = fmt(p);
+
+    // ── Pricing cards ──────────────────────────────────────────
+    const elS = document.getElementById('price-starter');
+    const elC = document.getElementById('price-classic');
+    const elP = document.getElementById('price-premium');
+    if (elS) elS.textContent = fmtS;
+    if (elC) elC.textContent = fmtC;
+    if (elP) elP.textContent = fmtP;
+
+    // ── Nota inline do Premium ─────────────────────────────────
+    const elPInline = document.getElementById('premium-price-inline');
+    if (elPInline) elPInline.textContent = fmtP;
+
+    // ── Hero trust row ─────────────────────────────────────────
+    const heroFrom = document.getElementById('hero-price-from');
+    if (heroFrom) heroFrom.textContent = fmtS;
+
+    // ── Comparison table ───────────────────────────────────────
+    const compFrom = document.getElementById('comp-price-from');
+    if (compFrom) compFrom.textContent = fmtS;
+
+    // ── Savings strip ─────────────────────────────────────────
+    const savText  = document.getElementById('savings-price-text');
+    const savBig   = document.getElementById('savings-big-price');
+    if (savText) savText.textContent = fmtS;
+    if (savBig)  savBig.textContent  = fmtS;
+
+    // ── Savings strip — valor economizado ─────────────────────
+    const savSavedEl = document.getElementById('savings-saved-text');
+    if (savSavedEl && !isZero && d.currency === 'usd') {
+      const saved = 800 - s;
+      if (saved > 0) savSavedEl.textContent = `${fmt(saved)} saved`;
+    }
+
+    // ── Nota de economia do Premium (savings-note) ─────────────
+    const elN = document.getElementById('price-savings-note');
+    if (elN) {
+      elN.innerHTML = `Studios charge $800+. You pay <span id="premium-price-inline">${fmtP}</span>. That's <strong>a huge saving</strong> — from your couch.`;
+    }
+
+    // ── Language detection → render correct video testimonials ──
+    const countryLangMap = window.SNAPI_COUNTRY_LANG || {};
+    const lang = countryLangMap[d.country] || 'en';
+    if (typeof window.SNAPI_RENDER_VIDEOS === 'function') {
+      window.SNAPI_RENDER_VIDEOS(lang);
+    }
+
+    // ── Ticker: localiza valor de economia ──────────────────────
+    // Calcula economiza vs estúdio tradicional (referência: $800 USD)
+    // Para não-USD usamos o plano premium como proxy do valor economizado
+    try {
+      let savingDisplay;
+      if (d.currency === 'usd') {
+        const saved = Math.round(800 - s);
+        if (saved > 0) savingDisplay = `${sym}${saved}`;
+      } else {
+        // Para moedas locais: mostramos o preço do plano premium como "quanto você economiza"
+        // ex: BR = R$119 → "Save over R$119 vs studio"
+        savingDisplay = `${fmt(p)}`;
+      }
+      if (savingDisplay) {
+        const t1 = document.getElementById('ticker-saving-1');
+        const t2 = document.getElementById('ticker-saving-2');
+        if (t1) t1.textContent = savingDisplay;
+        if (t2) t2.textContent = savingDisplay;
+      }
+    } catch(_) {}
+
+    console.log(`[geo-pricing] country=${d.country} lang=${lang} currency=${d.currency} starter=${fmtS} classic=${fmtC} premium=${fmtP}`);
+  } catch(e) {
+    // Fallback silencioso — preços hardcoded + vídeos EN continuam visíveis
+    console.warn('get-pricing (homepage): fallback to static prices', e.message);
+  }
+})();
+</script>
+<script>
 document.getElementById('btnStartMagic').addEventListener('click', function() {
   const name = document.getElementById('babyName').value;
   if (name) {
@@ -1803,6 +1912,17 @@ document.getElementById('btnStartMagic').addEventListener('click', function() {
   } else {
     alert("Please enter your baby's name to continue! 🥰");
   }
+});
+
+// ── Botões de plano → redireciona direto pro checkout ──────────
+document.getElementById('btn-starter').addEventListener('click', function() {
+  window.location.href = 'checkout.html?plano=starter';
+});
+document.getElementById('btn-classic').addEventListener('click', function() {
+  window.location.href = 'checkout.html?plano=classic';
+});
+document.getElementById('btn-premium').addEventListener('click', function() {
+  window.location.href = 'checkout.html?plano=premium';
 });
 
 const hamburgerBtn = document.getElementById('hamburgerBtn');
@@ -2280,5 +2400,83 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 </script>
 
+<!-- SnapiBaby GA4 Funnel Events -->
+<script>
+(function() {
+  var GA_ID = 'G-9EM8JRS1PZ';
+
+  // Helper: read geo price from DOM (set by pricing script)
+  function getBasePrice() {
+    var el = document.getElementById('hero-price-from');
+    if (el) {
+      var raw = el.textContent.replace(/[^0-9.]/g, '');
+      var n = parseFloat(raw);
+      return isNaN(n) ? 19 : n;
+    }
+    return 19;
+  }
+
+  // 1. view_item — fires when pricing section enters viewport
+  var pricingSection = document.getElementById('planos');
+  if (pricingSection && typeof IntersectionObserver !== 'undefined') {
+    var pricingObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          gtag('event', 'view_item', {
+            currency: 'USD',
+            value: getBasePrice(),
+            items: [{
+              item_id: 'snapibaby_plan',
+              item_name: 'SnapiBaby — AI Newborn Portraits',
+              item_category: 'Photography',
+              price: getBasePrice()
+            }]
+          });
+          pricingObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    pricingObserver.observe(pricingSection);
+  }
+
+  // 2. begin_checkout — fires on any main CTA click
+  function trackBeginCheckout(planName, price) {
+    gtag('event', 'begin_checkout', {
+      currency: 'USD',
+      value: price || getBasePrice(),
+      items: [{
+        item_id: 'snapibaby_' + (planName || 'plan').toLowerCase().replace(/\s+/g, '_'),
+        item_name: 'SnapiBaby — ' + (planName || 'AI Newborn Portraits'),
+        item_category: 'Photography',
+        price: price || getBasePrice()
+      }]
+    });
+  }
+
+  // Hook hero CTA
+  var heroBtn = document.getElementById('btnStartMagic');
+  if (heroBtn) {
+    heroBtn.addEventListener('click', function() { trackBeginCheckout('Starter', getBasePrice()); });
+  }
+
+  // Hook all buttons/links that go to checkout.html
+  document.querySelectorAll('a[href*="checkout"], button').forEach(function(el) {
+    var txt = (el.textContent || '').toLowerCase();
+    if (txt.indexOf('get') !== -1 || txt.indexOf('start') !== -1 || txt.indexOf('create') !== -1 || txt.indexOf('order') !== -1) {
+      el.addEventListener('click', function() {
+        var planEl = el.closest('[data-plan]');
+        var planName = planEl ? planEl.getAttribute('data-plan') : 'Plan';
+        trackBeginCheckout(planName, getBasePrice());
+      });
+    }
+  });
+
+  // Hook sticky bar CTA
+  var stickyBtn = document.querySelector('.sticky-cta');
+  if (stickyBtn) {
+    stickyBtn.addEventListener('click', function() { trackBeginCheckout('Starter', getBasePrice()); });
+  }
+})();
+</script>
 </body>
 </html>

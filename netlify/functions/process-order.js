@@ -17,6 +17,7 @@ const SUPABASE_URL     = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const KIE_API_KEY      = process.env.KIE_API_KEY;
 const RESEND_API_KEY   = process.env.RESEND_API_KEY;
+const ALERT_EMAIL      = process.env.ALERT_EMAIL || process.env.OWNER_EMAIL || 'viewbrantz@gmail.com';
 const KIE_BASE         = 'https://api.kie.ai/api/v1';
 const SITE_URL         = 'https://snapibaby.netlify.app';
 
@@ -46,8 +47,11 @@ exports.handler = async (event) => {
   const faceUrl = (order.baby_photo_urls || [])[0] || null;
 
   if (!faceUrl) {
+    const errMsg = 'No baby photo URL found in order — upload may have failed';
     console.error(`process-order: no baby_photo_urls for order ${order.order_number}`);
     await db.from('orders').update({ generation_status: 'failed' }).eq('id', orderId);
+    await sendSupportAlert(order, errMsg);
+    await sendFailureApologyEmail(order);
     return { statusCode: 200, body: 'No photo URL — generation skipped' };
   }
 
@@ -104,8 +108,13 @@ exports.handler = async (event) => {
     );
 
   } catch (genErr) {
-    console.error('process-order generation failed:', genErr.message);
+    const errMsg = genErr.message || 'Unknown error';
+    console.error('process-order generation failed:', errMsg);
     await db.from('orders').update({ generation_status: 'failed' }).eq('id', orderId);
+    await Promise.allSettled([
+      sendSupportAlert(order, errMsg),
+      sendFailureApologyEmail(order),
+    ]);
   }
 
   return { statusCode: 200, body: JSON.stringify({ ok: true }) };
@@ -384,3 +393,63 @@ const THEME_PROMPTS = {
 };
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// ============================================================
+// Support alert — owner notification on failure
+// ============================================================
+async function sendSupportAlert(order, errorMsg) {
+  if (!RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY not set — support alert skipped. Error:', errorMsg);
+    return;
+  }
+  try {
+    const plan = order.plan || 'unknown';
+    await fetch('https://api.resend.com/emails', {
+      method:  'POST',
+      headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from:    'SnapiBaby Alerts <onboarding@resend.dev>',
+        to:      [ALERT_EMAIL],
+        subject: `⚠️ FALHA na geração — Order ${order.order_number || order.id} — ${order.customer_email}`,
+        html: `<p><strong>Order:</strong> ${order.order_number || order.id}<br>
+               <strong>Customer:</strong> ${order.customer_name || 'N/A'} &lt;${order.customer_email}&gt;<br>
+               <strong>Plan:</strong> ${plan}<br>
+               <strong>Photo URL:</strong> ${(order.baby_photo_urls || [])[0] || 'MISSING'}<br>
+               <strong>Error:</strong> <code>${errorMsg}</code><br>
+               <strong>Time:</strong> ${new Date().toISOString()}</p>`
+      })
+    });
+    console.log(`Support alert sent to ${ALERT_EMAIL} for order ${order.order_number}`);
+  } catch (e) {
+    console.error('sendSupportAlert threw:', e.message);
+  }
+}
+
+// ============================================================
+// Customer apology email — sent on generation failure
+// ============================================================
+async function sendFailureApologyEmail(order) {
+  if (!RESEND_API_KEY || !order.customer_email) return;
+  try {
+    const name = order.customer_name || 'there';
+    await fetch('https://api.resend.com/emails', {
+      method:  'POST',
+      headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from:    'SnapiBaby <onboarding@resend.dev>',
+        to:      [order.customer_email],
+        subject: `📸 Update on your SnapiBaby portraits — Order ${order.order_number || ''}`,
+        html: `<p>Hi ${name},<br><br>
+               We're sorry — something went wrong generating your portraits. Our team has been notified
+               and will fix this within a few hours.<br><br>
+               <strong>Order:</strong> ${order.order_number || 'Processing'}<br><br>
+               If you don't hear back within 24h, contact us at
+               <a href="mailto:support@snapibaby.com">support@snapibaby.com</a>.<br><br>
+               Your payment is safe and your order will be fulfilled.</p>`
+      })
+    });
+    console.log(`Apology email sent to ${order.customer_email}`);
+  } catch (e) {
+    console.error('sendFailureApologyEmail threw:', e.message);
+  }
+}
