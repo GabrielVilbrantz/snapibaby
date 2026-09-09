@@ -1352,18 +1352,22 @@
 
       paymentElement = stripeElements.create('payment', {
         layout: 'tabs',
-        wallets: { applePay: 'auto', googlePay: 'auto' }
+        wallets: { applePay: 'auto', googlePay: 'auto' },
+        // PayPal via custom payment method já configurado no Stripe Dashboard
+        // Boleto para clientes brasileiros (ativado no Stripe → Formas de pagamento)
       });
       paymentElement.mount('#payment-element');
 
       paymentElement.on('change', ({ complete, value }) => {
         document.getElementById('card-errors').textContent = '';
-        // Detectar PIX para adaptar o label do botão
+        // Adaptar label do botão por método selecionado
         const method = value?.type || '';
         const btn = document.getElementById('btn-buy');
         if (btn) {
-          if (method === 'pix') {
-            btn.innerHTML = 'Gerar QR Code PIX 🔑';
+          if (method === 'boleto') {
+            btn.innerHTML = 'Gerar Boleto 🏦';
+          } else if (method === 'paypal') {
+            btn.innerHTML = 'Continuar para o PayPal →';
           } else {
             btn.innerHTML = btn.dataset.defaultLabel || 'Finalizar Pagamento 🚀';
           }
@@ -1391,89 +1395,17 @@
       btn.disabled = true;
       document.getElementById('card-errors').textContent = '';
 
-      const hasBump    = document.getElementById('bumpCheck')?.checked ?? false;
-      const planName   = plan || 'premium';
-      const themesSelected = JSON.parse(localStorage.getItem('snapi_themes') || '[]');
-      const babyPhotoUrls  = JSON.parse(localStorage.getItem('snapi_baby_photo_urls') || '[]');
+      // ═══════════════════════════════════════════════════════════════════════
+      // FASE 2: Payment Element já inicializado → confirmar pagamento
+      // (Apple Pay, Google Pay, cartão, PayPal)
+      // ═══════════════════════════════════════════════════════════════════════
+      if (stripeElements && currentClientSecret && window._pendingPayment) {
+        const { order, customerId, basePrice, bumpPrice, hasBump, planName } = window._pendingPayment;
 
-      localStorage.setItem('snapi_customer_name', customerName);
-      localStorage.setItem('snapi_customer_email', customerEmail);
-      localStorage.setItem('snapi_plan', planName);
-
-      try {
-        // ── Step 1: Create PaymentIntent with detected currency ───────────────
-        const piRes = await fetch('/.netlify/functions/create-payment-intent', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            plan: planName,
-            hasBump,
-            customerEmail,
-            customerName,
-            babyPhotoUrls,
-            themesSelected,
-            country: detectedCountry,
-            exitDiscount: exitDiscountApplied // <-- flag real do desconto 10%
-          })
-        });
-
-        if (!piRes.ok) throw new Error('Não foi possível inicializar o pagamento. Tente novamente.');
-        const { clientSecret, customerId, intentId } = await piRes.json();
-
-        // ── Inicializar Payment Element com o clientSecret ──────────────────────
-        // (lazy-init: monta o elemento com Google Pay, Apple Pay, PIX disponíveis)
-        await initPaymentElement(clientSecret);
-        btn.innerHTML = 'Finalizar Pagamento 🚀';
-        btn.style.opacity = '1';
-        btn.disabled = false;
-        btn.dataset.defaultLabel = 'Finalizar Pagamento 🚀';
-        // Se o usuário ainda não clicou em "Finalizar Pagamento", esperamos
-        // que ele interaja com o Payment Element e clique de novo.
-        // Guardamos os dados do PI para usar na confirmação.
-        btn.dataset.clientSecret = clientSecret;
-        btn.dataset.intentId     = intentId;
-        btn.dataset.customerId   = customerId || '';
-        btn.dataset.orderPending = 'true';
-
-        // ── Step 2: Criar pedido no Supabase ANTES de confirmar pagamento ──
-        let order = null;
-        try {
-          const orderRes = await fetch('/.netlify/functions/create-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              customerName,
-              customerEmail,
-              plan: planName,
-              basePrice,
-              bumpAdded:           hasBump,
-              totalPaid:           basePrice + (hasBump ? bumpPrice : 0),
-              stripePaymentIntent: intentId,
-              stripeCustomerId:    customerId,
-              stripePaymentMethod: null,
-              themesSelected,
-              babyPhotoUrls
-            })
-          });
-          if (orderRes.ok) {
-            order = await orderRes.json();
-            localStorage.setItem('snapi_order_id',     order.id);
-            localStorage.setItem('snapi_order_number', order.order_number);
-            console.log('Order pre-created:', order.order_number, order.id);
-          } else {
-            console.error('create-order failed:', await orderRes.text());
-          }
-        } catch (orderErr) {
-          console.error('create-order error:', orderErr.message);
-        }
-
-        // ── Step 3: Confirmar pagamento via Payment Element ───────────────────
-        // redirect:'if_required' → cartão/wallet: resolve imediato sem redirect
-        //                        → PIX: redireciona para return_url (success.html)
         const returnUrl = `${window.location.origin}/success.html`
           + `?order_id=${order?.id || ''}`
           + `&email=${encodeURIComponent(customerEmail)}`
-          + `&pix=1`;
+          + `&async=1`;
 
         const { error, paymentIntent } = await stripeClient.confirmPayment({
           elements: stripeElements,
@@ -1495,12 +1427,10 @@
           return;
         }
 
-        // Se chegou aqui sem redirect → pagamento síncrono (cartão, Google Pay, Apple Pay)
-        // Para PIX, o browser já foi redirecionado e este código não executa
+        // Pagamento síncrono confirmado (cartão, Google Pay, Apple Pay, PayPal)
+        // Para métodos assíncronos o browser já foi redirecionado
 
-        // ── Step 4: Disparar geração após pagamento ─────────────────────────────
-        // IMPORTANTE: usa sendBeacon + keepalive para garantir que a requisição
-        // não seja cancelada quando o browser navega para upsell.html.
+        // ── Disparar geração ─────────────────────────────────────────────────
         if (order?.id) {
           const beaconPayload = JSON.stringify({ orderId: order.id, type: 'main' });
           const beaconSent = navigator.sendBeacon
@@ -1509,9 +1439,7 @@
                 new Blob([beaconPayload], { type: 'application/json' })
               )
             : false;
-
           if (!beaconSent) {
-            // Fallback para fetch com keepalive se sendBeacon falhou
             fetch('/.netlify/functions/process-order-background', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -1519,10 +1447,10 @@
               keepalive: true
             }).catch(e => console.warn('Background trigger failed:', e));
           }
-          console.log('[checkout] process-order-background triggered via', beaconSent ? 'sendBeacon' : 'fetch+keepalive', 'for', order.id);
+          console.log('[checkout] process-order-background triggered for', order.id);
         }
 
-        // ── Step 5: Redirect to upsell ──────────────────────────────────────
+        // ── Redirect para upsell ─────────────────────────────────────────────
         const pmId = paymentIntent.payment_method;
         const totalPaid = (basePrice + (hasBump ? bumpPrice : 0)).toFixed(2);
         paymentCompleted = true;
@@ -1530,29 +1458,17 @@
         window.onbeforeunload = null;
         btn.innerHTML = '✅ Pagamento Aprovado! Redirecionando...';
 
-        // ── GA4: purchase event ──────────────────────────────────────────────
-        const gaTotalPaid = parseFloat((basePrice + (hasBump ? bumpPrice : 0)).toFixed(2));
+        // GA4
+        const gaTotalPaid = parseFloat(totalPaid);
         gtag('event', 'purchase', {
           transaction_id: paymentIntent.id,
           value:          gaTotalPaid,
           currency:       (detectedCurrency || 'usd').toUpperCase(),
-          items: [{
-            item_id:       'snapibaby_' + (planName || 'plan').toLowerCase().replace(/\s+/g, '_'),
-            item_name:     'SnapiBaby — ' + (planName || 'AI Newborn Portraits'),
-            item_category: 'Photography',
-            price:         basePrice,
-            quantity:      1
-          }].concat(hasBump ? [{
-            item_id:       'snapibaby_order_bump',
-            item_name:     'SnapiBaby — Order Bump (Extra Themes)',
-            item_category: 'Photography',
-            price:         bumpPrice,
-            quantity:      1
-          }] : [])
+          items: [{ item_id: 'snapibaby_' + planName, item_name: 'SnapiBaby — ' + planName, item_category: 'Photography', price: basePrice, quantity: 1 }]
+            .concat(hasBump ? [{ item_id: 'snapibaby_order_bump', item_name: 'SnapiBaby — Order Bump', item_category: 'Photography', price: bumpPrice, quantity: 1 }] : [])
         });
-        // ── /GA4 ─────────────────────────────────────────────────────────────
-        // Calcular preços do upsell/downsell baseado no bumpPrice geo-detectado
-        // Upsell = 15 fotos holiday (~2.4× bump), Downsell = metade do upsell
+
+        window._pendingPayment = null; // limpar estado
         const upsellDisplayPrice  = detectedZeroDecimal
           ? Math.round(bumpPrice * 2.4)
           : parseFloat((bumpPrice * 2.4).toFixed(2));
@@ -1576,12 +1492,84 @@
           + '&downsell_display=' + encodeURIComponent(downsellDisplayPrice)
           + (order ? '&order_id=' + order.id : '');
 
-      } catch (err) {
-        console.error('Payment error:', err);
-        document.getElementById('card-errors').textContent = err.message || 'Payment failed. Please try again.';
-        btn.innerHTML = 'Complete Payment 🚀';
-        btn.style.opacity = '1';
-        btn.disabled = false;
+      } else {
+        // ═════════════════════════════════════════════════════════════════════
+        // FASE 1: Primeiro clique → criar PI, inicializar Payment Element
+        // ═════════════════════════════════════════════════════════════════════
+        try {
+          const hasBump    = document.getElementById('bumpCheck')?.checked ?? false;
+          const planName   = plan || 'premium';
+          const themesSelected = JSON.parse(localStorage.getItem('snapi_themes') || '[]');
+          const babyPhotoUrls  = JSON.parse(localStorage.getItem('snapi_baby_photo_urls') || '[]');
+
+          localStorage.setItem('snapi_customer_name', customerName);
+          localStorage.setItem('snapi_customer_email', customerEmail);
+          localStorage.setItem('snapi_plan', planName);
+
+          // Step 1: Criar PaymentIntent
+          const piRes = await fetch('/.netlify/functions/create-payment-intent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              plan: planName, hasBump, customerEmail, customerName,
+              babyPhotoUrls, themesSelected,
+              country: detectedCountry,
+              exitDiscount: exitDiscountApplied
+            })
+          });
+          if (!piRes.ok) throw new Error('Não foi possível inicializar o pagamento. Tente novamente.');
+          const { clientSecret, customerId, intentId } = await piRes.json();
+
+          // Step 2: Inicializar Payment Element (Apple Pay, Google Pay, PayPal, cartão)
+          await initPaymentElement(clientSecret);
+
+          // Step 3: Criar pedido no Supabase
+          let order = null;
+          try {
+            const orderRes = await fetch('/.netlify/functions/create-order', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                customerName, customerEmail, plan: planName,
+                basePrice, bumpAdded: hasBump,
+                totalPaid: basePrice + (hasBump ? bumpPrice : 0),
+                stripePaymentIntent: intentId,
+                stripeCustomerId: customerId,
+                stripePaymentMethod: null,
+                themesSelected, babyPhotoUrls
+              })
+            });
+            if (orderRes.ok) {
+              order = await orderRes.json();
+              localStorage.setItem('snapi_order_id',     order.id);
+              localStorage.setItem('snapi_order_number', order.order_number);
+              console.log('Order created:', order.order_number, order.id);
+            } else {
+              console.error('create-order failed:', await orderRes.text());
+            }
+          } catch (orderErr) {
+            console.error('create-order error:', orderErr.message);
+          }
+
+          // Salvar estado para a Fase 2
+          window._pendingPayment = { order, customerId, basePrice, bumpPrice, hasBump, planName };
+
+          // Atualizar botão para Fase 2
+          btn.dataset.defaultLabel = 'Confirmar Pagamento ✓';
+          btn.innerHTML = 'Confirmar Pagamento ✓';
+          btn.style.opacity = '1';
+          btn.disabled = false;
+          document.getElementById('card-errors').textContent = '⬆ Escolha sua forma de pagamento e confirme.';
+          document.getElementById('card-errors').style.color = '#22c55e';
+
+        } catch (err) {
+          console.error('Payment init error:', err);
+          document.getElementById('card-errors').textContent = err.message || 'Erro ao inicializar pagamento. Tente novamente.';
+          document.getElementById('card-errors').style.color = '#ef4444';
+          btn.innerHTML = 'Finalizar Pagamento 🚀';
+          btn.style.opacity = '1';
+          btn.disabled = false;
+        }
       }
     }
   </script>
