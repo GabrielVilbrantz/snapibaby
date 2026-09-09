@@ -819,11 +819,11 @@
             </div>
           </div>
 
-          <!-- STRIPE CARD ELEMENT -->
+          <!-- STRIPE PAYMENT ELEMENT — Google Pay, Apple Pay, PIX, Cartão e mais -->
           <div class="form-group">
-            <label>💳 Dados do Cartão</label>
-            <div id="card-element" style="border:1.5px solid #e2e8f0;border-radius:10px;padding:14px 16px;background:#fafafa;font-size:1rem;transition:border-color 0.2s;"></div>
-            <div id="card-errors" style="color:#ef4444;font-size:0.83rem;margin-top:6px;min-height:18px;"></div>
+            <label>💳 Forma de Pagamento</label>
+            <div id="payment-element" style="margin-top:4px;"></div>
+            <div id="card-errors" style="color:#ef4444;font-size:0.83rem;margin-top:8px;min-height:18px;"></div>
           </div>
 
           <!-- ORDER BUMP -->
@@ -1321,21 +1321,55 @@
       if (changed) window.history.replaceState({}, '', url.toString());
     })();
 
-    // ─── STRIPE CARD ELEMENT (sync, always visible) ──────────────────────────
+    // ─── STRIPE PAYMENT ELEMENT (Google Pay, Apple Pay, PIX, Cartão) ──────────
     const STRIPE_PK = 'pk_live_51TRiyy0pb3rIcyseWcsniG2X4ervxCl3IybCjghrBQGZVb9Yd0sr0GguR2XBaRK9WVihTyAur2khLEGszC95wGPh0072374w6q';
     const stripeClient = Stripe(STRIPE_PK);
-    const elements = stripeClient.elements();
-    const cardElement = elements.create('card', {
-      style: {
-        base: { fontFamily: 'Inter, sans-serif', fontSize: '15px', color: '#2b2b2b', '::placeholder': { color: '#aab7c4' } },
-        invalid: { color: '#ef4444', iconColor: '#ef4444' }
-      }
-    });
-    cardElement.mount('#card-element');
-    cardElement.on('change', ({ error }) => {
-      document.getElementById('card-errors').textContent = error ? error.message : '';
-      document.getElementById('card-element').style.borderColor = error ? '#ef4444' : '#e2e8f0';
-    });
+
+    // Payment Element é inicializado com o clientSecret após criar o PI
+    let stripeElements = null;
+    let paymentElement = null;
+    let currentClientSecret = null;
+
+    async function initPaymentElement(clientSecret) {
+      if (currentClientSecret === clientSecret) return; // já inicializado para este PI
+      currentClientSecret = clientSecret;
+
+      stripeElements = stripeClient.elements({
+        clientSecret,
+        appearance: {
+          theme: 'stripe',
+          variables: {
+            colorPrimary: '#ff4d6d',
+            colorBackground: '#ffffff',
+            colorText: '#2b2b2b',
+            colorDanger: '#ef4444',
+            fontFamily: 'Inter, sans-serif',
+            borderRadius: '10px',
+          }
+        },
+        locale: 'pt-BR'
+      });
+
+      paymentElement = stripeElements.create('payment', {
+        layout: 'tabs',
+        wallets: { applePay: 'auto', googlePay: 'auto' }
+      });
+      paymentElement.mount('#payment-element');
+
+      paymentElement.on('change', ({ complete, value }) => {
+        document.getElementById('card-errors').textContent = '';
+        // Detectar PIX para adaptar o label do botão
+        const method = value?.type || '';
+        const btn = document.getElementById('btn-buy');
+        if (btn) {
+          if (method === 'pix') {
+            btn.innerHTML = 'Gerar QR Code PIX 🔑';
+          } else {
+            btn.innerHTML = btn.dataset.defaultLabel || 'Finalizar Pagamento 🚀';
+          }
+        }
+      });
+    }
     // ─────────────────────────────────────────────────────────────────────────────
 
     // detectedCountry/Currency/Symbol são definidos no bloco get-pricing acima
@@ -1386,6 +1420,21 @@
         if (!piRes.ok) throw new Error('Não foi possível inicializar o pagamento. Tente novamente.');
         const { clientSecret, customerId, intentId } = await piRes.json();
 
+        // ── Inicializar Payment Element com o clientSecret ──────────────────────
+        // (lazy-init: monta o elemento com Google Pay, Apple Pay, PIX disponíveis)
+        await initPaymentElement(clientSecret);
+        btn.innerHTML = 'Finalizar Pagamento 🚀';
+        btn.style.opacity = '1';
+        btn.disabled = false;
+        btn.dataset.defaultLabel = 'Finalizar Pagamento 🚀';
+        // Se o usuário ainda não clicou em "Finalizar Pagamento", esperamos
+        // que ele interaja com o Payment Element e clique de novo.
+        // Guardamos os dados do PI para usar na confirmação.
+        btn.dataset.clientSecret = clientSecret;
+        btn.dataset.intentId     = intentId;
+        btn.dataset.customerId   = customerId || '';
+        btn.dataset.orderPending = 'true';
+
         // ── Step 2: Criar pedido no Supabase ANTES de confirmar pagamento ──
         let order = null;
         try {
@@ -1418,22 +1467,36 @@
           console.error('create-order error:', orderErr.message);
         }
 
-        // ── Step 3: Confirmar pagamento com cartão via Stripe.js ───────────────
-        const { error, paymentIntent } = await stripeClient.confirmCardPayment(clientSecret, {
-          payment_method: {
-            card: cardElement,
-            billing_details: { name: customerName, email: customerEmail }
+        // ── Step 3: Confirmar pagamento via Payment Element ───────────────────
+        // redirect:'if_required' → cartão/wallet: resolve imediato sem redirect
+        //                        → PIX: redireciona para return_url (success.html)
+        const returnUrl = `${window.location.origin}/success.html`
+          + `?order_id=${order?.id || ''}`
+          + `&email=${encodeURIComponent(customerEmail)}`
+          + `&pix=1`;
+
+        const { error, paymentIntent } = await stripeClient.confirmPayment({
+          elements: stripeElements,
+          confirmParams: {
+            return_url: returnUrl,
+            payment_method_data: {
+              billing_details: { name: customerName, email: customerEmail }
+            },
+            receipt_email: customerEmail
           },
-          receipt_email: customerEmail
+          redirect: 'if_required'
         });
 
         if (error) {
           document.getElementById('card-errors').textContent = error.message;
-          btn.innerHTML = 'Finalizar Pagamento 🚀';
+          btn.innerHTML = btn.dataset.defaultLabel || 'Finalizar Pagamento 🚀';
           btn.style.opacity = '1';
           btn.disabled = false;
           return;
         }
+
+        // Se chegou aqui sem redirect → pagamento síncrono (cartão, Google Pay, Apple Pay)
+        // Para PIX, o browser já foi redirecionado e este código não executa
 
         // ── Step 4: Disparar geração após pagamento ─────────────────────────────
         // IMPORTANTE: usa sendBeacon + keepalive para garantir que a requisição

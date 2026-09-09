@@ -199,6 +199,48 @@ if (savedName) {
   document.getElementById('heroSpan').textContent = first + "'s portraits are almost ready!";
 }
 
+// ── PIX redirect handling ─────────────────────────────────────────────────
+// Quando o Stripe redireciona de volta após o usuário pagar via PIX,
+// os parâmetros payment_intent e redirect_status chegam na URL.
+(function handlePixReturn() {
+  const piParam       = urlParams.get('payment_intent');
+  const redirectStatus = urlParams.get('redirect_status');
+  const fromPix       = urlParams.get('pix') === '1' || !!piParam;
+
+  if (!fromPix) return; // não veio de PIX
+
+  const orderId = savedOrderId;
+
+  if (redirectStatus === 'succeeded') {
+    // PIX confirmado — disparar geração
+    console.log('[PIX] Pagamento confirmado, disparando geração para ordem', orderId);
+    if (orderId) {
+      const payload = JSON.stringify({ orderId, type: 'main' });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(
+          '/.netlify/functions/process-order-background',
+          new Blob([payload], { type: 'application/json' })
+        );
+      } else {
+        fetch('/.netlify/functions/process-order-background', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: payload, keepalive: true
+        }).catch(() => {});
+      }
+    }
+    // Limpar params da URL
+    const cleanUrl = new URL(window.location.href);
+    ['payment_intent','payment_intent_client_secret','redirect_status','pix','source_redirect_slug'].forEach(p => cleanUrl.searchParams.delete(p));
+    window.history.replaceState({}, '', cleanUrl.toString());
+
+  } else if (redirectStatus === 'processing' || redirectStatus === 'pending' || !redirectStatus) {
+    // PIX ainda pendente (normal) — o webhook vai confirmar depois
+    console.log('[PIX] Aguardando confirmação bancária. O webhook vai disparar a geração.');
+    const statusEl = document.getElementById('generation-status-text');
+    if (statusEl) statusEl.textContent = 'Aguardando confirmação do PIX pelo banco...';
+  }
+})();
+
 // ── State tracking ──
 let allPhotoUrls   = [];
 let shownPhotoUrls = new Set(); // URLs already rendered

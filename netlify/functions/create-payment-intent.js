@@ -144,6 +144,8 @@ exports.handler = async (event) => {
       amount:   totalAmount,
       currency: cur,
       customer: customer?.id,
+      // automatic_payment_methods inclui automaticamente: cartão, Google Pay, Apple Pay,
+      // PIX (para BRL), OXXO (para MXN), Boleto, e outros baseados na moeda/país
       automatic_payment_methods: { enabled: true },
       metadata: {
         plan,
