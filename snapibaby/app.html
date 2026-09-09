@@ -736,7 +736,7 @@ body { background: #f4f6fa; }
         <div class="apc-tagline">"Your first magical memory"</div>
         <div class="apc-name">Starter</div>
         <div class="apc-price-wrap">
-          <div class="apc-price-main">R$1</div>
+          <div class="apc-price-main" id="price-starter">R$1</div>
         </div>
         <div class="apc-photo-pill">15 photos</div>
         <ul class="app-plan-features apc-features-v2">
@@ -758,7 +758,7 @@ body { background: #f4f6fa; }
         <div class="apc-tagline">"The complete newborn story"</div>
         <div class="apc-name">Classic</div>
         <div class="apc-price-wrap">
-          <div class="apc-price-main apc-price-accent">R$1</div>
+          <div class="apc-price-main apc-price-accent" id="price-classic">R$1</div>
         </div>
 
         <div class="apc-photo-pill apc-photo-pill-accent">30 photos</div>
@@ -781,7 +781,7 @@ body { background: #f4f6fa; }
         <div class="apc-tagline">"Every moment, forever"</div>
         <div class="apc-name">Premium</div>
         <div class="apc-price-wrap">
-          <div class="apc-price-main apc-price-gold">R$1</div>
+          <div class="apc-price-main apc-price-gold" id="price-premium">R$1</div>
         </div>
 
         <div class="apc-photo-pill apc-photo-pill-gold">50 photos</div>
@@ -1013,6 +1013,9 @@ function goToPricing() {
   // Update theme count in pricing cards
   buildThemePreviewGrid();
 
+  // Carregar preços reais via geo-detection
+  loadPricingCards();
+
   // Hide steps, show pricing
   document.getElementById('step-themes').style.display = 'none';
   document.getElementById('main-title').style.display = 'none';
@@ -1021,6 +1024,42 @@ function goToPricing() {
   document.getElementById('step-preview').style.display = 'block';
   document.querySelectorAll('.baby-name-span').forEach(s => s.textContent = babyName);
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===== PRICING — busca preços corretos via get-pricing (geo-detection) =====
+// Armazena os preços para usar no selectPlan()
+let _pricingData = null;
+
+async function loadPricingCards() {
+  try {
+    const res = await fetch('/.netlify/functions/get-pricing', {
+      signal: AbortSignal.timeout(4000)
+    });
+    if (!res.ok) throw new Error('get-pricing status ' + res.status);
+    const p = await res.json();
+    _pricingData = p;
+
+    const fmt = (val) => {
+      if (p.zeroDecimal) return p.symbol + val.toLocaleString();
+      return p.symbol + val.toFixed(2).replace('.', p.symbol === 'R$' ? ',' : '.');
+    };
+
+    const elS = document.getElementById('price-starter');
+    const elC = document.getElementById('price-classic');
+    const elP = document.getElementById('price-premium');
+    if (elS) elS.textContent = fmt(p.plans.starter.display);
+    if (elC) elC.textContent = fmt(p.plans.classic.display);
+    if (elP) elP.textContent = fmt(p.plans.premium.display);
+  } catch(e) {
+    // Fallback: mostra preços BRL padrão
+    console.warn('get-pricing failed in app.html:', e.message);
+    const elS = document.getElementById('price-starter');
+    const elC = document.getElementById('price-classic');
+    const elP = document.getElementById('price-premium');
+    if (elS) elS.textContent = 'R$87';
+    if (elC) elC.textContent = 'R$97';
+    if (elP) elP.textContent = 'R$117';
+  }
 }
 
 async function selectPlan(planName) {

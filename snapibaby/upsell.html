@@ -804,6 +804,9 @@
     <button class="btn-no" id="btnNoThanks" onclick="showDownsell()">
       No thanks — I'll skip this and lose the offer
     </button>
+
+    <!-- Mensagem de erro do upsell (oculta por padrão) -->
+    <p id="upsell-charge-error" style="display:none; color:#ff4d4d; font-size:0.9rem; font-weight:600; margin-top:12px; text-align:center; padding:10px; background:rgba(255,77,77,0.1); border-radius:8px;"></p>
   </div>
 
   <!-- SOCIAL PROOF -->
@@ -1004,12 +1007,17 @@ async function acceptUpsell() {
     }
 
   } catch (err) {
-    console.warn('Upsell charge failed:', err.message);
-    // Fallback: proceed to success without charging (demo/error mode)
-    const upsellTotal = (BASE_TOTAL + UPSELL_DISPLAY).toFixed(2);
-    setTimeout(function() {
-      toSuccess('upsell=true&total=' + encodeURIComponent(upsellTotal));
-    }, 1800);
+    console.error('Upsell charge failed:', err.message);
+    // Mostrar erro real — NÃO redirecionar para sucesso sem cobrar
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+    const errEl = document.getElementById('upsell-charge-error');
+    if (errEl) {
+      errEl.textContent = 'Não foi possível processar o pagamento. Tente novamente ou pule esta oferta.';
+      errEl.style.display = 'block';
+    } else {
+      alert('Pagamento do upsell falhou: ' + (err.message || 'Tente novamente.'));
+    }
   }
 }
 

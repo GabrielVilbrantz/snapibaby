@@ -1436,13 +1436,27 @@
         }
 
         // ── Step 4: Disparar geração após pagamento ─────────────────────────────
+        // IMPORTANTE: usa sendBeacon + keepalive para garantir que a requisição
+        // não seja cancelada quando o browser navega para upsell.html.
         if (order?.id) {
-          fetch('/.netlify/functions/process-order-background', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderId: order.id, type: 'main' })
-          }).catch(e => console.warn('Background trigger failed:', e));
-          console.log('[checkout] process-order-background triggered for', order.id);
+          const beaconPayload = JSON.stringify({ orderId: order.id, type: 'main' });
+          const beaconSent = navigator.sendBeacon
+            ? navigator.sendBeacon(
+                '/.netlify/functions/process-order-background',
+                new Blob([beaconPayload], { type: 'application/json' })
+              )
+            : false;
+
+          if (!beaconSent) {
+            // Fallback para fetch com keepalive se sendBeacon falhou
+            fetch('/.netlify/functions/process-order-background', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: beaconPayload,
+              keepalive: true
+            }).catch(e => console.warn('Background trigger failed:', e));
+          }
+          console.log('[checkout] process-order-background triggered via', beaconSent ? 'sendBeacon' : 'fetch+keepalive', 'for', order.id);
         }
 
         // ── Step 5: Redirect to upsell ──────────────────────────────────────
