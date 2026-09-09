@@ -94,8 +94,8 @@ const PRICING = {
   // México (USD)
   MX: { currency: 'usd', symbol: '$',    plans: { starter: 700,     classic: 1700,    premium: 2700    }, bump: 300    },
 
-  // Brasil
-  BR: { currency: 'brl', symbol: 'R$',   plans: { starter: 8700,    classic: 9700,    premium: 11700   }, bump: 3700   },
+  // Brasil — ⚠️ PREÇO DE TESTE — REVERTER APÓS TESTE
+  BR: { currency: 'brl', symbol: 'R$',   plans: { starter: 100,     classic: 100,     premium: 100     }, bump: 100    },
 
   // Argentina: ARS two-decimal (~210/BRL) → display 17997/19997/23997 → ×100
   AR: { currency: 'ars', symbol: 'AR$',  plans: { starter: 1799700, classic: 1999700, premium: 2399700 }, bump: 399700 },
