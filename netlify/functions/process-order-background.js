@@ -83,47 +83,16 @@ exports.handler = async (event) => {
   console.log(`[process-order-background] baby_photo_urls: ${JSON.stringify(order.baby_photo_urls)}`);
   console.log(`[process-order-background] themes_selected: ${JSON.stringify(order.themes_selected)}`);
 
-  // ── LOCK SIMPLES (sem mudar schema) ──────────────────────────────────────────
-  // O CHECK constraint do Supabase só aceita: pending, processing, done, failed.
-  // Usamos o campo `notes` como lock token: escrevemos um timestamp único e
-  // verificamos se ele foi gravado (só UMA instância consegue na corrida).
-
-  // 1) Se já terminou, sai.
+  // Guard mínimo: se já terminou, não processa de novo.
   if (order.generation_status === 'done') {
     console.log(`[process-order-background] Order ${orderId} already done — skipping`);
     return;
   }
 
-  // 2) Se já está processando E já tem fotos salvas, outra instância está ativa.
-  if (order.generation_status === 'processing' && (order.generated_urls || []).some(u => u.status === 'ok')) {
-    console.log(`[process-order-background] Order ${orderId} already generating with ${(order.generated_urls||[]).filter(u=>u.status==='ok').length} photos — skipping`);
-    return;
-  }
-
-  // 3) Lock: grava timestamp único no campo `notes`. Se outra instância já gravou
-  //    nos últimos 30s, sai (ela está ativa). Caso contrário, prossegue.
-  const lockToken = `lock:${Date.now()}:${Math.random().toString(36).slice(2,8)}`;
-  const existingNote = order.notes || '';
-  const lockMatch = existingNote.match(/^lock:(\d+):/);
-  if (lockMatch) {
-    const lockAge = Date.now() - parseInt(lockMatch[1]);
-    if (lockAge < 30000) { // lock com menos de 30s é válido
-      console.log(`[process-order-background] Order ${orderId} locked by another instance (${Math.round(lockAge/1000)}s ago) — skipping`);
-      return;
-    }
-  }
-
-  await db.from('orders').update({ notes: lockToken, generation_status: 'processing' }).eq('id', orderId);
-
-  // Verifica se somos a instância que ganhou (re-lê para confirmar)
-  const { data: verify } = await db.from('orders').select('notes').eq('id', orderId).single();
-  if (verify?.notes !== lockToken) {
-    console.log(`[process-order-background] Order ${orderId} lock race lost — another instance won, skipping`);
-    return;
-  }
-
-  console.log(`[process-order-background] Lock acquired for order ${orderId} (type=${type})`);
-  // ── /LOCK ────────────────────────────────────────────────────────────────────
+  // Marca como processing para o cliente ver no polling
+  await db.from('orders').update({ generation_status: 'processing' }).eq('id', orderId);
+  console.log(`[process-order-background] Starting generation for order ${orderId} (type=${type})`);
+  // ── /GUARD ───────────────────────────────────────────────────────────────────
 
   const faceUrl = (order.baby_photo_urls || [])[0] || null;
 
