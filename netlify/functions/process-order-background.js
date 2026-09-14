@@ -336,15 +336,19 @@ async function generateImagesForOrder(order, faceUrl, db, orderId) {
       try {
         const { data: fresh } = await db.from('orders').select('generated_urls').eq('id', orderId).single();
         const existing = fresh?.generated_urls || [];
-        // Mantém itens do DB que ainda não estão em `results` (de outra instância ou run anterior)
         const existingExtra = existing.filter(e => !results.some(r => r.theme === e.theme && r.url === e.url));
         const merged = [...results, ...existingExtra];
-        await db.from('orders').update({ generated_urls: merged }).eq('id', orderId);
-        console.log(`💾 Progressive save: ${merged.filter(r => r.status === 'ok').length} photos in DB`);
+        const { error: saveErr2 } = await db.from('orders').update({ generated_urls: merged }).eq('id', orderId);
+        if (saveErr2) {
+          console.error('💾 SUPABASE SAVE ERROR:', saveErr2.message, saveErr2.code);
+        } else {
+          console.log(`💾 Progressive save OK: ${merged.filter(r => r.status === 'ok').length} photos in DB`);
+        }
       } catch (saveErr) {
-        // Fallback: salva direto sem merge
-        await db.from('orders').update({ generated_urls: results }).eq('id', orderId);
-        console.warn('Progressive save fallback (no merge):', saveErr.message);
+        console.error('💾 Progressive save EXCEPTION:', saveErr.message);
+        const { error: fallbackErr } = await db.from('orders').update({ generated_urls: results }).eq('id', orderId);
+        if (fallbackErr) console.error('💾 Fallback save ALSO failed:', fallbackErr.message);
+        else console.log('💾 Fallback save OK');
       }
 
     } catch (err) {
@@ -430,23 +434,31 @@ async function callKieAi(prompt, faceImageUrl) {
 
     if (status === 'success' || status === 'completed' || status === 'done' || status === '2' || status === 'finish' || status === 'finished') {
       const resultList = task.resultList || task.result_list || [];
+
+      // Log resposta COMPLETA (sem truncar) para diagnóstico
+      console.log('KIE full task data (COMPLETE):', JSON.stringify(task));
+
+      // Extração direta dos campos conhecidos
       const url =
         task.result?.url ||
         task.result?.imageUrl ||
         task.result?.image_url ||
+        task.result?.output_url ||
         (Array.isArray(task.result) && task.result[0]?.url) ||
         (Array.isArray(task.result) && task.result[0]?.imageUrl) ||
-        (resultList.length > 0 && (resultList[0]?.url || resultList[0]?.imageUrl)) ||
+        (Array.isArray(task.result) && task.result[0]?.output_url) ||
+        (resultList.length > 0 && (resultList[0]?.url || resultList[0]?.imageUrl || resultList[0]?.output_url)) ||
         task.outputUrl ||
         task.output_url ||
         task.imageUrl ||
         task.image_url ||
-        task.url;
+        task.url ||
+        // Busca recursiva como último recurso â€” percorre todo o objeto Ã  procura de qualquer URL
+        findFirstUrl(task);
 
-      console.log('KIE full task data:', JSON.stringify(task).substring(0, 600));
-      console.log('KIE result URL:', url);
+      console.log('KIE result URL found:', url);
       if (url) return url;
-      throw new Error('KIE task completed but no URL found: ' + JSON.stringify(task).substring(0, 400));
+      throw new Error('KIE task completed but no URL found: ' + JSON.stringify(task));
     }
 
     if (status === 'failed' || status === 'error' || status === '3' || status === 'fail') {
@@ -456,6 +468,24 @@ async function callKieAi(prompt, faceImageUrl) {
 
 
   throw new Error('KIE AI task timed out after 10 minutes');
+}
+
+// Busca recursiva: percorre qualquer objeto/array à procura da primeira string https://
+function findFirstUrl(obj, depth = 0) {
+  if (depth > 6 || !obj) return null;
+  if (typeof obj === 'string' && obj.startsWith('https://') && obj.length > 20) return obj;
+  if (Array.isArray(obj)) {
+    for (const item of obj) {
+      const found = findFirstUrl(item, depth + 1);
+      if (found) return found;
+    }
+  } else if (typeof obj === 'object') {
+    for (const val of Object.values(obj)) {
+      const found = findFirstUrl(val, depth + 1);
+      if (found) return found;
+    }
+  }
+  return null;
 }
 
 async function callKieAiWithRetry(prompt, faceImageUrl, maxRetries = 3) {
