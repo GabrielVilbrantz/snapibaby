@@ -619,9 +619,9 @@ async function pollStatus() {
         return;
       }
 
-      // Fallback trigger — 'locking' é status temporário do lock atômico, trata como processing
+      // Fallback trigger
       const isPendingTooLong  = ['pending', 'paid'].includes(order.generation_status) && elapsed >= FALLBACK_MS;
-      const isProcessingStuck = ['processing', 'locking'].includes(order.generation_status) && elapsed >= 120000 && allPhotoUrls.length === 0;
+      const isProcessingStuck = order.generation_status === 'processing' && elapsed >= 120000 && allPhotoUrls.length === 0;
       if ((isPendingTooLong || isProcessingStuck) && !fallbackFired) {
         await triggerFallback();
       }
