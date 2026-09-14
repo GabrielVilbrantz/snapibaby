@@ -189,9 +189,11 @@
 <script>
 // ── Order info ──
 const urlParams    = new URLSearchParams(window.location.search);
-const savedOrderId = localStorage.getItem('snapi_order_id') || urlParams.get('order_id') || '';
-const savedOrderNr = localStorage.getItem('snapi_order_number') || '';
 const savedName    = localStorage.getItem('snapi_customer_name') || '';
+const savedOrderNr = localStorage.getItem('snapi_order_number') || '';
+
+// savedOrderId é let pois pode ser atualizado pelo handleStripeReturn
+let savedOrderId = localStorage.getItem('snapi_order_id') || urlParams.get('order_id') || '';
 
 if (savedOrderNr) document.getElementById('orderId').textContent = '#' + savedOrderNr;
 if (savedName) {
@@ -199,45 +201,85 @@ if (savedName) {
   document.getElementById('heroSpan').textContent = first + "'s portraits are almost ready!";
 }
 
-// ── PIX redirect handling ─────────────────────────────────────────────────
-// Quando o Stripe redireciona de volta após o usuário pagar via PIX,
-// os parâmetros payment_intent e redirect_status chegam na URL.
-(function handlePixReturn() {
-  const piParam       = urlParams.get('payment_intent');
+// ── Stripe redirect handling (Apple Pay, Google Pay, PIX, etc.) ──────────────
+// Retorna uma Promise para que pollStatus() possa aguardar antes de rodar.
+const stripeReturnPromise = (async function handleStripeReturn() {
+  const piParam        = urlParams.get('payment_intent');
   const redirectStatus = urlParams.get('redirect_status');
-  const fromPix       = urlParams.get('pix') === '1' || !!piParam;
 
-  if (!fromPix) return; // não veio de PIX
+  // Só processar se veio via redirect do Stripe
+  if (!piParam && !redirectStatus) return;
 
-  const orderId = savedOrderId;
+  console.log('[Stripe Return] redirect_status:', redirectStatus, '| piParam:', piParam);
 
-  if (redirectStatus === 'succeeded') {
-    // PIX confirmado — disparar geração
-    console.log('[PIX] Pagamento confirmado, disparando geração para ordem', orderId);
-    if (orderId) {
-      const payload = JSON.stringify({ orderId, type: 'main' });
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon(
-          '/.netlify/functions/process-order-background',
-          new Blob([payload], { type: 'application/json' })
-        );
-      } else {
-        fetch('/.netlify/functions/process-order-background', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: payload, keepalive: true
-        }).catch(() => {});
+  // Limpar params da URL imediatamente
+  const cleanUrl = new URL(window.location.href);
+  ['payment_intent','payment_intent_client_secret','redirect_status','pix','source_redirect_slug'].forEach(p => cleanUrl.searchParams.delete(p));
+  window.history.replaceState({}, '', cleanUrl.toString());
+
+  if (redirectStatus !== 'succeeded') {
+    console.log('[Stripe Return] Pagamento pendente. Aguardando webhook.');
+    return;
+  }
+
+  // ── Pagamento confirmado ──
+  let orderId = savedOrderId;
+
+  if (!orderId && piParam) {
+    console.warn('[Stripe Return] order_id ausente — tentando criar pedido via payment_intent');
+    document.getElementById('progressLabel').textContent = 'Confirming your order...';
+
+    try {
+      const lsEmail   = localStorage.getItem('snapi_customer_email') || urlParams.get('email') || '';
+      const lsName    = localStorage.getItem('snapi_customer_name')  || '';
+      const lsPlan    = localStorage.getItem('snapi_plan')           || 'premium';
+      const lsThemes  = JSON.parse(localStorage.getItem('snapi_themes') || '[]');
+      const lsPhotos  = JSON.parse(localStorage.getItem('snapi_baby_photo_urls') || '[]');
+
+      if (lsEmail && piParam) {
+        const orderRes = await fetch('/.netlify/functions/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerName:         lsName,
+            customerEmail:        lsEmail,
+            plan:                 lsPlan,
+            basePrice:            0,
+            bumpAdded:            false,
+            totalPaid:            0,
+            stripePaymentIntent:  piParam,
+            stripeCustomerId:     null,
+            stripePaymentMethod:  null,
+            themesSelected:       lsThemes,
+            babyPhotoUrls:        lsPhotos
+          })
+        });
+
+        if (orderRes.ok) {
+          const newOrder = await orderRes.json();
+          orderId = newOrder.id;
+          savedOrderId = newOrder.id; // atualiza a variável global
+          localStorage.setItem('snapi_order_id',     newOrder.id);
+          localStorage.setItem('snapi_order_number', newOrder.order_number);
+          document.getElementById('orderId').textContent = '#' + newOrder.order_number;
+          console.log('[Stripe Return] Pedido criado com sucesso:', newOrder.order_number);
+        } else {
+          console.error('[Stripe Return] create-order falhou:', await orderRes.text());
+        }
       }
+    } catch (e) {
+      console.error('[Stripe Return] Erro ao criar pedido:', e.message);
     }
-    // Limpar params da URL
-    const cleanUrl = new URL(window.location.href);
-    ['payment_intent','payment_intent_client_secret','redirect_status','pix','source_redirect_slug'].forEach(p => cleanUrl.searchParams.delete(p));
-    window.history.replaceState({}, '', cleanUrl.toString());
+  }
 
-  } else if (redirectStatus === 'processing' || redirectStatus === 'pending' || !redirectStatus) {
-    // PIX ainda pendente (normal) — o webhook vai confirmar depois
-    console.log('[PIX] Aguardando confirmação bancária. O webhook vai disparar a geração.');
-    const statusEl = document.getElementById('generation-status-text');
-    if (statusEl) statusEl.textContent = 'Aguardando confirmação do PIX pelo banco...';
+  // ── NÃO disparamos geração aqui ──
+  // O stripe-webhook.js já dispara o process-order-background ao receber
+  // payment_intent.succeeded. Disparar novamente aqui causaria duas instâncias
+  // paralelas sobrescrevendo o generated_urls uma da outra.
+  if (orderId) {
+    console.log('[Stripe Return] orderId disponível:', orderId, '— geração disparada pelo webhook Stripe.');
+  } else {
+    console.warn('[Stripe Return] Sem order_id — o webhook do Stripe vai disparar a geração.');
   }
 })();
 
@@ -480,7 +522,7 @@ async function pollStatus() {
 
   const MAX_MS      = 15 * 60 * 1000; // 15 min
   const INTERVAL    = 5000;            // poll every 5s (faster for progressive)
-  const FALLBACK_MS = 15000;           // trigger fallback after 15s
+  const FALLBACK_MS = 90000;           // dispara fallback só após 90s sem resposta do webhook
   const start       = Date.now();
   let   elapsed     = 0;
   let   fallbackFired = false;
@@ -577,9 +619,9 @@ async function pollStatus() {
         return;
       }
 
-      // Fallback trigger
-      const isPendingTooLong   = ['pending', 'paid'].includes(order.generation_status) && elapsed >= FALLBACK_MS;
-      const isProcessingStuck  = order.generation_status === 'processing' && elapsed >= 120000 && allPhotoUrls.length === 0;
+      // Fallback trigger — 'locking' é status temporário do lock atômico, trata como processing
+      const isPendingTooLong  = ['pending', 'paid'].includes(order.generation_status) && elapsed >= FALLBACK_MS;
+      const isProcessingStuck = ['processing', 'locking'].includes(order.generation_status) && elapsed >= 120000 && allPhotoUrls.length === 0;
       if ((isPendingTooLong || isProcessingStuck) && !fallbackFired) {
         await triggerFallback();
       }
@@ -589,7 +631,13 @@ async function pollStatus() {
   }, INTERVAL);
 }
 
-pollStatus();
+// ── Iniciar polling — aguarda handleStripeReturn se veio de redirect Stripe ──
+// Isso garante que o order_id esteja disponível antes de pollStatus rodar.
+if (urlParams.get('payment_intent') || urlParams.get('redirect_status')) {
+  stripeReturnPromise.then(() => pollStatus());
+} else {
+  pollStatus();
+}
 
 // ── GA4: purchase confirmation on success page load ──────────────────────────────
 (function() {

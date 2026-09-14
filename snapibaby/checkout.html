@@ -1267,8 +1267,15 @@
         if (bumpLinePrice) bumpLinePrice.textContent = formatPrice(bumpPrice);
 
         updateTotal(document.getElementById('bumpCheck')?.checked ?? false);
+
+        // ── Auto-inicializar Payment Element em background ──
+        // Isso garante que Apple Pay e Google Pay apareçam sem precisar clicar
+        autoInitPaymentElement();
+
       } catch(e) {
         console.warn('get-pricing failed, usando default BRL:', e.message);
+        // Mesmo sem pricing, tentar inicializar o Payment Element
+        autoInitPaymentElement();
       }
     })();
 
@@ -1325,254 +1332,251 @@
     const STRIPE_PK = 'pk_live_51TRiyy0pb3rIcyseWcsniG2X4ervxCl3IybCjghrBQGZVb9Yd0sr0GguR2XBaRK9WVihTyAur2khLEGszC95wGPh0072374w6q';
     const stripeClient = Stripe(STRIPE_PK);
 
-    // Payment Element é inicializado com o clientSecret após criar o PI
     let stripeElements = null;
     let paymentElement = null;
     let currentClientSecret = null;
+    let peReady = false; // Payment Element montado e pronto
 
-    async function initPaymentElement(clientSecret) {
-      if (currentClientSecret === clientSecret) return; // já inicializado para este PI
-      currentClientSecret = clientSecret;
+    // ── Auto-init: cria PI e monta Payment Element assim que os preços carregam ──
+    // O usuário não precisa fazer nada — o Apple Pay já aparece disponível no campo.
+    let _autoInitDone = false;
+    async function autoInitPaymentElement() {
+      if (_autoInitDone) return;
+      _autoInitDone = true;
 
-      stripeElements = stripeClient.elements({
-        clientSecret,
-        appearance: {
-          theme: 'stripe',
-          variables: {
-            colorPrimary: '#ff4d6d',
-            colorBackground: '#ffffff',
-            colorText: '#2b2b2b',
-            colorDanger: '#ef4444',
-            fontFamily: 'Inter, sans-serif',
-            borderRadius: '10px',
+      try {
+        const planName       = plan || 'premium';
+        const hasBump        = document.getElementById('bumpCheck')?.checked ?? false;
+        const themesSelected = JSON.parse(localStorage.getItem('snapi_themes') || '[]');
+        const babyPhotoUrls  = JSON.parse(localStorage.getItem('snapi_baby_photo_urls') || '[]');
+
+        const piRes = await fetch('/.netlify/functions/create-payment-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            plan: planName, hasBump,
+            customerEmail: '', customerName: '',
+            babyPhotoUrls, themesSelected,
+            country: detectedCountry,
+            exitDiscount: exitDiscountApplied
+          })
+        });
+        if (!piRes.ok) return;
+        const { clientSecret, customerId, intentId } = await piRes.json();
+
+        currentClientSecret = clientSecret;
+        window._autoInitData = { customerId, intentId, planName };
+
+        // Montar Payment Element
+        stripeElements = stripeClient.elements({
+          clientSecret,
+          appearance: {
+            theme: 'stripe',
+            variables: {
+              colorPrimary: '#ff4d6d',
+              colorBackground: '#ffffff',
+              colorText: '#2b2b2b',
+              colorDanger: '#ef4444',
+              fontFamily: 'Inter, sans-serif',
+              borderRadius: '10px',
+            }
+          },
+          locale: 'en'
+        });
+
+        paymentElement = stripeElements.create('payment', {
+          layout: 'tabs',
+          wallets: { applePay: 'auto', googlePay: 'auto' },
+        });
+        paymentElement.mount('#payment-element');
+        paymentElement.on('ready', () => { peReady = true; });
+
+        paymentElement.on('change', ({ value }) => {
+          document.getElementById('card-errors').textContent = '';
+          const method = value?.type || '';
+          const btn = document.getElementById('btn-buy');
+          if (btn) {
+            if (method === 'boleto') {
+              btn.innerHTML = 'Gerar Boleto 🏦';
+            } else if (method === 'paypal') {
+              btn.innerHTML = 'Continuar para o PayPal →';
+            } else {
+              btn.innerHTML = btn.dataset.defaultLabel || 'Complete Purchase 🚀';
+            }
           }
-        },
-        locale: 'pt-BR'
-      });
+        });
 
-      paymentElement = stripeElements.create('payment', {
-        layout: 'tabs',
-        wallets: { applePay: 'auto', googlePay: 'auto' },
-        // PayPal via custom payment method já configurado no Stripe Dashboard
-        // Boleto para clientes brasileiros (ativado no Stripe → Formas de pagamento)
-      });
-      paymentElement.mount('#payment-element');
-
-      paymentElement.on('change', ({ complete, value }) => {
-        document.getElementById('card-errors').textContent = '';
-        // Adaptar label do botão por método selecionado
-        const method = value?.type || '';
-        const btn = document.getElementById('btn-buy');
-        if (btn) {
-          if (method === 'boleto') {
-            btn.innerHTML = 'Gerar Boleto 🏦';
-          } else if (method === 'paypal') {
-            btn.innerHTML = 'Continuar para o PayPal →';
-          } else {
-            btn.innerHTML = btn.dataset.defaultLabel || 'Finalizar Pagamento 🚀';
-          }
-        }
-      });
+        console.log('[checkout] Payment Element auto-initialized, PI:', intentId);
+      } catch (e) {
+        console.warn('[checkout] Auto-init failed:', e.message);
+        _autoInitDone = false; // permite retry
+      }
     }
+
     // ─────────────────────────────────────────────────────────────────────────────
 
     // detectedCountry/Currency/Symbol são definidos no bloco get-pricing acima
 
     async function processPurchase() {
       const btn = document.getElementById('btn-buy');
-      const customerName = document.getElementById('cashbackName')?.value.trim() || '';
+      const customerName  = document.getElementById('cashbackName')?.value.trim() || '';
       const customerEmail = document.getElementById('cashbackEmail')?.value.trim() || '';
 
-      // Basic validation
+      // Validação de email
       if (!customerEmail || !customerEmail.includes('@')) {
         document.getElementById('cashbackEmail')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         document.getElementById('card-errors').textContent = 'Please enter a valid email address.';
         return;
       }
 
-      btn.innerHTML = '⌛ Processando Pagamento...';
+      // Salvar dados no localStorage para recuperação no success.html se necessário
+      localStorage.setItem('snapi_customer_name', customerName);
+      localStorage.setItem('snapi_customer_email', customerEmail);
+      localStorage.setItem('snapi_plan', plan || 'premium');
+
+      btn.innerHTML = '⌛ Processing...';
       btn.style.opacity = '0.75';
       btn.disabled = true;
       document.getElementById('card-errors').textContent = '';
 
-      // ═══════════════════════════════════════════════════════════════════════
-      // FASE 2: Payment Element já inicializado → confirmar pagamento
-      // (Apple Pay, Google Pay, cartão, PayPal)
-      // ═══════════════════════════════════════════════════════════════════════
-      if (stripeElements && currentClientSecret && window._pendingPayment) {
-        const { order, customerId, basePrice, bumpPrice, hasBump, planName } = window._pendingPayment;
-
-        const returnUrl = `${window.location.origin}/success.html`
-          + `?order_id=${order?.id || ''}`
-          + `&email=${encodeURIComponent(customerEmail)}`
-          + `&async=1`;
-
-        const { error, paymentIntent } = await stripeClient.confirmPayment({
-          elements: stripeElements,
-          confirmParams: {
-            return_url: returnUrl,
-            payment_method_data: {
-              billing_details: { name: customerName, email: customerEmail }
-            },
-            receipt_email: customerEmail
-          },
-          redirect: 'if_required'
-        });
-
-        if (error) {
-          document.getElementById('card-errors').textContent = error.message;
-          btn.innerHTML = btn.dataset.defaultLabel || 'Finalizar Pagamento 🚀';
+      // Se o Payment Element ainda não foi inicializado (auto-init falhou), inicializar agora
+      if (!stripeElements || !currentClientSecret) {
+        try {
+          _autoInitDone = false;
+          await autoInitPaymentElement();
+          if (!stripeElements || !currentClientSecret) throw new Error('Payment system not ready. Please try again.');
+          // Dar um momento para o Payment Element montar
+          await new Promise(r => setTimeout(r, 800));
+        } catch (err) {
+          document.getElementById('card-errors').textContent = err.message || 'Payment initialization failed. Please try again.';
+          document.getElementById('card-errors').style.color = '#ef4444';
+          btn.innerHTML = btn.dataset.defaultLabel || 'Complete Purchase 🚀';
           btn.style.opacity = '1';
           btn.disabled = false;
           return;
         }
+      }
 
-        // Pagamento síncrono confirmado (cartão, Google Pay, Apple Pay, PayPal)
-        // Para métodos assíncronos o browser já foi redirecionado
+      // ── Criar pedido no Supabase ──
+      const hasBump    = document.getElementById('bumpCheck')?.checked ?? false;
+      const planName   = plan || 'premium';
+      const themesSelected = JSON.parse(localStorage.getItem('snapi_themes') || '[]');
+      const babyPhotoUrls  = JSON.parse(localStorage.getItem('snapi_baby_photo_urls') || '[]');
+      const { customerId, intentId } = window._autoInitData || {};
 
-        // ── Disparar geração ─────────────────────────────────────────────────
-        if (order?.id) {
-          const beaconPayload = JSON.stringify({ orderId: order.id, type: 'main' });
-          const beaconSent = navigator.sendBeacon
-            ? navigator.sendBeacon(
-                '/.netlify/functions/process-order-background',
-                new Blob([beaconPayload], { type: 'application/json' })
-              )
-            : false;
-          if (!beaconSent) {
-            fetch('/.netlify/functions/process-order-background', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: beaconPayload,
-              keepalive: true
-            }).catch(e => console.warn('Background trigger failed:', e));
-          }
-          console.log('[checkout] process-order-background triggered for', order.id);
-        }
-
-        // ── Redirect para upsell ─────────────────────────────────────────────
-        const pmId = paymentIntent.payment_method;
-        const totalPaid = (basePrice + (hasBump ? bumpPrice : 0)).toFixed(2);
-        paymentCompleted = true;
-        exitShown = true;
-        window.onbeforeunload = null;
-        btn.innerHTML = '✅ Pagamento Aprovado! Redirecionando...';
-
-        // GA4
-        const gaTotalPaid = parseFloat(totalPaid);
-        gtag('event', 'purchase', {
-          transaction_id: paymentIntent.id,
-          value:          gaTotalPaid,
-          currency:       (detectedCurrency || 'usd').toUpperCase(),
-          items: [{ item_id: 'snapibaby_' + planName, item_name: 'SnapiBaby — ' + planName, item_category: 'Photography', price: basePrice, quantity: 1 }]
-            .concat(hasBump ? [{ item_id: 'snapibaby_order_bump', item_name: 'SnapiBaby — Order Bump', item_category: 'Photography', price: bumpPrice, quantity: 1 }] : [])
+      let order = null;
+      try {
+        const orderRes = await fetch('/.netlify/functions/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerName, customerEmail, plan: planName,
+            basePrice, bumpAdded: hasBump,
+            totalPaid: basePrice + (hasBump ? bumpPrice : 0),
+            stripePaymentIntent: intentId,
+            stripeCustomerId: customerId,
+            stripePaymentMethod: null,
+            themesSelected, babyPhotoUrls
+          })
         });
+        if (orderRes.ok) {
+          order = await orderRes.json();
+          localStorage.setItem('snapi_order_id',     order.id);
+          localStorage.setItem('snapi_order_number', order.order_number);
+          console.log('[checkout] Order created:', order.order_number, order.id);
+        } else {
+          console.error('[checkout] create-order failed:', await orderRes.text());
+        }
+      } catch (orderErr) {
+        console.error('[checkout] create-order error:', orderErr.message);
+      }
 
-        window._pendingPayment = null; // limpar estado
-        const upsellDisplayPrice  = detectedZeroDecimal
-          ? Math.round(bumpPrice * 2.4)
-          : parseFloat((bumpPrice * 2.4).toFixed(2));
-        const downsellDisplayPrice = detectedZeroDecimal
-          ? Math.round(upsellDisplayPrice * 0.41)
-          : parseFloat((upsellDisplayPrice * 0.41).toFixed(2));
-        // Amounts em Stripe units (cents para two-decimal, valor direto para zero-decimal)
-        const upsellStripeAmount   = detectedZeroDecimal ? upsellDisplayPrice  : Math.round(upsellDisplayPrice  * 100);
-        const downsellStripeAmount = detectedZeroDecimal ? downsellDisplayPrice : Math.round(downsellDisplayPrice * 100);
-        window.location.href = 'upsell.html'
-          + '?payment_method=' + encodeURIComponent(pmId)
-          + '&customer=' + encodeURIComponent(customerId || '')
-          + '&email=' + encodeURIComponent(customerEmail)
-          + '&total=' + encodeURIComponent(totalPaid)
-          + '&currency=' + encodeURIComponent(detectedCurrency)
-          + '&symbol=' + encodeURIComponent(detectedSymbol)
-          + '&zero_decimal=' + (detectedZeroDecimal ? '1' : '0')
-          + '&upsell_amount=' + encodeURIComponent(upsellStripeAmount)
-          + '&upsell_display=' + encodeURIComponent(upsellDisplayPrice)
-          + '&downsell_amount=' + encodeURIComponent(downsellStripeAmount)
-          + '&downsell_display=' + encodeURIComponent(downsellDisplayPrice)
-          + (order ? '&order_id=' + order.id : '');
+      // ── Confirmar pagamento ──
+      const returnUrl = `${window.location.origin}/success.html`
+        + `?order_id=${order?.id || ''}`
+        + `&email=${encodeURIComponent(customerEmail)}`
+        + `&async=1`;
 
-      } else {
-        // ═════════════════════════════════════════════════════════════════════
-        // FASE 1: Primeiro clique → criar PI, inicializar Payment Element
-        // ═════════════════════════════════════════════════════════════════════
-        try {
-          const hasBump    = document.getElementById('bumpCheck')?.checked ?? false;
-          const planName   = plan || 'premium';
-          const themesSelected = JSON.parse(localStorage.getItem('snapi_themes') || '[]');
-          const babyPhotoUrls  = JSON.parse(localStorage.getItem('snapi_baby_photo_urls') || '[]');
+      const { error, paymentIntent } = await stripeClient.confirmPayment({
+        elements: stripeElements,
+        confirmParams: {
+          return_url: returnUrl,
+          payment_method_data: {
+            billing_details: { name: customerName, email: customerEmail }
+          },
+          receipt_email: customerEmail
+        },
+        redirect: 'if_required'
+      });
 
-          localStorage.setItem('snapi_customer_name', customerName);
-          localStorage.setItem('snapi_customer_email', customerEmail);
-          localStorage.setItem('snapi_plan', planName);
+      if (error) {
+        document.getElementById('card-errors').textContent = error.message;
+        btn.innerHTML = btn.dataset.defaultLabel || 'Complete Purchase 🚀';
+        btn.style.opacity = '1';
+        btn.disabled = false;
+        return;
+      }
 
-          // Step 1: Criar PaymentIntent
-          const piRes = await fetch('/.netlify/functions/create-payment-intent', {
+      // ── Pagamento síncrono confirmado (cartão, Google Pay, Apple Pay, PayPal) ──
+      if (order?.id) {
+        const beaconPayload = JSON.stringify({ orderId: order.id, type: 'main' });
+        const beaconSent = navigator.sendBeacon
+          ? navigator.sendBeacon(
+              '/.netlify/functions/process-order-background',
+              new Blob([beaconPayload], { type: 'application/json' })
+            )
+          : false;
+        if (!beaconSent) {
+          fetch('/.netlify/functions/process-order-background', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              plan: planName, hasBump, customerEmail, customerName,
-              babyPhotoUrls, themesSelected,
-              country: detectedCountry,
-              exitDiscount: exitDiscountApplied
-            })
-          });
-          if (!piRes.ok) throw new Error('Não foi possível inicializar o pagamento. Tente novamente.');
-          const { clientSecret, customerId, intentId } = await piRes.json();
-
-          // Step 2: Inicializar Payment Element (Apple Pay, Google Pay, PayPal, cartão)
-          await initPaymentElement(clientSecret);
-
-          // Step 3: Criar pedido no Supabase
-          let order = null;
-          try {
-            const orderRes = await fetch('/.netlify/functions/create-order', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                customerName, customerEmail, plan: planName,
-                basePrice, bumpAdded: hasBump,
-                totalPaid: basePrice + (hasBump ? bumpPrice : 0),
-                stripePaymentIntent: intentId,
-                stripeCustomerId: customerId,
-                stripePaymentMethod: null,
-                themesSelected, babyPhotoUrls
-              })
-            });
-            if (orderRes.ok) {
-              order = await orderRes.json();
-              localStorage.setItem('snapi_order_id',     order.id);
-              localStorage.setItem('snapi_order_number', order.order_number);
-              console.log('Order created:', order.order_number, order.id);
-            } else {
-              console.error('create-order failed:', await orderRes.text());
-            }
-          } catch (orderErr) {
-            console.error('create-order error:', orderErr.message);
-          }
-
-          // Salvar estado para a Fase 2
-          window._pendingPayment = { order, customerId, basePrice, bumpPrice, hasBump, planName };
-
-          // Atualizar botão para Fase 2
-          btn.dataset.defaultLabel = 'Confirmar Pagamento ✓';
-          btn.innerHTML = 'Confirmar Pagamento ✓';
-          btn.style.opacity = '1';
-          btn.disabled = false;
-          document.getElementById('card-errors').textContent = '⬆ Escolha sua forma de pagamento e confirme.';
-          document.getElementById('card-errors').style.color = '#22c55e';
-
-        } catch (err) {
-          console.error('Payment init error:', err);
-          document.getElementById('card-errors').textContent = err.message || 'Erro ao inicializar pagamento. Tente novamente.';
-          document.getElementById('card-errors').style.color = '#ef4444';
-          btn.innerHTML = 'Finalizar Pagamento 🚀';
-          btn.style.opacity = '1';
-          btn.disabled = false;
+            body: beaconPayload,
+            keepalive: true
+          }).catch(e => console.warn('Background trigger failed:', e));
         }
+        console.log('[checkout] process-order-background triggered for', order.id);
       }
+
+      // ── Redirect para upsell ──
+      const pmId = paymentIntent.payment_method;
+      const totalPaid = (basePrice + (hasBump ? bumpPrice : 0)).toFixed(2);
+      paymentCompleted = true;
+      exitShown = true;
+      window.onbeforeunload = null;
+      btn.innerHTML = '✅ Payment Approved! Redirecting...';
+
+      // GA4
+      gtag('event', 'purchase', {
+        transaction_id: paymentIntent.id,
+        value:          parseFloat(totalPaid),
+        currency:       (detectedCurrency || 'usd').toUpperCase(),
+        items: [{ item_id: 'snapibaby_' + planName, item_name: 'SnapiBaby — ' + planName, item_category: 'Photography', price: basePrice, quantity: 1 }]
+          .concat(hasBump ? [{ item_id: 'snapibaby_order_bump', item_name: 'SnapiBaby — Order Bump', item_category: 'Photography', price: bumpPrice, quantity: 1 }] : [])
+      });
+
+      const upsellDisplayPrice  = detectedZeroDecimal ? Math.round(bumpPrice * 2.4) : parseFloat((bumpPrice * 2.4).toFixed(2));
+      const downsellDisplayPrice = detectedZeroDecimal ? Math.round(upsellDisplayPrice * 0.41) : parseFloat((upsellDisplayPrice * 0.41).toFixed(2));
+      const upsellStripeAmount   = detectedZeroDecimal ? upsellDisplayPrice  : Math.round(upsellDisplayPrice  * 100);
+      const downsellStripeAmount = detectedZeroDecimal ? downsellDisplayPrice : Math.round(downsellDisplayPrice * 100);
+
+      window.location.href = 'upsell.html'
+        + '?payment_method=' + encodeURIComponent(pmId)
+        + '&customer='       + encodeURIComponent(customerId || '')
+        + '&email='          + encodeURIComponent(customerEmail)
+        + '&total='          + encodeURIComponent(totalPaid)
+        + '&currency='       + encodeURIComponent(detectedCurrency)
+        + '&symbol='         + encodeURIComponent(detectedSymbol)
+        + '&zero_decimal='   + (detectedZeroDecimal ? '1' : '0')
+        + '&upsell_amount='  + encodeURIComponent(upsellStripeAmount)
+        + '&upsell_display=' + encodeURIComponent(upsellDisplayPrice)
+        + '&downsell_amount='+ encodeURIComponent(downsellStripeAmount)
+        + '&downsell_display='+ encodeURIComponent(downsellDisplayPrice)
+        + (order ? '&order_id=' + order.id : '');
     }
   </script>
+
+
+
 
   <!-- ===== EXIT INTENT POPUP ===== -->
   <div id="exitPopup"

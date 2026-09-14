@@ -50,3 +50,8 @@
   for = "/*.mp4"
   [headers.values]
     Cache-Control = "public, max-age=2592000"
+
+[[headers]]
+  for = "/.well-known/apple-developer-merchantid-domain-association"
+  [headers.values]
+    Content-Type = "application/json"

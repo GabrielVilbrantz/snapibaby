@@ -111,14 +111,16 @@ async function getOrderStatus(orderId) {
 
 // ============================================================
 // Busca pedido completo incluindo URLs das fotos geradas
+// ⚠️ USA a Netlify function get-order (service_role) em vez
+//    do Supabase direto — evita bloqueio por RLS da anon key
 // ============================================================
 async function getOrderWithPhotos(orderId) {
-  const { data, error } = await db
-    .from('orders')
-    .select('generation_status, download_url, order_number, generated_urls, customer_name, customer_email, plan')
-    .eq('id', orderId)
-    .single();
-
-  if (error) return null;
-  return data;
+  try {
+    const res = await fetch(`/.netlify/functions/get-order?order_id=${encodeURIComponent(orderId)}`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    console.error('getOrderWithPhotos error:', e.message);
+    return null;
+  }
 }

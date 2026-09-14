@@ -2,7 +2,7 @@
 // NETLIFY BACKGROUND FUNCTION: process-order-background
 // URL: /.netlify/functions/process-order-background  (POST)
 //
-// Background Functions run up to 15 minutes on Netlify —
+// Background Functions run up to 15 minutes on Netlify â€”
 // perfect for KIE AI polling which can take several minutes.
 //
 // Called by stripe-webhook.js after payment confirmed.
@@ -13,11 +13,11 @@ const { createClient } = require('@supabase/supabase-js');
 const KIE_BASE   = 'https://api.kie.ai/api/v1';
 const SITE_URL   = 'https://snapibaby.netlify.app';
 
-// Module-level config — populated at handler start (after env var validation)
+// Module-level config â€” populated at handler start (after env var validation)
 let _config = {};
 
 exports.handler = async (event) => {
-  // ── Validate env vars FIRST — log clearly if missing ──
+  // â”€â”€ Validate env vars FIRST â€” log clearly if missing â”€â”€
   const SUPABASE_URL     = process.env.SUPABASE_URL;
   const SUPABASE_SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const KIE_API_KEY      = process.env.KIE_API_KEY;
@@ -32,7 +32,7 @@ exports.handler = async (event) => {
   console.log('[env-check] ALERT_EMAIL:', ALERT_EMAIL);
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE) {
-    console.error('[FATAL] Missing Supabase env vars — SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set in Netlify');
+    console.error('[FATAL] Missing Supabase env vars â€” SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set in Netlify');
     return { statusCode: 500, body: 'Missing Supabase configuration' };
   }
 
@@ -44,7 +44,7 @@ exports.handler = async (event) => {
   // Populate config for all helper functions
   _config = { KIE_API_KEY, RESEND_API_KEY, ALERT_EMAIL };
 
-  // Initialize Supabase client INSIDE handler (safe — env vars confirmed above)
+  // Initialize Supabase client INSIDE handler (safe â€” env vars confirmed above)
   const db = createClient(SUPABASE_URL, SUPABASE_SERVICE);
 
   const CORS_HEADERS = {
@@ -79,14 +79,53 @@ exports.handler = async (event) => {
     return;
   }
 
-  console.log(`[process-order-background] Order found: ${order.order_number}, email: ${order.customer_email}`);
+  console.log(`[process-order-background] Order found: ${order.order_number}, email: ${order.customer_email}, status: ${order.generation_status}`);
   console.log(`[process-order-background] baby_photo_urls: ${JSON.stringify(order.baby_photo_urls)}`);
   console.log(`[process-order-background] themes_selected: ${JSON.stringify(order.themes_selected)}`);
+
+  // ── LOCK ATÔMICO ─────────────────────────────────────────────────────────────
+  // Previne execuções duplicadas.
+
+  // 1) Se já terminou, sai imediatamente.
+  if (order.generation_status === 'done') {
+    console.log(`[process-order-background] Order ${orderId} already done — skipping duplicate call`);
+    return;
+  }
+
+  // 2) Se já está gerando com fotos salvas, outra instância está ativa — sai.
+  if (order.generation_status === 'processing' && (order.generated_urls || []).some(u => u.status === 'ok')) {
+    console.log(`[process-order-background] Order ${orderId} already has ${(order.generated_urls||[]).filter(u=>u.status==='ok').length} photos — skipping duplicate call`);
+    return;
+  }
+
+  // 3) Lock via UPDATE atômico: tenta mover para 'locking' a partir de qualquer
+  //    status inicial válido. Só UMA instância consegue; as demais vêem count=0.
+  //    O webhook seta 'processing' antes de chamar esta função — cobrimos isso.
+  const LOCK_STATUSES = type === 'upsell' || type === 'downsell'
+    ? ['processing', 'pending', 'paid']
+    : ['processing', 'pending', 'paid'];
+
+  const { error: lockErr, count: lockCount } = await db
+    .from('orders')
+    .update({ generation_status: 'locking' })
+    .eq('id', orderId)
+    .in('generation_status', LOCK_STATUSES)
+    .select('id', { count: 'exact' });
+
+  if (lockErr || lockCount === 0) {
+    console.log(`[process-order-background] Order ${orderId} lock not acquired (status=${order.generation_status}) — another instance is running, exiting`);
+    return;
+  }
+
+  // Lock adquirido — imediatamente seta 'processing' para o cliente ver
+  await db.from('orders').update({ generation_status: 'processing' }).eq('id', orderId);
+  console.log(`[process-order-background] Lock acquired for order ${orderId} (type=${type})`);
+  // ── /LOCK ────────────────────────────────────────────────────────────────────
 
   const faceUrl = (order.baby_photo_urls || [])[0] || null;
 
   if (!faceUrl) {
-    const errMsg = 'No baby photo URL found in order — customer did not upload photo or upload failed';
+    const errMsg = 'No baby photo URL found in order â€” customer did not upload photo or upload failed';
     console.error(`No baby_photo_urls for order ${order.order_number}`);
     await db.from('orders').update({ generation_status: 'failed' }).eq('id', orderId);
     await sendSupportAlert(order, errMsg);
@@ -148,7 +187,7 @@ exports.handler = async (event) => {
 
     // Send delivery email
     const successCount = generatedUrls.filter(u => u.status === 'ok').length;
-    console.log(`Sending delivery email — ${successCount} successful photos`);
+    console.log(`Sending delivery email â€” ${successCount} successful photos`);
 
     await sendDeliveryEmail(order, generatedUrls);
     console.log(`Delivery email sent to ${order.customer_email}`);
@@ -157,7 +196,7 @@ exports.handler = async (event) => {
     const errMsg = genErr.message || 'Unknown error';
     console.error('Generation failed:', errMsg, genErr.stack);
     await db.from('orders').update({ generation_status: 'failed' }).eq('id', orderId);
-    // Alert owner AND notify customer — both fire and forget so one failure can't block the other
+    // Alert owner AND notify customer â€” both fire and forget so one failure can't block the other
     await Promise.allSettled([
       sendSupportAlert(order, errMsg),
       sendFailureApologyEmail(order),
@@ -166,30 +205,147 @@ exports.handler = async (event) => {
 };
 
 // ============================================================
-// Generate images for all themes — saves each to DB immediately
+// Per-theme variation prompts â€” completely different scene,
+// pose and props for each repeat of the same theme
 // ============================================================
+const THEME_VARIATION_PROMPTS = {
+  'Princess': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a tiny lavender silk gown, wearing a crystal tiara with purple gems, lying on a cloud-like white fur rug draped with gold fabric, surrounded by purple roses, amethyst crystals and golden candlestick props, ethereal soft purple and gold studio lighting. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a baby blue satin wrap with a silver snowflake crown, tucked inside an ornate vintage cradle decorated with white lace and silver ribbon, surrounded by white roses, pearls and ice-blue hydrangeas, cool icy soft studio light. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a warm gold knit wrap with a tiny jewelled crown, lying face-up on a white velvet posing cushion, surrounded by dried champagne roses, gold leaf accents and cream peonies in a minimalist royal setting, warm golden studio light. ${BASE}`,
+  ],
+  'Fairy Magic': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn with shimmering emerald green fairy wings, wearing a crown of tiny white wildflowers, nestled inside a giant open flower prop, surrounded by glowing mushroom decorations, ivy vines, woodland ferns and golden bokeh fairy dust, rich dark enchanted forest atmosphere. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn with pastel rainbow butterfly wings, wearing a delicate chain of tiny daisies as a crown, lying on a bed of rose petals inside a shallow birch-wood tub, surrounded by white cherry blossom branches and golden fairy dust, airy light pastel pink studio. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn with iridescent blue fairy wings, wearing a tiny pointed elf hat decorated with flowers, curled in a rustic clay pot filled with moss, surrounded by small fantasy mushrooms, dewdrop glass orbs and warm amber fairy lights, magical twilight studio. ${BASE}`,
+  ],
+  'Fairy Portrait': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn with large golden butterfly wings, wearing a crown of tiny daisies, lying on a fluffy white dandelion rug, surrounded by oversized rose petals, pearl dewdrops and golden light bokeh, soft airy pastel yellow studio. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn with silver dragonfly wings, wearing a tiny crown of lavender buds, nestled in a walnut-shell shaped prop lined with soft purple velvet, surrounded by lavender sprigs, tiny crystals and violet bokeh fairy lights, moody purple twilight studio. ${BASE}`,
+  ],
+  'Fairy': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn with pastel pink butterfly wings, wearing a tiny crown of pink daisies, lying on a bed of white rose petals in a vintage white wooden crate, surrounded by white cherry blossom branches, crystal drops and soft pink bokeh, romantic light pink studio. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn with golden fairy wings, wearing a floral crown of chamomile and lavender, nestled inside a giant seashell-shaped prop on white sand, surrounded by pearls, starfish and sea-glass props, dreamy warm coastal studio light. ${BASE}`,
+  ],
+  'Astronaut': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a silver metallic astronaut suit with a clear bubble helmet visor, floating on a cloud-like white foam inside a rocket ship cutout prop, surrounded by colorful planet models â€” Jupiter, Mars, Saturn â€” and star constellation chart backdrop, electric blue and silver space atmosphere. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a tiny NASA orange launch suit, lying in a miniature space shuttle cockpit prop with instrument panel details, surrounded by mission patch decorations, a tiny flag, Moon rock props and a star map backdrop, dramatic side-lit cinematic studio. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a white spacesuit on the surface of the Moon inside a soft grey lunar crater prop, tiny planted flag beside it, Earth visible in the background, dramatic deep black space backdrop with stars and bokeh galaxy. ${BASE}`,
+  ],
+  'Dinosaur': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a purple and blue stegosaurus knit onesie with spiky dorsal fins, curled inside a giant dinosaur egg shell prop, surrounded by broken eggshell pieces, tropical ferns and volcanic rocks, warm amber dramatic studio lighting. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn wearing a teal triceratops knit costume with three-horn headpiece, lying on lush green moss covering a flat rock prop, surrounded by oversized tropical leaves, small dinosaur figurines and a jungle backdrop, natural dappled studio lighting. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a red T-rex knit onesie with tiny arms and tail, lying in a wooden crate filled with earth, stones and tropical leaves, surrounded by realistic dinosaur figurines and a Jurassic fern backdrop, warm amber spotlight studio. ${BASE}`,
+  ],
+  'Safari': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn wrapped in a zebra-stripe knit blanket, wearing a tan explorer hat, lying in a rustic wooden crate lined with natural burlap, surrounded by carved elephant and giraffe figures, acacia branch decor and a warm golden savanna sunset backdrop. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a leopard-print muslin wrap, wearing a giraffe-ear headband, curled in a round wicker basket on golden savanna fabric, surrounded by dried grass tufts, small lion and elephant plush toys and a sunlit African plains bokeh backdrop, golden hour studio. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a warm terracotta knit, wearing a tiny pith helmet, lying in a vintage brown leather suitcase prop, surrounded by safari binoculars, folded maps and a lush green rainforest backdrop, moody warm studio. ${BASE}`,
+  ],
+  'Superhero': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a tiny blue and gold superhero suit with cape, lying on a velvet dark navy cushion inside a golden shield prop, surrounded by lightning bolt decorations and a dramatic city-night blurred backdrop, electric gold and blue studio lighting. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a tiny green superhero onesie with flowing green cape, curled on a rock prop covered in glowing emerald crystal fragments, surrounded by lightning energy props, a tiny power ring and a cosmic green nebula bokeh backdrop, vivid studio lighting. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a black and yellow superhero suit with bee-wing cape, lying in a golden honeycomb-patterned prop, surrounded by tiny gold shield props, bold comic book backdrop in yellow and black, high-contrast dramatic studio lighting. ${BASE}`,
+  ],
+  'Pirate': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a navy admiral pirate coat with brass buttons and captain's hat with skull-and-crossbones badge, lying in a vintage wooden sailboat prop, surrounded by nautical rope, anchor, an old compass, a ship's wheel and ocean wave backdrop, dramatic cinematic blue studio. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a red velvet pirate captain coat with gold brocade and feathered pirate hat, nestled on silk cushions inside an ornate open treasure chest, surrounded by scattered rubies, a golden goblet and a treasure map backdrop, dramatic amber torchlight studio. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a striped black and white sailor suit with tiny pirate bandana, curled in a hammock-style rope net prop, surrounded by barnacle-covered anchor, sea chest, treasure coins and a tropical island sunset backdrop, warm golden studio lighting. ${BASE}`,
+  ],
+  'Starry Night': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn wrapped in a deep midnight blue velvet, wearing a crescent moon headband with crystals, lying inside a large crescent moon prop lined with cream faux fur, surrounded by hanging gold star ornaments and a swirling night sky painted backdrop, dreamy blue and gold studio. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a silver knit with star constellation pattern, wearing tiny star clip ornaments, lying on a deep navy velvet cloud-shaped prop, surrounded by glowing fiber optic star strands and a galaxy nebula bokeh backdrop, ethereal silver and purple studio. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a black knit with gold thread stars, wearing a tiny gold crescent moon crown, nestled inside a transparent glass-orb prop filled with LED star lights, surrounded by deep navy feathers, gold dust and a midnight galaxy swirl backdrop, magical dark studio with golden bokeh. ${BASE}`,
+  ],
+  'Galaxy Space': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a silver metallic space suit, lying inside a miniature flying saucer prop with LED lights around the rim, surrounded by holographic planet projections, silver star confetti and a colorful nebula spiral backdrop, vibrant neon purple and teal studio. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a navy blue astronaut suit with gold details, curled on a Martian red surface prop, surrounded by small rover model, rock formations and a red planet horizon backdrop with Earth visible in the sky, cinematic warm red-orange studio. ${BASE}`,
+  ],
+  'Floral Basket': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a lavender knit, wearing a tiny crown of dried lavender and white gypsophila, lying in a vintage wooden wine crate lined with cream linen, surrounded by lavender bundles, white ranunculus and purple wisteria, soft dreamy purple and white studio. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a coral peach knit, wearing a crown of peach garden roses and white chamomile, curled on a textured white linen backdrop, surrounded by loose peach petals, dried pampas grass and gold ring ornaments, warm golden bohemian studio. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a sage green knit, wearing a eucalyptus and daisy flower crown, lying in a round terracotta pot prop on a white marble surface, surrounded by trailing green ivy and white anemones, clean bright botanical studio. ${BASE}`,
+  ],
+  'Soft Floral': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a dusty lilac knit, wearing a crown of dried violet roses and silver eucalyptus, lying on a grey fur rug, surrounded by scattered purple anemones and dusty miller leaves, soft neutral cool-toned studio. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a warm terracotta knit, wearing a crown of burnt orange roses and dried cotton stems, lying on a vintage kilim rug, surrounded by boho pampas grass and dried wheat stalks, warm bohemian earthy studio. ${BASE}`,
+  ],
+  'Minimalist': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn wrapped in a pale grey organic cotton wrap, lying on a smooth white marble surface, only a single white peony placed gently beside the baby, ultra-clean Scandinavian minimalist studio with diffused north window light. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn naturally unwrapped, lying on a warm oatmeal linen sheet, side-lit by a single soft fill light casting gentle shadows, no props, pure fine-art documentary newborn style. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a white muslin wrap, lying in a shallow white ceramic bowl on a white plaster surface, a single dried cotton boll beside it, extreme minimalist negative space composition, bright high-key studio. ${BASE}`,
+  ],
+  'Classic Basket': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a caramel brown knit, wearing a tiny fox-ear bonnet, curled in a square-weave wicker basket lined with amber burlap, surrounded by dried wheat bundles and a small wooden fox figurine, cozy golden autumn studio. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a cream knit with a bunny-ear bonnet, lying in a round birch-wood bowl, surrounded by mini wooden alphabet blocks, a personalized name tag prop and soft blue fabric layers, clean bright Scandi nursery studio. ${BASE}`,
+  ],
+  'Cozy Teddy': [
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a honey golden knit, cuddled against a large white polar bear plush on a white shaggy fur rug, surrounded by small wooden honey pot props, a tiny bee plush and warm amber candlelight bokeh, cozy golden-hour studio. ${BASE}`,
+    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a charcoal grey knit, nestled between two matching grey elephant plush toys on dark grey velvet, surrounded by small silver star ornaments and a mini silver rattle, moody cool-toned cozy studio. ${BASE}`,
+  ],
+};
+
+// Find variation prompts for a given theme (case-insensitive, partial match)
+function findThemeVariations(rawThemeName) {
+  const clean = rawThemeName.replace(/[^\w\s]/g, '').trim();
+  const lower = clean.toLowerCase();
+  for (const key of Object.keys(THEME_VARIATION_PROMPTS)) {
+    if (key.toLowerCase() === lower) return THEME_VARIATION_PROMPTS[key];
+  }
+  for (const key of Object.keys(THEME_VARIATION_PROMPTS)) {
+    const kl = key.toLowerCase();
+    if (lower.includes(kl) || kl.includes(lower)) return THEME_VARIATION_PROMPTS[key];
+  }
+  return null;
+}
+
 async function generateImagesForOrder(order, faceUrl, db, orderId) {
   const themes  = order.themes_selected || [];
   const results = [];
+  const themeCount = {};
 
   for (const theme of themes) {
     const themeName = typeof theme === 'string' ? theme : (theme.name || 'default');
     const cleanName = themeName.replace(/[^\w\s]/g, '').trim();
-    const prompt    = findPrompt(cleanName);
 
-    console.log(`Generating theme "${themeName}" (prompt key: ${cleanName})`);
+    themeCount[cleanName] = (themeCount[cleanName] || 0) + 1;
+    const repeatIndex = themeCount[cleanName] - 1; // 0 = first time, 1 = second, etc.
+
+    let prompt;
+    if (repeatIndex === 0) {
+      prompt = findPrompt(cleanName);
+    } else {
+      const variations = findThemeVariations(cleanName);
+      prompt = (variations && variations[repeatIndex - 1])
+        ? variations[repeatIndex - 1]
+        : findPrompt(cleanName); // fallback to base if no variation defined
+    }
+
+    console.log(`Generating theme "${themeName}" (occurrence #${repeatIndex + 1})`);
 
     try {
       const imgUrl = await callKieAiWithRetry(prompt, faceUrl, 3);
       results.push({ theme: themeName, url: imgUrl, status: 'ok' });
-      console.log(`✓ Theme "${themeName}" done`);
+      console.log(`✓ Theme "${themeName}" #${repeatIndex + 1} done`);
 
-      // 🔑 Save to DB immediately so the success page can show this photo NOW
-      await db.from('orders').update({ generated_urls: results }).eq('id', orderId);
-      console.log(`💾 Progressive save: ${results.filter(r => r.status === 'ok').length} photos in DB`);
+      // 💾 Save progressivamente: lê o DB antes de escrever para nunca
+      //    sobrescrever fotos já salvas (previne race condition com instância dupla).
+      try {
+        const { data: fresh } = await db.from('orders').select('generated_urls').eq('id', orderId).single();
+        const existing = fresh?.generated_urls || [];
+        // Mantém itens do DB que ainda não estão em `results` (de outra instância ou run anterior)
+        const existingExtra = existing.filter(e => !results.some(r => r.theme === e.theme && r.url === e.url));
+        const merged = [...results, ...existingExtra];
+        await db.from('orders').update({ generated_urls: merged }).eq('id', orderId);
+        console.log(`💾 Progressive save: ${merged.filter(r => r.status === 'ok').length} photos in DB`);
+      } catch (saveErr) {
+        // Fallback: salva direto sem merge
+        await db.from('orders').update({ generated_urls: results }).eq('id', orderId);
+        console.warn('Progressive save fallback (no merge):', saveErr.message);
+      }
 
     } catch (err) {
-      console.warn(`✗ KIE AI failed for "${themeName}":`, err.message);
+      console.warn(`✗ KIE AI failed for "${themeName}" #${repeatIndex + 1}:`, err.message);
       results.push({ theme: themeName, url: null, status: 'failed', error: err.message });
     }
   }
@@ -197,15 +353,16 @@ async function generateImagesForOrder(order, faceUrl, db, orderId) {
   return results;
 }
 
+
 // ============================================================
-// KIE AI — create task and poll for result
+// KIE AI â€” create task and poll for result
 // ============================================================
 async function callKieAi(prompt, faceImageUrl) {
   const KIE_API_KEY = _config.KIE_API_KEY;
   if (!faceImageUrl) throw new Error('No face image URL provided');
   if (!KIE_API_KEY)  throw new Error('KIE_API_KEY not set');
 
-  console.log(`KIE createTask — URL: ${faceImageUrl.substring(0, 60)}...`);
+  console.log(`KIE createTask â€” URL: ${faceImageUrl.substring(0, 60)}...`);
 
   const createRes = await fetch(`${KIE_BASE}/jobs/createTask`, {
     method:  'POST',
@@ -226,7 +383,7 @@ async function callKieAi(prompt, faceImageUrl) {
 
   if (!createRes.ok) {
     const text = await createRes.text();
-    throw new Error(`KIE createTask failed: ${createRes.status} — ${text}`);
+    throw new Error(`KIE createTask failed: ${createRes.status} â€” ${text}`);
   }
 
   const createJson = await createRes.json();
@@ -239,7 +396,7 @@ async function callKieAi(prompt, faceImageUrl) {
   const taskId = createJson.data.taskId;
   console.log(`KIE task created: ${taskId}`);
 
-  // Poll — max 10 min (120 polls × 5s)
+  // Poll â€” max 10 min (120 polls Ã— 5s)
   for (let i = 0; i < 120; i++) {
     await sleep(5000);
 
@@ -249,7 +406,7 @@ async function callKieAi(prompt, faceImageUrl) {
 
     if (!pollRes.ok) {
       const errText = await pollRes.text().catch(() => '');
-      console.warn(`KIE poll ${i + 1} HTTP error: ${pollRes.status} — ${errText.substring(0, 200)}`);
+      console.warn(`KIE poll ${i + 1} HTTP error: ${pollRes.status} â€” ${errText.substring(0, 200)}`);
       continue;
     }
 
@@ -259,7 +416,7 @@ async function callKieAi(prompt, faceImageUrl) {
     if (i === 0) console.log('KIE poll #1 full response:', JSON.stringify(pollJson).substring(0, 600));
 
     if (pollJson.code !== 200) {
-      console.warn(`KIE poll ${i + 1} code: ${pollJson.code} — ${JSON.stringify(pollJson).substring(0, 200)}`);
+      console.warn(`KIE poll ${i + 1} code: ${pollJson.code} â€” ${JSON.stringify(pollJson).substring(0, 200)}`);
       continue;
     }
 
@@ -321,7 +478,7 @@ async function callKieAiWithRetry(prompt, faceImageUrl, maxRetries = 3) {
 async function sendDeliveryEmail(order, generatedUrls) {
   const RESEND_API_KEY = _config.RESEND_API_KEY;
   if (!RESEND_API_KEY) {
-    console.warn('RESEND_API_KEY not set — delivery email skipped');
+    console.warn('RESEND_API_KEY not set â€” delivery email skipped');
     return;
   }
 
@@ -333,16 +490,16 @@ async function sendDeliveryEmail(order, generatedUrls) {
     .map(item => ({ url: item.url, theme: item.theme }));
 
   if (successUrls.length === 0) {
-    console.warn('Generation completed but 0 successful images — marking failed and alerting');
+    console.warn('Generation completed but 0 successful images â€” marking failed and alerting');
     await (async () => {
-      // Get db from closure — we need to update status
+      // Get db from closure â€” we need to update status
       try {
         const { createClient } = require('@supabase/supabase-js');
         const db2 = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
         await db2.from('orders').update({ generation_status: 'failed' }).eq('id', order.id);
       } catch (_) {}
     })();
-    await sendSupportAlert(order, 'Generation completed but 0 successful images — all themes failed');
+    await sendSupportAlert(order, 'Generation completed but 0 successful images â€” all themes failed');
     await sendFailureApologyEmail(order);
     return;
   }
@@ -356,7 +513,7 @@ async function sendDeliveryEmail(order, generatedUrls) {
       <a href="${item.url}" target="_blank"
          style="display:inline-block;margin-top:10px;padding:10px 24px;background:linear-gradient(135deg,#ff4d6d,#e8003d);color:white;
                 border-radius:24px;text-decoration:none;font-size:13px;font-weight:800;letter-spacing:0.3px;">
-        ⬇ Save Photo ${i + 1}
+        â¬‡ Save Photo ${i + 1}
       </a>
     </div>
   `).join('');
@@ -368,39 +525,40 @@ async function sendDeliveryEmail(order, generatedUrls) {
 <body style="font-family:Inter,Arial,sans-serif;background:#f8f9fa;margin:0;padding:20px;">
   <div style="max-width:560px;margin:0 auto;background:white;border-radius:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.08);">
     <div style="background:linear-gradient(135deg,#ff4d6d,#ff8fa3);padding:32px 24px;text-align:center;">
-      <h1 style="color:white;margin:0;font-size:26px;font-weight:900;">🍼 SnapiBaby</h1>
-      <p style="color:rgba(255,255,255,0.92);margin:10px 0 0;font-size:15px;font-weight:600;">Your baby's portraits are ready! 📸</p>
+      <h1 style="color:white;margin:0;font-size:26px;font-weight:900;">ðŸ¼ SnapiBaby</h1>
+      <p style="color:rgba(255,255,255,0.92);margin:10px 0 0;font-size:15px;font-weight:600;">Your baby's portraits are ready! ðŸ“¸</p>
     </div>
     <div style="padding:32px 24px;">
-      <h2 style="color:#2d3142;margin:0 0 12px;font-size:1.4rem;">Hi ${name}! 💕</h2>
+      <h2 style="color:#2d3142;margin:0 0 12px;font-size:1.4rem;">Hi ${name}! ðŸ’•</h2>
       <p style="color:#6b7280;margin:0 0 8px;line-height:1.7;font-size:15px;">
         Your <strong>${successUrls.length} SnapiBaby portrait${successUrls.length > 1 ? 's are' : ' is'}</strong> ready!<br>
         Tap each photo to view full size, then save to your phone.
       </p>
       <p style="color:#9ca3af;font-size:13px;margin:0 0 28px;">
-        Order: <strong>${order.order_number}</strong> · Plan: <strong>${plan}</strong>
+        Order: <strong>${order.order_number}</strong> Â· Plan: <strong>${plan}</strong>
       </p>
 
       ${photoCards}
 
       <div style="margin-top:24px;text-align:center;">
-        <a href="${SITE_URL}/dashboard.html?order=${order.id}"
+        <a href="${SITE_URL}/success.html?order_id=${order.id}"
            style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#ff4d6d,#ff8fa3);
                   color:white;border-radius:50px;text-decoration:none;font-weight:800;font-size:15px;">
-          📂 View My Full Gallery
+          ðŸ“¸ View &amp; Download All My Portraits
         </a>
+        <p style="margin:10px 0 0;font-size:11px;color:#9ca3af;">Tap the button above to open your full gallery</p>
       </div>
 
       <div style="margin-top:24px;padding:16px;background:#fff8e1;border-radius:12px;border-left:4px solid #f5c518;">
         <p style="margin:0;font-size:13px;color:#7a5800;line-height:1.5;">
-          💡 <strong>Tip:</strong> On iPhone: tap the button → share icon → "Save to Photos".<br>
-          On Android: tap the button → auto-downloads to your Gallery.
+          ðŸ’¡ <strong>Tip:</strong> On iPhone: tap the button â†’ share icon â†’ "Save to Photos".<br>
+          On Android: tap the button â†’ auto-downloads to your Gallery.
         </p>
       </div>
 
       <div style="margin-top:24px;text-align:center;padding-top:24px;border-top:1px solid #f0f0f0;">
         <p style="color:#9ca3af;font-size:12px;margin:0;">
-          © 2026 SnapiBaby · Made with ❤️ for moms worldwide<br>
+          Â© 2026 SnapiBaby Â· Made with â¤ï¸ for moms worldwide<br>
           <a href="${SITE_URL}" style="color:#ff4d6d;">snapibaby.netlify.app</a>
         </p>
       </div>
@@ -413,26 +571,26 @@ async function sendDeliveryEmail(order, generatedUrls) {
     method:  'POST',
     headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from:    'SnapiBaby <onboarding@resend.dev>',
+      from:    'SnapiBaby <hello@snapibaby.com>',
       to:      [order.customer_email],
-      subject: `📸 Your ${name}'s SnapiBaby portraits are ready!`,
+      subject: `ðŸ“¸ Your ${name}'s SnapiBaby portraits are ready!`,
       html
     })
   });
 
   const resText = await res.text();
   if (!res.ok) throw new Error(`Resend delivery error ${res.status}: ${resText}`);
-  console.log(`✓ Delivery email sent to ${order.customer_email}. Resend response: ${resText}`);
+  console.log(`âœ“ Delivery email sent to ${order.customer_email}. Resend response: ${resText}`);
 }
 
 // ============================================================
-// Support alert — sent to OWNER when generation fails
+// Support alert â€” sent to OWNER when generation fails
 // ============================================================
 async function sendSupportAlert(order, errorMsg) {
   const RESEND_API_KEY = _config.RESEND_API_KEY;
   const ALERT_EMAIL    = _config.ALERT_EMAIL || 'viewbrantz@gmail.com';
   if (!RESEND_API_KEY) {
-    console.warn('RESEND_API_KEY not set — support alert not sent. Error was:', errorMsg);
+    console.warn('RESEND_API_KEY not set â€” support alert not sent. Error was:', errorMsg);
     return;
   }
   try {
@@ -471,9 +629,9 @@ async function sendSupportAlert(order, errorMsg) {
       method:  'POST',
       headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from:    'SnapiBaby Alerts <onboarding@resend.dev>',
+        from:    'SnapiBaby Alerts <hello@snapibaby.com>',
         to:      [ALERT_EMAIL],
-        subject: `&#x26A0;&#xFE0F; FALHA na gera&#xE7;&#xE3;o — Order ${order.order_number || order.id} — ${order.customer_email}`,
+        subject: `&#x26A0;&#xFE0F; FALHA na gera&#xE7;&#xE3;o â€” Order ${order.order_number || order.id} â€” ${order.customer_email}`,
         html
       })
     });
@@ -488,7 +646,7 @@ async function sendSupportAlert(order, errorMsg) {
 }
 
 // ============================================================
-// Customer apology email — sent when generation fails
+// Customer apology email â€” sent when generation fails
 // ============================================================
 async function sendFailureApologyEmail(order) {
   const RESEND_API_KEY = _config.RESEND_API_KEY;
@@ -505,7 +663,7 @@ async function sendFailureApologyEmail(order) {
           <div style="padding:32px 24px">
             <h2 style="color:#2d3142;margin:0 0 12px">Hi ${name}! &#x1F49C;</h2>
             <p style="color:#6b7280;line-height:1.7;font-size:15px;margin:0 0 20px">
-              We're so sorry — something went wrong while generating your portraits.
+              We're so sorry â€” something went wrong while generating your portraits.
               Our team has been automatically notified and <strong>will fix this within a few hours</strong>.
             </p>
             <div style="background:#fff8e1;border-radius:12px;padding:20px;margin-bottom:24px;border-left:4px solid #f5c518">
@@ -527,9 +685,9 @@ async function sendFailureApologyEmail(order) {
       method:  'POST',
       headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from:    'SnapiBaby <onboarding@resend.dev>',
+        from:    'SnapiBaby <hello@snapibaby.com>',
         to:      [order.customer_email],
-        subject: `&#x1F4F8; Update on your SnapiBaby portraits — Order ${order.order_number || ''}`,
+        subject: `&#x1F4F8; Update on your SnapiBaby portraits â€” Order ${order.order_number || ''}`,
         html
       })
     });
@@ -545,9 +703,9 @@ async function sendFailureApologyEmail(order) {
 
 
 // ============================================================
-// BASE STYLE — injected into every prompt for consistency
+// BASE STYLE â€” injected into every prompt for consistency
 // ============================================================
-const BASE = 'CRITICAL INSTRUCTIONS: (1) Preserve ONLY the baby\'s FACE — eyes, nose, mouth, cheeks, skin tone and face shape from the input photo. (2) COMPLETELY REPLACE the hairstyle — do NOT reproduce the original hair, instead dress the baby with the theme-appropriate headwear described above (bonnet, crown, hat, hood, helmet, ears, etc.) covering the head naturally. (3) Ultra-realistic human skin texture, natural pores, no wax-like or plastic look, no CGI. (4) Professional newborn photography style. Soft studio lighting, shallow depth of field, warm bokeh. Photorealistic 4K, cinematic quality.';
+const BASE = 'CRITICAL INSTRUCTIONS: (1) Preserve ONLY the baby\'s FACE â€” eyes, nose, mouth, cheeks, skin tone and face shape from the input photo. (2) COMPLETELY REPLACE the hairstyle â€” do NOT reproduce the original hair, instead dress the baby with the theme-appropriate headwear described above (bonnet, crown, hat, hood, helmet, ears, etc.) covering the head naturally. (3) Ultra-realistic human skin texture, natural pores, no wax-like or plastic look, no CGI. (4) Professional newborn photography style. Soft studio lighting, shallow depth of field, warm bokeh. Photorealistic 4K, cinematic quality.';
 
 const HOLIDAY_PROMPTS = {
   'Christmas':   `Transform the baby in this photo into a professional newborn portrait: sleeping newborn curled up in a round wooden bowl, wearing a tiny red Santa hat and wrapped in a red knit blanket, surrounded by mini Christmas ornaments, pine branches, fairy lights and snow-dusted props, warm golden holiday lighting. ${BASE}`,
@@ -557,10 +715,10 @@ const HOLIDAY_PROMPTS = {
 };
 
 const THEME_PROMPTS = {
-  // ── Exact names from app.html ────────────────────────────────────────────
+  // â”€â”€ Exact names from app.html â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   'Astronaut': `Transform the baby in this photo into a professional newborn portrait: sleeping newborn wearing a miniature white NASA astronaut suit with a small rounded helmet, curled up inside a crescent moon prop lined with white fluffy material, surrounded by golden star ornaments, small rocket toys, Earth globe and Saturn planet props in the background, deep space dark blue backdrop with bokeh star lights. ${BASE}`,
 
-  'Cute Cartoon': `Transform the baby in this photo into a professional newborn portrait: sleeping newborn wearing a bright red and white polka-dot Minnie Mouse outfit with matching Minnie ears bow headband, curled up in a round wooden bowl lined with pink faux fur, surrounded by pink roses, pearl strings and a Minnie doll prop, soft pink studio background with warm bokeh lights. ${BASE}`,
+  'Cute Cartoon': `Transform the baby in this photo into a professional newborn portrait: sleeping newborn wearing a bright red and white polka-dot outfit with matching red bow headband with large round mouse ears, curled up in a round wooden bowl lined with pink faux fur, surrounded by pink roses, pearl strings and a small stuffed mouse plush prop, soft pink studio background with warm bokeh lights. ${BASE}`,
 
   'Dinosaur': `Transform the baby in this photo into a professional newborn portrait: sleeping newborn wearing a knitted green dinosaur onesie with spiky dorsal fins on the back and a matching dragon tail, curled up in a wooden bowl lined with green moss and earth textures, surrounded by small dinosaur figurines and tropical leaves, warm earthy studio tones. ${BASE}`,
 
@@ -580,7 +738,7 @@ const THEME_PROMPTS = {
 
   'Classic Basket': `Transform the baby in this photo into a professional newborn portrait: sleeping newborn wrapped in a natural beige knit blanket, wearing a cream-colored bear-ear knit bonnet, curled up in a round wooden bowl with neutral woven fabric, surrounded by eucalyptus leaves, natural wooden toy rattle and small giraffe figurine, warm neutral earthy studio tones. ${BASE}`,
 
-  'Pirate': `Transform the baby in this photo into a professional newborn portrait: sleeping newborn wearing a full tiny pirate costume — red and cream ruffled shirt, dark vest with gold buttons, matching pirate bandana and black eye patch — seated inside an antique wooden treasure chest lined with velvet, surrounded by gold coins, a treasure map scroll, a miniature anchor, a brass telescope and a colorful parrot plush toy, dramatic warm golden studio lighting on aged wood textures. ${BASE}`,
+  'Pirate': `Transform the baby in this photo into a professional newborn portrait: sleeping newborn wearing a full tiny pirate costume â€” red and cream ruffled shirt, dark vest with gold buttons, matching pirate bandana and black eye patch â€” seated inside an antique wooden treasure chest lined with velvet, surrounded by gold coins, a treasure map scroll, a miniature anchor, a brass telescope and a colorful parrot plush toy, dramatic warm golden studio lighting on aged wood textures. ${BASE}`,
 
   'Pirate Adventure': `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a pirate captain costume inside a treasure chest, surrounded by scattered gold coins, old maps, a cork-bottled ship, pearl necklace and a compass, moody warm cinematic studio lighting on rustic wood and rope textures. ${BASE}`,
 
@@ -598,10 +756,10 @@ const THEME_PROMPTS = {
 
   'Cozy Teddy': `Transform the baby in this photo into a professional newborn portrait: sleeping newborn wrapped in a warm mocha brown knit blanket, curled up next to a large plush brown teddy bear, the baby's tiny hand gently resting on the teddy bear's arm, on a soft brown backdrop fabric, warm dim cozy studio lighting, rich chocolate and cream tones. ${BASE}`,
 
-  // ── Fallback aliases ────────────────────────────────────────────────────
+  // â”€â”€ Fallback aliases â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   'Fairy':    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn with delicate iridescent fairy wings on its back, wearing a floral bonnet, curled up in a rustic wicker basket surrounded by green moss, wildflowers, bokeh fairy lights and enchanted forest atmosphere. ${BASE}`,
   'Floral':   `Transform the baby in this photo into a professional newborn portrait: sleeping newborn wrapped in blush pink knit, curled up in a wooden bowl surrounded by fresh pink roses, eucalyptus, peonies and baby's breath, warm romantic soft studio lighting. ${BASE}`,
-  'Cartoon':  `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a Minnie Mouse red polka-dot outfit with matching bow headband, in a wooden bowl with pink faux fur, surrounded by pink roses and a Minnie doll, soft pink bokeh studio. ${BASE}`,
+  'Cartoon':  `Transform the baby in this photo into a professional newborn portrait: sleeping newborn wearing a red and white polka-dot outfit with a large red bow headband with round mouse ears, in a wooden bowl with pink faux fur, surrounded by pink roses and a stuffed mouse plush, soft pink bokeh studio. ${BASE}`,
   'Teddy':    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in mocha brown knit, curled up next to a plush brown teddy bear, tiny hand resting on the teddy, warm dim cozy studio lighting in chocolate and cream tones. ${BASE}`,
   'Galaxy':   `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in a tiny astronaut suit on a crescent moon prop, surrounded by golden stars, a rocket and planet props, deep navy space atmosphere with bokeh star lights. ${BASE}`,
   'Starry':   `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in navy knit with gold stars, in a wooden bowl surrounded by golden star ornaments and fairy lights, dreamy midnight blue bokeh backdrop. ${BASE}`,
@@ -610,7 +768,6 @@ const THEME_PROMPTS = {
   'Halloween': `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in tiny witch hat or skeleton onesie in a pumpkin prop, surrounded by small pumpkins and autumn leaves, warm amber moody studio lighting. ${BASE}`,
   'Natural':  `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in natural beige knit with bear-ear bonnet, in a wooden bowl with eucalyptus leaves, wooden toys, safari muslin wrap, warm neutral earthy studio. ${BASE}`,
   'Space':    `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in astronaut suit on a moon prop, golden stars, rocket and planet props around, deep navy and gold space atmosphere with bokeh star lights. ${BASE}`,
-  'Pirate':   `Transform the baby in this photo into a professional newborn portrait: sleeping newborn in full pirate costume inside an antique treasure chest with gold coins, map scroll, anchor, telescope and parrot plush, warm dramatic golden studio lighting. ${BASE}`,
   'default':  `Transform the baby in this photo into a professional newborn portrait: sleeping newborn wrapped in a soft cream knit, curled up in a round wooden bowl lined with fluffy fabric, surrounded by delicate fresh flowers and eucalyptus, warm soft studio lighting. ${BASE}`
 };
 
@@ -632,52 +789,7 @@ function findPrompt(rawThemeName) {
     if (lower.includes(kl) || kl.includes(lower)) return THEME_PROMPTS[key];
   }
 
-  console.warn(`No prompt found for theme "${rawThemeName}" (cleaned: "${clean}") — using default`);
+  console.warn(`No prompt found for theme "${rawThemeName}" (cleaned: "${clean}") â€” using default`);
   return THEME_PROMPTS['default'];
 }
 
-const HOLIDAY_PROMPTS = {
-  'Christmas':   'Transform this newborn baby photo into a professional studio portrait: baby in a cozy Christmas setting with a tiny Santa hat, fairy lights, wrapped gifts and a warm winter backdrop, soft warm studio lighting, ultra-realistic photorealistic portrait',
-  'Halloween':   'Transform this newborn baby photo into a professional studio portrait: baby in an adorable Halloween costume surrounded by friendly pumpkins, autumn leaves and candy corn, dramatic but cute studio lighting, photorealistic',
-  'Easter':      'Transform this newborn baby photo into a professional studio portrait: baby with cute Easter bunny ears surrounded by colorful Easter eggs and spring flowers, soft pastel studio lighting, photorealistic',
-  'St Patricks': 'Transform this newborn baby photo into a professional studio portrait: baby in a tiny green outfit with shamrocks and pot of gold, Irish spring background, studio quality photorealistic'
-};
-
-const THEME_PROMPTS = {
-  // ── Exact names from app.html ────────────────────────────────────────────
-  'Astronaut':          'Transform this newborn baby photo into a professional studio portrait: baby in an astronaut costume floating in outer space surrounded by stars and galaxies, ultra-realistic 4K studio lighting, soft bokeh, baby face clearly visible, photorealistic',
-  'Cute Cartoon':       'Transform this newborn baby photo into a professional studio portrait: baby in a colorful cartoon world, pastel illustrated background, studio quality lighting, adorable baby face clearly visible, photorealistic portrait',
-  'Dinosaur':           'Transform this newborn baby photo into a professional studio portrait: baby in a cute dinosaur costume, lush prehistoric jungle background, friendly dinosaurs, studio quality 4K lighting, photorealistic',
-  'Easter Bunny':       'Transform this newborn baby photo into a professional studio portrait: baby with Easter bunny ears in a spring pastel garden with colorful eggs, soft studio lighting, photorealistic',
-  'Spring Bunny':       'Transform this newborn baby photo into a professional studio portrait: baby with cute bunny ears in a magical spring garden with blooming flowers, soft pink and green tones, studio quality, photorealistic',
-  'Fairy Magic':        'Transform this newborn baby photo into a professional studio portrait: baby with tiny fairy wings in an enchanted forest with sparkles and flowers, magical golden lighting, photorealistic portrait',
-  'Fairy Portrait':     'Transform this newborn baby photo into a professional studio portrait: baby in a fairy princess dress in a fairy tale forest, golden hour lighting with sparkles, ultra-realistic photorealistic',
-  'Floral Basket':      'Transform this newborn baby photo into a professional studio portrait: baby in a wicker basket surrounded by fresh roses and peonies, soft diffused studio lighting, photorealistic',
-  'Soft Floral':        'Transform this newborn baby photo into a professional studio portrait: baby surrounded by soft fresh flowers, romantic floral arrangement in white and pink tones, studio quality, photorealistic',
-  'Minimalist':         'Transform this newborn baby photo into a professional studio portrait: baby in a clean minimalist white studio setting, soft diffused light, simple elegant background, ultra-realistic photorealistic',
-  'Classic Basket':     'Transform this newborn baby photo into a professional studio portrait: baby in a woven basket with natural textures and neutral earth tones, warm studio lighting, photorealistic',
-  'Pirate':             'Transform this newborn baby photo into a professional studio portrait: baby in a cute tiny pirate hat and costume, ship and ocean background, dramatic studio lighting, photorealistic',
-  'Pirate Adventure':   'Transform this newborn baby photo into a professional studio portrait: baby as an adventurous pirate with a treasure map background, warm golden tones, studio quality photorealistic',
-  'Princess':           'Transform this newborn baby photo into a professional studio portrait: baby with a royal princess tiny crown against a palace background, pink and gold tones, studio lighting, photorealistic',
-  'Princess Portrait':  'Transform this newborn baby photo into a professional studio portrait: baby in a princess dress at a fairy tale castle with magical sparkles, royal studio lighting, ultra-realistic photorealistic',
-  'Safari':             'Transform this newborn baby photo into a professional studio portrait: baby surrounded by cute safari animals — giraffe, elephant, lion — in a lush African savanna, studio quality photorealistic',
-  'Galaxy Space':       'Transform this newborn baby photo into a professional studio portrait: baby floating in a galaxy with stars, nebulae and planets in the deep space background, ultra-realistic studio quality photorealistic',
-  'Starry Night':       'Transform this newborn baby photo into a professional studio portrait: baby under a magical starry night sky with swirling stars, soft dreamy lighting, photorealistic portrait',
-  'Superhero':          'Transform this newborn baby photo into a professional studio portrait: baby in a superhero costume with a tiny cape, city skyline background, dramatic studio lighting, photorealistic',
-  'Cozy Teddy':         'Transform this newborn baby photo into a professional studio portrait: baby snuggled with teddy bears in a cozy nursery, warm soft lighting, cream and brown tones, photorealistic',
-  // ── Fallback aliases ────────────────────────────────────────────────────
-  'Fairy':              'Transform this newborn baby photo into a professional studio portrait: baby with tiny fairy wings in an enchanted forest with sparkles and flowers, magical golden lighting, photorealistic portrait',
-  'Floral':             'Transform this newborn baby photo into a professional studio portrait: baby in a wicker basket surrounded by fresh roses and peonies, soft diffused studio lighting, photorealistic',
-  'Cartoon':            'Transform this newborn baby photo into a professional studio portrait: baby in a colorful cartoon world, pastel illustrated background, studio quality lighting, adorable baby face, photorealistic portrait',
-  'Teddy':              'Transform this newborn baby photo into a professional studio portrait: baby snuggled with teddy bears in a cozy nursery, warm soft lighting, cream and brown tones, photorealistic',
-  'Galaxy':             'Transform this newborn baby photo into a professional studio portrait: baby floating in a galaxy with stars, nebulae and planets in the deep space background, ultra-realistic studio quality photorealistic',
-  'Starry':             'Transform this newborn baby photo into a professional studio portrait: baby under a magical starry night sky, swirling stars, soft dreamy lighting, photorealistic portrait',
-  'Easter':             'Transform this newborn baby photo into a professional studio portrait: baby with Easter bunny ears in a spring pastel garden with colorful eggs, soft studio lighting, photorealistic',
-  'Christmas':          'Transform this newborn baby photo into a professional studio portrait: baby in a Christmas theme with a Santa hat, fairy lights and cozy winter setting, soft warm studio lighting, photorealistic',
-  'Halloween':          'Transform this newborn baby photo into a professional studio portrait: baby in a cute Halloween costume surrounded by pumpkins and friendly ghosts, dramatic studio lighting, photorealistic',
-  'Natural':            'Transform this newborn baby photo into a professional studio portrait: baby in a woven basket with natural textures, neutral earth tones, warm studio lighting, photorealistic',
-  'Space':              'Transform this newborn baby photo into a professional studio portrait: baby floating in outer space surrounded by stars, planets and nebulae, ultra-realistic studio quality photorealistic',
-  'default':            'Transform this newborn baby photo into a professional studio portrait with a magical themed setting, ultra-realistic 4K studio lighting, soft bokeh background, photorealistic'
-};
-
-const sleep = ms => new Promise(r => setTimeout(r, ms));

@@ -180,9 +180,9 @@ async function sendConfirmationEmail(order) {
         </p>
       </div>
       <p style="color:#9ca3af;font-size:13px;line-height:1.5;">
-        Check your order status anytime at:<br>
-        <a href="${SITE_URL}/dashboard.html?order=${order.id}" style="color:#ff4d6d;">
-          ${SITE_URL}/dashboard.html
+        View your portraits as they're generated:<br>
+        <a href="${SITE_URL}/success.html?order_id=${order.id}" style="color:#ff4d6d;font-weight:700;">
+          Tap here to open your portrait gallery →
         </a>
       </p>
       <div style="margin-top:24px;text-align:center;padding-top:24px;border-top:1px solid #f0f0f0;">
@@ -200,9 +200,9 @@ async function sendConfirmationEmail(order) {
     method:  'POST',
     headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from:    'SnapiBaby <onboarding@resend.dev>',
+      from:    'SnapiBaby <hello@snapibaby.com>',
       to:      [order.customer_email],
-      subject: `✅ We got your order, ${name}! Portraits in ~20 min`,
+      subject: `✅ We got your order, ${name}! Portraits coming soon`,
       html
     })
   });
