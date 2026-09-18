@@ -545,9 +545,17 @@ async function pollStatus() {
     const order = await getOrderWithPhotos(savedOrderId);
     if (order) {
       // Read total themes count
-      if (order.plan === 'starter') totalThemes = 10;
-      else if (order.plan === 'classic') totalThemes = 20;
-      else totalThemes = 3; // fallback
+      // Use the actual number of themes selected in this order
+      // Fallback to plan defaults if themes_selected is empty
+      if (order.themes_selected?.length > 0) {
+        totalThemes = order.themes_selected.length;
+      } else if (order.plan === 'starter') {
+        totalThemes = 10;
+      } else if (order.plan === 'classic') {
+        totalThemes = 20;
+      } else {
+        totalThemes = 30; // premium default
+      }
 
       const hasOkPhotos = (order.generated_urls || []).some(x => x.status === 'ok' && x.url);
 

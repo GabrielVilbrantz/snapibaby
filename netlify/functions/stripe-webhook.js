@@ -82,43 +82,53 @@ exports.handler = async (event) => {
   }
 
   // ── MAIN ORDER ────────────────────────────────────────────
-  // Busca o pedido com retry (pode levar alguns ms para aparecer no Supabase)
-  let order = null;
-  for (let attempt = 1; attempt <= 5; attempt++) {
-    const { data, error: fetchErr } = await db
-      .from('orders')
-      .select('*')
-      .eq('stripe_payment_intent', piId)
-      .single();
+  // IMPORTANTE: Sempre retornar 200 ao Stripe — envolve tudo em try/catch.
+  // Funções síncronas no Netlify têm timeout de 10s.
+  // Retries: 3 tentativas × 1s = máx 3s total (bem abaixo do limite).
+  try {
+    let order = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const { data, error: fetchErr } = await db
+        .from('orders')
+        .select('*')
+        .eq('stripe_payment_intent', piId)
+        .single();
 
-    if (!fetchErr && data) { order = data; break; }
+      if (!fetchErr && data) { order = data; break; }
 
-    if (attempt < 5) {
-      console.warn(`Order not found (attempt ${attempt}/5) for PI ${piId}. Retrying in 2s...`);
-      await new Promise(r => setTimeout(r, 2000));
-    } else {
-      console.error('Order not found after 5 attempts for PI:', piId, fetchErr?.message);
-      return { statusCode: 200, body: 'OK (order not found after retries)' };
+      if (attempt < 3) {
+        console.warn(`Order not found (attempt ${attempt}/3) for PI ${piId}. Retrying in 1s...`);
+        await new Promise(r => setTimeout(r, 1000));
+      } else {
+        console.warn('Order not found after 3 attempts for PI:', piId, fetchErr?.message,
+          '— Frontend fallback will trigger generation after 90s.');
+      }
     }
+
+    if (order) {
+      // Update to paid + processing
+      await db.from('orders').update({
+        payment_status:    'paid',
+        generation_status: 'processing'
+      }).eq('id', order.id);
+
+      // Send immediate confirmation email (non-fatal)
+      sendConfirmationEmail(order).catch(err =>
+        console.error('Confirmation email failed:', err.message)
+      );
+
+      // Fire-and-forget: kick off photo generation
+      triggerProcessOrder(order.id, 'main').catch(e =>
+        console.error('Failed to trigger process-order:', e.message)
+      );
+
+      console.log(`Order ${order.order_number} marked paid — generation triggered async`);
+    }
+  } catch (err) {
+    // Nunca deixar um erro impedir o retorno 200 ao Stripe
+    console.error('Webhook handler error (returning 200 anyway):', err.message);
   }
 
-  // Update to paid + processing
-  await db.from('orders').update({
-    payment_status:    'paid',
-    generation_status: 'processing'
-  }).eq('id', order.id);
-
-  // Send immediate confirmation email (non-fatal)
-  sendConfirmationEmail(order).catch(err =>
-    console.error('Confirmation email failed:', err.message)
-  );
-
-  // Fire-and-forget: kick off photo generation
-  triggerProcessOrder(order.id, 'main').catch(e =>
-    console.error('Failed to trigger process-order:', e.message)
-  );
-
-  console.log(`Order ${order.order_number} marked paid — generation triggered async`);
   return { statusCode: 200, body: JSON.stringify({ received: true }) };
 };
 
