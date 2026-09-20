@@ -59,7 +59,7 @@ const PRICING = {
   HU: { currency:'huf', plans:{ starter:649700, classic:999700, premium:1329700 }, bump:99700 },
   // Dedicated
   MX: { currency:'usd', plans:{ starter:700, classic:1700, premium:2700 }, bump:300 },
-  BR: { currency:'brl', plans:{ starter:1500, classic:1500, premium:1500 }, bump:500 },
+  BR: { currency:'brl', plans:{ starter:8700, classic:11700, premium:14700 }, bump:1700 },
   AR: { currency:'ars', plans:{ starter:1799700, classic:1999700, premium:2399700 }, bump:399700 },
   CO: { currency:'cop', plans:{ starter:6199700, classic:6999700, premium:8399700 }, bump:1799700 },
   PE: { currency:'pen', plans:{ starter:5700, classic:6700, premium:7700 }, bump:1700 },

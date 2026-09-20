@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // NETLIFY FUNCTION: charge-upsell
 // URL: /.netlify/functions/charge-upsell
 //
@@ -65,7 +65,7 @@ exports.handler = async (event) => {
     usd:1700, cad:1700, aud:1700, nzd:1700, eur:1700, gbp:1700, chf:1700,
     nok:19700, dkk:12700, sek:19700, jpy:1997, sgd:1700, ils:6700,
     pln:6700, czk:39700, krw:12997, sar:6700, huf:449700,
-    brl:1500, ars:999700, cop:3499700, pen:2700, clp:9997, uyu:29700, zar:14700,
+    brl:4700, ars:999700, cop:3499700, pen:2700, clp:9997, uyu:29700, zar:14700,
     inr:69700, php:19700, ngn:499700, idr:5999700, vnd:89997, egp:16700, kes:39700,
     default_usd:1700,
   };
