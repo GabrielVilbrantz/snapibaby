@@ -2293,8 +2293,8 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
   const premiumTestimonials = [
     { name: "Sarah Mitchell", role: "Mom of Noah, 3 weeks", rating: 5, text: "I was skeptical at first but the photos look exactly like my son. My mother-in-law cried when she saw them. Worth every penny.", results: ["Family in Tears", "100% Worth It"] },
-    { name: "Fernanda Oliveira", role: "Mom of Gabriel, 3 weeks", rating: 5, text: "I did the free preview and cried immediately. His little face in that studio setting — I paid without a second thought.", results: ["Cried at Preview", "Instant Purchase"] },
-    { name: "Amanda Rivera", role: "Mom of Lucas, 5 weeks", rating: 5, text: "The watermark preview had me in tears. I could see his little face in the studio setting before I even paid. Instant yes.", results: ["Preview = Sold", "Zero Hesitation"] },
+    { name: "Fernanda Oliveira", role: "Mom of Gabriel, 3 weeks", rating: 5, text: "I ordered during a midnight feed and by morning I had 20 stunning portraits. His little face in that studio setting — I cried happy tears.", results: ["Midnight Order", "Morning Delivery"] },
+    { name: "Amanda Rivera", role: "Mom of Lucas, 5 weeks", rating: 5, text: "100% money-back guarantee made it a no-brainer. But I didn't need it — the portraits were absolutely perfect. Zero hesitation ordering again.", results: ["Risk-Free Order", "Zero Hesitation"] },
     { name: "Emily Carter", role: "Mom of Sophia, 1 month", rating: 5, text: "Quoted $750 by a local photographer. Paid $49 here and got 30 photos that look better. I'm not joking.", results: ["Saved $701", "Better Than Studio"] },
     { name: "Lauren Kim", role: "Mom of Mia, newborn", rating: 5, text: "I chose the Princess theme and honestly sobbed. She looks like she belongs in a fairy tale. Printing 4 of these.", results: ["Princess Theme 👑", "Printing 4 Copies"] },
     { name: "Nicole Harris", role: "Mom of Ava, 2 months", rating: 5, text: "My husband said just book a photographer. I showed him the SnapiBaby results. He went quiet. We ordered the Premium pack.", results: ["Husband Convinced", "Upgraded to Premium"] },
@@ -2314,14 +2314,14 @@ document.addEventListener('DOMContentLoaded', () => {
     { name: "Chloe Evans", role: "Mom of Luna, 2 months", rating: 5, text: "Luna's Floral theme photos are hanging in my living room, bedroom, and nursery. I may have gone overboard with the prints.", results: ["Floral Theme 🌸", "Prints Everywhere"] },
     { name: "Samantha Baker", role: "Mom of Ethan, 3 weeks", rating: 5, text: "My postpartum anxiety was through the roof. The idea of taking a newborn to a studio sounded impossible. SnapiBaby was a lifesaver.", results: ["Zero Studio Stress", "Postpartum Friendly"] },
     { name: "Isabella Martinez", role: "Mom of Diego, 4 weeks", rating: 5, text: "Diego's Starry Night photos are the most beautiful thing I've ever seen. He looks like a little dream floating in the cosmos.", results: ["Starry Night ✨", "Dream Photos"] },
-    { name: "Hannah Turner", role: "Mom of Scarlett, 5 weeks", rating: 5, text: "I was going through a tough week. Seeing Scarlett's preview genuinely made me cry happy tears. It was exactly what I needed.", results: ["Happy Tears", "Perfect Timing"] },
+    { name: "Hannah Turner", role: "Mom of Scarlett, 5 weeks", rating: 5, text: "I was going through a tough week. Getting Scarlett's portraits back genuinely made me cry happy tears. It was exactly what I needed.", results: ["Happy Tears", "Perfect Timing"] },
     { name: "Alyssa Phillips", role: "Mom of Jack, 1 month", rating: 5, text: "Jack refused to sleep for a week straight. I took a blurry tired-mom photo on a Tuesday at 3pm. SnapiBaby turned it into art.", results: ["3pm Tired Photo", "Turned Into Art"] },
     { name: "Victoria Hernandez", role: "Mom of Sofia, 2 weeks", rating: 5, text: "The princess theme made my daughter look like actual royalty. My abuela said she looks like she's in a painting. She's right.", results: ["Royalty Vibes 👑", "Abuela Approved"] },
     { name: "Paige Collins", role: "Mom of Aiden, 6 weeks", rating: 5, text: "Easiest purchase I made during maternity leave. 10 minutes of my time, $49 spent, and 30 memories I'll have forever.", results: ["10 Min Total", "30 Forever Memories"] },
     { name: "Larissa Ferreira", role: "Mom of Henrique, 3 weeks", rating: 5, text: "I sent a photo taken in bad lighting on my old phone. The result looked like it was shot by a professional. Incredible technology.", results: ["Bad Photo In", "Pro Photo Out"] },
     { name: "Danielle Stewart", role: "Mom of Charlotte, 4 weeks", rating: 5, text: "I've bought a lot of things I regret during maternity leave. This is not one of them. Best $49 I've ever spent in my life.", results: ["Best $49 Ever", "Zero Regrets"] },
     { name: "Rebecca Hall", role: "Mom of Sebastian, 5 weeks", rating: 5, text: "The Superhero theme is everything. My son is wearing a tiny cape in a dramatic cityscape. My husband printed it for his office desk.", results: ["Superhero Theme 🦸", "On the Office Desk"] },
-    { name: "Camila Rodrigues", role: "Mom of Bernardo, 2 months", rating: 5, text: "I was hesitant because I'd never heard of AI photos before. The free preview convinced me in under 10 seconds. Stunning.", results: ["Preview in 10 Sec", "Instantly Convinced"] },
+    { name: "Camila Rodrigues", role: "Mom of Bernardo, 2 months", rating: 5, text: "I was hesitant because I'd never tried AI photos before. The 100% money-back guarantee made me try it, and the portraits are stunning. Stunning.", results: ["Risk-Free Try", "Instantly Convinced"] },
     { name: "Natalie Adams", role: "Mom of Zoe, 3 weeks", rating: 5, text: "I showed the photos to my pediatrician at our check-up. She asked what studio we went to. When I said my couch, she laughed and asked for the link.", results: ["Doctor Asked For Link", "Couch Studio 😂"] },
     { name: "Morgan Nelson", role: "Mom of Leo, 1 month", rating: 5, text: "The Teddy Bear theme is so cozy and adorable I want to cry every time I look at it. Leo looks like a little stuffed animal himself.", results: ["Teddy Bear Theme 🧸", "Too Cute to Handle"] },
     { name: "Juliana Alves", role: "Mom of Arthur, 4 weeks", rating: 5, text: "Arthur's Natural theme photos look like they were taken in a boutique studio in São Paulo. I can't believe I did this from my apartment in New Jersey.", results: ["Natural Theme 🌿", "Studio Quality"] },
@@ -2519,12 +2519,12 @@ document.addEventListener('DOMContentLoaded', () => {
   var NOTIFICATIONS = [
     { type: 'transformation', avatar: '🌸', text: "Ava's couch photo was just transformed into a Princess portrait", meta: 'moments ago' },
     { type: 'transformation', avatar: '🍼', text: "Liam's parents just received their newborn Astronaut gallery", meta: '4 min ago' },
-    { type: 'transformation', avatar: '✨', text: "Baby Sophia's Fairy theme preview is ready", meta: 'just now' },
+    { type: 'transformation', avatar: '✨', text: "Baby Sophia's Fairy theme portraits were just delivered", meta: 'just now' },
     { type: 'transformation', avatar: '🧸', text: "Noah's Teddy Bear portrait was delivered in 20 minutes", meta: '7 min ago' },
     { type: 'transformation', avatar: '🌙', text: "Isabella's Starry Night photos are done", meta: '1 min ago' },
     { type: 'transformation', avatar: '🦁', text: "Ethan's Safari portraits were just created from phone photos", meta: '5 min ago' },
     { type: 'transformation', avatar: '👑', text: "Mia's Princess portrait is ready — mom hasn't stopped crying", meta: '3 min ago' },
-    { type: 'transformation', avatar: '🚀', text: "Oliver's Astronaut preview was delivered while mom was feeding", meta: '8 min ago' },
+    { type: 'transformation', avatar: '🚀', text: "Oliver's Astronaut portraits delivered while mom was feeding", meta: '8 min ago' },
     { type: 'transformation', avatar: '🧚', text: "Baby Emma's Fairy Magic photos just came in", meta: '6 min ago' },
     { type: 'transformation', avatar: '🌿', text: "Charlotte's Floral Basket portrait is stunning", meta: '2 min ago' },
     { type: 'reaction', avatar: '💗', text: '"I literally cried." — New mom from Chicago', meta: 'just now' },
@@ -2539,9 +2539,8 @@ document.addEventListener('DOMContentLoaded', () => {
     { type: 'purchase', avatar: '💝', text: 'Valentina just upgraded to the complete keepsake collection', meta: '3 min ago' },
     { type: 'purchase', avatar: '🛍️', text: 'Jessica from Florida just got her full newborn portrait collection', meta: '1 min ago' },
     { type: 'urgency', avatar: '🔥', text: '23 moms created newborn portraits in the last hour', meta: 'live' },
-    { type: 'urgency', avatar: '⏳', text: "Today's 40% OFF ends soon — don't miss it", meta: 'limited time' },
     { type: 'urgency', avatar: '👶', text: 'The newborn phase changes fast — preserve it now', meta: 'reminder' },
-    { type: 'urgency', avatar: '⚡', text: 'Average delivery: 22 minutes. Your preview is waiting.', meta: 'quick delivery' }
+    { type: 'urgency', avatar: '⚡', text: 'Average delivery: 22 minutes after payment confirmed.', meta: 'quick delivery' }
   ];
   function shuffle(arr) {
     var a = arr.slice(), i, j, tmp;

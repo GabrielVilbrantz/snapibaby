@@ -806,7 +806,7 @@ body { background: #f4f6fa; }
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
         <div style="background:#fff8fa; border:1px solid #ffd6e0; border-radius:14px; padding:16px;"><div style="font-size:0.85rem; color:#facc15; margin-bottom:6px;"></div><p style="font-size:0.88rem; color:#444; font-style:italic; margin-bottom:8px;">&ldquo;Ordered at 11pm. Photos were done before my next feed. I cried.&rdquo;</p><strong style="font-size:0.82rem; color:#888;">Megan W. — Mom of Emma</strong></div>
         <div style="background:#fff8fa; border:1px solid #ffd6e0; border-radius:14px; padding:16px;"><div style="font-size:0.85rem; color:#facc15; margin-bottom:6px;"></div><p style="font-size:0.88rem; color:#444; font-style:italic; margin-bottom:8px;">&ldquo;Quoted $750 by a local photographer. Paid $49 here and the result is BETTER.&rdquo;</p><strong style="font-size:0.82rem; color:#888;">Emily C. — Mom of Sophia</strong></div>
-        <div style="background:#fff8fa; border:1px solid #ffd6e0; border-radius:14px; padding:16px;"><div style="font-size:0.85rem; color:#facc15; margin-bottom:6px;"></div><p style="font-size:0.88rem; color:#444; font-style:italic; margin-bottom:8px;">&ldquo;I saw the watermark preview and paid immediately. Didn't even hesitate.&rdquo;</p><strong style="font-size:0.82rem; color:#888;">Amanda R. — Mom of Lucas</strong></div>
+        <div style="background:#fff8fa; border:1px solid #ffd6e0; border-radius:14px; padding:16px;"><div style="font-size:0.85rem; color:#facc15; margin-bottom:6px;"></div><p style="font-size:0.88rem; color:#444; font-style:italic; margin-bottom:8px;">&ldquo;The 100% guarantee made me try it. I didn't need it — the portraits are stunning.&rdquo;</p><strong style="font-size:0.82rem; color:#888;">Amanda R. — Mom of Lucas</strong></div>
         <div style="background:#fff8fa; border:1px solid #ffd6e0; border-radius:14px; padding:16px;"><div style="font-size:0.85rem; color:#facc15; margin-bottom:6px;"></div><p style="font-size:0.88rem; color:#444; font-style:italic; margin-bottom:8px;">&ldquo;My husband thought I hired a real photographer. I laughed for 10 minutes.&rdquo;</p><strong style="font-size:0.82rem; color:#888;">Valentina G. — Mom of Sofía</strong></div>
       </div>
       <div style="margin-top:20px; text-align:center; background:#f0faf4; border-radius:12px; padding:16px; border:1px solid #c3e6cb;">
@@ -1347,16 +1347,30 @@ function buildThemePreviewGrid() {
   if (el('premium-themes-li')) el('premium-themes-li').textContent  = 'ALL ' + count + ' of your chosen themes unlocked';
 }
 
-// ===== COUNTDOWN TIMER =====
+// ===== COUNTDOWN TIMER — persiste entre recargas com localStorage =====
 (function() {
-  var total = 7 * 3600 + 52 * 60 + 31;
+  var KEY = 'snapi_app_timer_end';
+  var DURATION = 7 * 3600 + 52 * 60 + 31; // segundos iniciais
+  var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
+
+  // Recupera ou cria o timestamp de expiração
+  var stored = localStorage.getItem(KEY);
+  var endTs = stored ? parseInt(stored, 10) : 0;
+  if (!endTs || endTs <= Date.now() / 1000) {
+    // Primeira visita ou timer expirado: reinicia
+    endTs = Math.floor(Date.now() / 1000) + DURATION;
+    localStorage.setItem(KEY, endTs);
+  }
+
   function tick() {
-    if (total <= 0) return;
-    total--;
-    var h = Math.floor(total / 3600);
-    var m = Math.floor((total % 3600) / 60);
-    var s = total % 60;
-    var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
+    var remaining = endTs - Math.floor(Date.now() / 1000);
+    if (remaining <= 0) {
+      remaining = 0;
+      clearInterval(timer);
+    }
+    var h = Math.floor(remaining / 3600);
+    var m = Math.floor((remaining % 3600) / 60);
+    var s = remaining % 60;
     var elH = document.getElementById('cdH');
     var elM = document.getElementById('cdM');
     var elS = document.getElementById('cdS');
@@ -1364,7 +1378,8 @@ function buildThemePreviewGrid() {
     if (elM) elM.textContent = pad(m);
     if (elS) elS.textContent = pad(s);
   }
-  setInterval(tick, 1000);
+  tick(); // render imediato sem esperar 1s
+  var timer = setInterval(tick, 1000);
 })();
 </script>
 
@@ -1378,12 +1393,12 @@ function buildThemePreviewGrid() {
     // TRANSFORMATION (40%)
     { type: 'transformation', avatar: '🌸', text: "Ava's couch photo was just transformed into a Princess portrait", meta: 'moments ago' },
     { type: 'transformation', avatar: '🍼', text: "Liam's parents just received their newborn Astronaut gallery", meta: '4 min ago' },
-    { type: 'transformation', avatar: '✨', text: "Baby Sophia's Fairy theme preview is ready", meta: 'just now' },
+    { type: 'transformation', avatar: '✨', text: "Baby Sophia's Fairy theme portraits were just delivered", meta: 'just now' },
     { type: 'transformation', avatar: '🧸', text: "Noah's Teddy Bear portrait was delivered in 20 minutes", meta: '7 min ago' },
     { type: 'transformation', avatar: '🌙', text: "Isabella's Starry Night photos are done", meta: '1 min ago' },
     { type: 'transformation', avatar: '🦁', text: "Ethan's Safari portraits were just created from phone photos", meta: '5 min ago' },
     { type: 'transformation', avatar: '👑', text: "Mia's Princess portrait is ready — mom hasn't stopped crying", meta: '3 min ago' },
-    { type: 'transformation', avatar: '🚀', text: "Oliver's Astronaut preview was delivered while mom was feeding", meta: '8 min ago' },
+    { type: 'transformation', avatar: '🚀', text: "Oliver's Astronaut portraits delivered while mom was feeding", meta: '8 min ago' },
     { type: 'transformation', avatar: '🧚', text: "Baby Emma's Fairy Magic photos just came in", meta: '6 min ago' },
     { type: 'transformation', avatar: '🌿', text: "Charlotte's Floral Basket portrait is stunning", meta: '2 min ago' },
     // REACTION (30%)
@@ -1401,9 +1416,8 @@ function buildThemePreviewGrid() {
     { type: 'purchase', avatar: '🛍️', text: 'Jessica from Florida just got her full newborn portrait collection', meta: '1 min ago' },
     // URGENCY (10%)
     { type: 'urgency', avatar: '🔥', text: '23 moms created newborn portraits in the last hour', meta: 'live' },
-    { type: 'urgency', avatar: '⏳', text: "Today's 40% OFF ends soon — don't miss it", meta: 'limited time' },
     { type: 'urgency', avatar: '👶', text: 'The newborn phase changes fast — preserve it now', meta: 'reminder' },
-    { type: 'urgency', avatar: '⚡', text: 'Average delivery: 22 minutes. Your preview is waiting.', meta: 'quick delivery' }
+    { type: 'urgency', avatar: '⚡', text: 'Average delivery: 22 minutes after payment confirmed.', meta: 'quick delivery' }
   ];
 
   // Fisher-Yates shuffle

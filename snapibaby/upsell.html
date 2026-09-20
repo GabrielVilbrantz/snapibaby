@@ -946,22 +946,37 @@ function toSuccess(extra, upsellVal) {
   window.location.href = 'success.html?' + extra + cur + uv + em + oid;
 }
 
-// ===== COUNTDOWN =====
+// ===== COUNTDOWN — persiste em sessionStorage (por pedido) =====
 (function() {
-  let total = 9 * 60 + 59;
+  const DURATION = 9 * 60 + 59; // segundos iniciais
+  const KEY = 'snapi_upsell_timer_end_' + (ORDER_ID || 'default');
+  const pad = n => String(n).padStart(2, '0');
+
+  // Recupera ou cria o timestamp de expiração
+  let stored = sessionStorage.getItem(KEY);
+  let endTs = stored ? parseInt(stored, 10) : 0;
+  if (!endTs || endTs <= Math.floor(Date.now() / 1000)) {
+    endTs = Math.floor(Date.now() / 1000) + DURATION;
+    sessionStorage.setItem(KEY, endTs);
+  }
+
+  let expired = false;
   function tick() {
-    if (total <= 0) {
+    if (expired) return;
+    const remaining = endTs - Math.floor(Date.now() / 1000);
+    if (remaining <= 0) {
+      expired = true;
+      clearInterval(timer);
       document.getElementById('upsellCountdown').textContent = '00:00';
       declineUpsell();
       return;
     }
-    total--;
-    const m = Math.floor(total / 60);
-    const s = total % 60;
-    document.getElementById('upsellCountdown').textContent =
-      String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    document.getElementById('upsellCountdown').textContent = pad(m) + ':' + pad(s);
   }
-  setInterval(tick, 1000);
+  tick(); // render imediato
+  const timer = setInterval(tick, 1000);
 })();
 
 // ===== ACCEPT UPSELL (1-CLICK) — geo-currency =====
