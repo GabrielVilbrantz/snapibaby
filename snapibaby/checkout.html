@@ -1823,6 +1823,7 @@
     function applyDiscountAndClose() {
       // ── Aplica 10% de desconto REAL: atualiza basePrice e seta flag para o backend ──
       exitDiscountApplied = true; // <-- backend vai usar isso
+      updatePaymentIntentAmount({ exitDiscount: true }); // sync Stripe charge
 
       const oldBase = basePrice;
       basePrice = parseFloat((basePrice * 0.9).toFixed(2)); // 10% off

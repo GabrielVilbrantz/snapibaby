@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // NETLIFY FUNCTION: charge-upsell
 // URL: /.netlify/functions/charge-upsell
 //
@@ -36,17 +36,57 @@ exports.handler = async (event) => {
   try { body = JSON.parse(event.body); }
   catch { return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
-  const { payment_method, customer, amount, currency = 'usd', description, order_id, type } = body;
+  const { payment_method, customer, order_id, type } = body;
 
-  if (!payment_method || !customer || !amount) {
+  if (!payment_method || !customer || !order_id) {
     return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Missing required fields' }) };
   }
 
-  // Determine which themes to generate based on the explicit 'type' field.
-  // Using amount-based detection would break for non-USD currencies
-  // where amounts are in different orders of magnitude.
-  const isUpsell   = type !== 'downsell'; // 'upsell' or undefined → upsell
+  // ── Look up the order to get country + currency (never trust frontend amount) ──
+  const { data: order, error: orderErr } = await db
+    .from('orders')
+    .select('country, plan')
+    .eq('id', order_id)
+    .single();
+
+  if (orderErr || !order) {
+    return { statusCode: 404, headers: HEADERS, body: JSON.stringify({ error: 'Order not found' }) };
+  }
+
+  // ── Calculate amount server-side from pricing table ──────────────────────
+  const ZERO_DECIMAL = new Set(['jpy','krw','vnd','clp','bif','gnf','mga','pyg','rwf','ugx','xaf','xof']);
+  const UPSELL_PRICES = {
+    US:'usd', CA:'cad', AU:'aud', NZ:'nzd', AE:'usd', QA:'usd', KW:'usd', BH:'usd', OM:'usd',
+    FR:'eur', DE:'eur', NL:'eur', BE:'eur', AT:'eur', IE:'eur', FI:'eur', LU:'eur',
+    CH:'chf', GB:'gbp',
+    ES:'eur', IT:'eur', PT:'eur', GR:'eur', SK:'eur', SI:'eur', EE:'eur', LV:'eur', LT:'eur',
+  };
+  const UPSELL_AMOUNTS = {
+    usd:1700, cad:1700, aud:1700, nzd:1700, eur:1700, gbp:1700, chf:1700,
+    nok:19700, dkk:12700, sek:19700, jpy:1997, sgd:1700, ils:6700,
+    pln:6700, czk:39700, krw:12997, sar:6700, huf:449700,
+    brl:1500, ars:999700, cop:3499700, pen:2700, clp:9997, uyu:29700, zar:14700,
+    inr:69700, php:19700, ngn:499700, idr:5999700, vnd:89997, egp:16700, kes:39700,
+    default_usd:1700,
+  };
+  const DOWNSELL_AMOUNTS = {
+    usd:700, cad:700, aud:700, nzd:700, eur:700, gbp:700, chf:700,
+    nok:7700, dkk:4700, sek:7700, jpy:797, sgd:700, ils:2700,
+    pln:2700, czk:15700, krw:4997, sar:2700, huf:149700,
+    brl:700, ars:399700, cop:1399700, pen:900, clp:3997, uyu:9700, zar:5700,
+    inr:29700, php:7700, ngn:199700, idr:1799700, vnd:29997, egp:5700, kes:12700,
+    default_usd:700,
+  };
+
+  const country = (order.country || 'US').toUpperCase();
+  const cur = UPSELL_PRICES[country] || 'usd';
+  const isUpsell   = type !== 'downsell';
   const isDownsell = type === 'downsell';
+  const priceMap   = isUpsell ? UPSELL_AMOUNTS : DOWNSELL_AMOUNTS;
+  const amount     = priceMap[cur] ?? priceMap['default_usd'];
+  const currency   = cur;
+
+  // Determine which themes to generate based on type
   const extraThemes = isUpsell ? UPSELL_THEMES : DOWNSELL_THEMES;
 
   try {
