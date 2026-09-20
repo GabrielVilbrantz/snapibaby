@@ -575,8 +575,8 @@ async function pollStatus() {
         } else {
           // Marked done but no photos — re-trigger silently
           console.warn('Order done but no photos — auto-retrigger');
-          document.getElementById('loadingTitle').textContent = '🔄 Reiniciando geração...';
-          document.getElementById('loadingSub').innerHTML = 'A tentativa anterior teve um problema. Tentando novamente!';
+          document.getElementById('loadingTitle').textContent = '🔄 Retrying generation...';
+          document.getElementById('loadingSub').innerHTML = 'The previous attempt had an issue. Trying again — hang tight!';
           try {
             await fetch('/.netlify/functions/process-order-background', {
               method: 'POST',
