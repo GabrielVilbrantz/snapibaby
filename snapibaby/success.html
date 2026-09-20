@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <!-- Meta Pixel -->
@@ -425,10 +425,10 @@ async function transitionToDone() {
 
   // Update top bar + hero
   document.getElementById('topBar').textContent =
-    `🎉 Todos os ${allPhotoUrls.length} retratos prontos — salve agora!`;
+    `🎉 All ${allPhotoUrls.length} portraits ready — save them now!`;
   document.getElementById('heroTitle').innerHTML =
-    'Seus retratos<br><span style="background:linear-gradient(135deg,#ff4d6d,#c2185b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">estão prontos! 🎉</span>';
-  document.getElementById('heroSub').textContent = 'Toque em cada foto para salvar no seu dispositivo.';
+    'Your portraits<br><span style="background:linear-gradient(135deg,#ff4d6d,#c2185b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">are ready! 🎉</span>';
+  document.getElementById('heroSub').textContent = 'Tap each photo to save it to your device.';
 }
 
 let _failedAlertFired = false;
@@ -505,7 +505,7 @@ function triggerDownload(url, filename) {
 function downloadAll(e) {
   if (e) e.preventDefault();
   if (allPhotoUrls.length === 0) {
-    alert('Nenhuma foto carregada ainda. Aguarde as fotos aparecerem e tente novamente.');
+    alert('No photos loaded yet. Wait for them to appear and try again.');
     return;
   }
   allPhotoUrls.forEach((item, i) => {
@@ -670,11 +670,14 @@ if (urlParams.get('payment_intent') || urlParams.get('redirect_status')) {
   if (orderId && sessionStorage.getItem(gaKey)) return;
   if (orderId) sessionStorage.setItem(gaKey, '1');
 
+  var upsellValue = parseFloat(sp.get('upsell_value') || '0');
+  var baseValue   = totalRaw - upsellValue;
+
   var items = [{
     item_id:       'snapibaby_' + planLs.toLowerCase().replace(/\s+/g, '_'),
     item_name:     'SnapiBaby \u2014 ' + planLs,
     item_category: 'Photography',
-    price:         totalRaw,
+    price:         baseValue > 0 ? baseValue : totalRaw,
     quantity:      1
   }];
 
@@ -683,7 +686,7 @@ if (urlParams.get('payment_intent') || urlParams.get('redirect_status')) {
       item_id:       'snapibaby_upsell_bundle',
       item_name:     'SnapiBaby \u2014 Holiday Themes Bundle',
       item_category: 'Upsell',
-      price:         0,
+      price:         upsellValue,
       quantity:      1
     });
   }
@@ -694,8 +697,22 @@ if (urlParams.get('payment_intent') || urlParams.get('redirect_status')) {
     currency:       currency,
     items:          items
   });
+
+  // ── Meta Pixel — Purchase (fires once per order, respects cookie consent) ──
+  (function() {
+    if (typeof fbq !== 'function') return;
+    var fbKey = 'snapi_fb_purchase_fired_' + (orderId || 'noid');
+    if (orderId && sessionStorage.getItem(fbKey)) return;
+    if (orderId) sessionStorage.setItem(fbKey, '1');
+    fbq('track', 'Purchase', {
+      value:        totalRaw || 0,
+      currency:     currency,
+      content_type: 'product',
+      content_ids:  [planLs]
+    });
+  })();
 })();
-// ── /GA4 ─────────────────────────────────────────────────────────────
+// ── /GA4 + Meta ───────────────────────────────────────────────────────
 
 // ── Share ──
 async function nativeShare() {

@@ -938,10 +938,12 @@ function fmtPrice(val) {
      So we decided to do something different \u2014 just this once.`;
 })();
 
-function toSuccess(extra) {
+function toSuccess(extra, upsellVal) {
   const oid = ORDER_ID ? '&order_id=' + encodeURIComponent(ORDER_ID) : '';
   const em  = CUSTOMER_EMAIL ? '&email=' + encodeURIComponent(CUSTOMER_EMAIL) : '';
-  window.location.href = 'success.html?' + extra + em + oid;
+  const cur = '&currency=' + encodeURIComponent(GEO_CURRENCY);
+  const uv  = upsellVal != null ? '&upsell_value=' + encodeURIComponent(upsellVal) : '';
+  window.location.href = 'success.html?' + extra + cur + uv + em + oid;
 }
 
 // ===== COUNTDOWN =====
@@ -1000,8 +1002,17 @@ async function acceptUpsell() {
         currency: GEO_CURRENCY.toUpperCase(),
         items: [{ item_id: 'snapibaby_upsell', item_name: 'SnapiBaby \u2014 15 Holiday Photos (Upsell)', item_category: 'Upsell', price: UPSELL_DISPLAY, quantity: 1 }]
       });
+      // Meta Pixel: upsell purchased
+      if (typeof fbq === 'function') {
+        fbq('track', 'Purchase', {
+          value:        UPSELL_DISPLAY,
+          currency:     GEO_CURRENCY.toUpperCase(),
+          content_type: 'product',
+          content_ids:  ['snapibaby_upsell']
+        });
+      }
       const upsellTotal = (BASE_TOTAL + UPSELL_DISPLAY).toFixed(2);
-      toSuccess('upsell=true&total=' + encodeURIComponent(upsellTotal));
+      toSuccess('upsell=true&total=' + encodeURIComponent(upsellTotal), UPSELL_DISPLAY);
     } else {
       throw new Error(result.error || 'Payment failed');
     }
@@ -1077,13 +1088,22 @@ async function acceptDownsell() {
         currency: GEO_CURRENCY.toUpperCase(),
         items: [{ item_id: 'snapibaby_downsell', item_name: 'SnapiBaby \u2014 15 Holiday Photos (Downsell)', item_category: 'Downsell', price: DOWNSELL_DISPLAY, quantity: 1 }]
       });
+      // Meta Pixel: downsell purchased
+      if (typeof fbq === 'function') {
+        fbq('track', 'Purchase', {
+          value:        DOWNSELL_DISPLAY,
+          currency:     GEO_CURRENCY.toUpperCase(),
+          content_type: 'product',
+          content_ids:  ['snapibaby_downsell']
+        });
+      }
       const downsellTotal = (BASE_TOTAL + DOWNSELL_DISPLAY).toFixed(2);
-      toSuccess('upsell=true&total=' + encodeURIComponent(downsellTotal));
+      toSuccess('upsell=true&total=' + encodeURIComponent(downsellTotal), DOWNSELL_DISPLAY);
     } else { throw new Error(result.error); }
   } catch (err) {
     console.warn('Downsell charge failed:', err.message);
     const downsellTotal = (BASE_TOTAL + DOWNSELL_DISPLAY).toFixed(2);
-    setTimeout(() => { toSuccess('upsell=true&total=' + encodeURIComponent(downsellTotal)); }, 1800);
+    setTimeout(() => { toSuccess('upsell=true&total=' + encodeURIComponent(downsellTotal), DOWNSELL_DISPLAY); }, 1800);
   }
 }
 

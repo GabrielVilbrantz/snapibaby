@@ -844,11 +844,18 @@ const ALL_PHOTOS = [
   { src: "newborn-teddy.jpg",               name: "Cozy Teddy 🧸" }
 ];
 
-// Baby name from URL
+// Baby name + plan from URL
 const urlParams = new URLSearchParams(window.location.search);
 const babyName = urlParams.get('baby') || 'your baby';
 document.getElementById('display-baby-name').textContent = babyName;
 document.querySelectorAll('.baby-name-span').forEach(s => s.textContent = babyName);
+
+// Pre-selected plan from home page pricing buttons (?plano=starter/classic/premium)
+const preSelectedPlan = urlParams.get('plano') || null;
+if (preSelectedPlan) {
+  // Store so the plan step can highlight it automatically
+  localStorage.setItem('snapi_preselected_plan', preSelectedPlan);
+}
 
 // Uploaded files tracker
 let uploadedFiles = [];
@@ -911,12 +918,20 @@ function handlePhotoUpload(event) {
   const files = Array.from(event.target.files);
   if (!files.length) return;
 
-  // Add new files to our list
+  const MAX_PHOTOS = 5;
+
+  // Add new files to our list (dedup by name+size, cap at 5)
   files.forEach(file => {
+    if (uploadedFiles.length >= MAX_PHOTOS) return;
     if (!uploadedFiles.find(f => f.name === file.name && f.size === file.size)) {
       uploadedFiles.push(file);
     }
   });
+
+  if (uploadedFiles.length >= MAX_PHOTOS) {
+    // Subtle nudge — don't block with alert, just cap silently
+    console.info('Max 5 photos reached.');
+  }
 
   renderPhotoPreviews();
   updatePhotoCounter();
@@ -963,20 +978,28 @@ function updatePhotoCounter() {
 
   counter.style.display = 'inline-flex';
 
-  if (count < 3) {
+  if (count === 0) {
     counter.classList.remove('ready');
-    counterText.textContent = `${count} photo${count !== 1 ? 's' : ''} selected — ${3 - count} more needed`;
+    counterText.textContent = 'No photos yet — upload at least 1 photo of your baby';
     advanceBtn.style.display = 'none';
+  } else if (count === 1) {
+    counter.classList.add('ready');
+    counterText.textContent = '1 photo ready ✓ — add up to 4 more for better results!';
+    advanceBtn.style.display = 'inline-block';
+  } else if (count >= 2 && count < 5) {
+    counter.classList.add('ready');
+    counterText.textContent = `${count} photos ready ✓ — great quality! (${5 - count} more allowed)`;
+    advanceBtn.style.display = 'inline-block';
   } else {
     counter.classList.add('ready');
-    counterText.textContent = ` ${count} photos ready — great quality!`;
+    counterText.textContent = `${count} photos ready — amazing variety!`;
     advanceBtn.style.display = 'inline-block';
   }
 }
 
 function showThemes() {
-  if (uploadedFiles.length < 3) {
-    alert('Please upload at least 3 clear photos of your baby\'s face for the best results! ');
+  if (uploadedFiles.length < 1) {
+    alert('Please upload at least 1 photo of your baby to continue! 🍼');
     return;
   }
   renderThemesOnce(); // ← Carrega as imagens só agora
@@ -1024,6 +1047,27 @@ function goToPricing() {
   document.getElementById('step-preview').style.display = 'block';
   document.querySelectorAll('.baby-name-span').forEach(s => s.textContent = babyName);
   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // ── Highlight pre-selected plan from home page ─────────────────────────────
+  const stored = preSelectedPlan || localStorage.getItem('snapi_preselected_plan');
+  if (stored) {
+    const validPlans = ['starter', 'classic', 'premium'];
+    const plan = validPlans.includes(stored) ? stored : null;
+    if (plan) {
+      setTimeout(() => {
+        const btn = document.getElementById('btn-' + plan);
+        if (!btn) return;
+        const card = btn.closest('.app-price-card');
+        if (card) {
+          card.style.outline = '3px solid #ff4d6d';
+          card.style.outlineOffset = '4px';
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        btn.style.animation = 'none';
+        btn.style.boxShadow = '0 0 0 4px rgba(255,77,109,0.4)';
+      }, 400);
+    }
+  }
 }
 
 // ===== PRICING — busca preços corretos via get-pricing (geo-detection) =====
@@ -1070,23 +1114,39 @@ async function selectPlan(planName) {
   });
 
   try {
-    // Upload photo to get a real URL for KIE AI
-    const b64  = sessionStorage.getItem('snapi_photo_b64');
-    const mime = sessionStorage.getItem('snapi_photo_mime') || 'image/jpeg';
+    // Upload ALL photos (1–5) to get real URLs for KIE AI
+    const photoUrls = [];
 
-    if (b64) {
-      const res = await fetch('/.netlify/functions/upload-photo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ photoBase64: b64, mimeType: mime })
-      });
-      if (res.ok) {
-        const { url } = await res.json();
-        if (url) localStorage.setItem('snapi_baby_photo_urls', JSON.stringify([url]));
+    for (let i = 0; i < uploadedFiles.length; i++) {
+      const file = uploadedFiles[i];
+      try {
+        const base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload  = e => resolve(e.target.result.split(',')[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        const mime = file.type || 'image/jpeg';
+
+        const res = await fetch('/.netlify/functions/upload-photo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ photoBase64: base64, mimeType: mime })
+        });
+        if (res.ok) {
+          const { url } = await res.json();
+          if (url) photoUrls.push(url);
+        }
+      } catch(e) {
+        console.warn(`Photo ${i + 1} upload failed (non-fatal):`, e.message);
       }
     }
+
+    if (photoUrls.length > 0) {
+      localStorage.setItem('snapi_baby_photo_urls', JSON.stringify(photoUrls));
+    }
   } catch(e) {
-    console.warn('Photo upload failed (non-fatal):', e.message);
+    console.warn('Photo upload block failed (non-fatal):', e.message);
   }
 
   window.location.href = 'checkout.html?plano=' + planName + (babyName !== 'your baby' ? '&baby=' + encodeURIComponent(babyName) : '');

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -839,7 +839,7 @@
             </div>
             <div>
               <strong id="plan-name" style="display:block;font-size:0.95rem;">Premium Package – 30 Photos</strong>
-              <span style="font-size:0.8rem;color:var(--text-muted);">Delivered to your email in 15�30 min.</span>
+              <span style="font-size:0.8rem;color:var(--text-muted);">Delivered to your email in 15 to 30 min.</span>
             </div>
           </div>
 
@@ -1168,7 +1168,7 @@
     let detectedSymbol   = 'R$';
     let detectedZeroDecimal = false;
     let basePrice  = 97.00;
-    let bumpPrice = '7.00'7.00;
+    let bumpPrice = 7.00;
 
     document.getElementById('plan-name').innerText = PLAN_NAMES[plan] || PLAN_NAMES.premium;
     // Não exibe preço antes da detecção geo — evita flash de preço errado
@@ -1808,59 +1808,22 @@
       // Show confirmed message
       document.getElementById('discountApplied').style.display = 'block';
 
-      // Update CTA
+      // Update CTA — just close & scroll back to pay button
       const btn = document.getElementById('exitCtaBtn');
-      btn.textContent = 'Apply My 10% Discount';
-      btn.style.background = 'linear-gradient(135deg,#22c55e,#15803d)';
+      btn.textContent = 'Complete My Order ✓';
+      btn.style.background = 'linear-gradient(135deg,#ff4d6d,#e8003d)';
       btn.style.color = 'white';
 
-      // Calculate discount
-      const discounted = (basePrice * 0.6).toFixed(2);
-      document.getElementById('discountDetails').textContent =
-        'Your price: $' + discounted + ' (was $' + basePrice.toFixed(2) + ')';
+      // Hide discount price detail (no discount applied)
+      const dd = document.getElementById('discountDetails');
+      if (dd) dd.style.display = 'none';
     }
 
     function applyDiscountAndClose() {
-      // ── Aplica 10% de desconto REAL: atualiza basePrice e seta flag para o backend ──
-      exitDiscountApplied = true; // <-- backend vai usar isso
-      updatePaymentIntentAmount({ exitDiscount: true }); // sync Stripe charge
-
-      const oldBase = basePrice;
-      basePrice = parseFloat((basePrice * 0.9).toFixed(2)); // 10% off
-
-      // Atualiza exibição de preço
-      document.getElementById('plan-price').innerText = formatPrice(basePrice);
-
-      // Adiciona linha de desconto no resumo
-      let discLine = document.getElementById('discount-line');
-      if (!discLine) {
-        discLine = document.createElement('div');
-        discLine.id = 'discount-line';
-        discLine.className = 'summary-item';
-        discLine.style.color = '#22c55e';
-        discLine.style.fontWeight = '700';
-        const savedAmt = formatPrice(parseFloat((oldBase - basePrice).toFixed(2)));
-        discLine.innerHTML = '<span>10% Discount Applied 🎉</span><strong style="color:#22c55e;">-' + savedAmt + '</strong>';
-        const totalEl = document.querySelector('.summary-item.total');
-        totalEl.parentNode.insertBefore(discLine, totalEl);
-      }
-
-      // Recalcular total
-      const hasBump = document.getElementById('bumpCheck').checked;
-      updateTotal(hasBump);
-
-      // Flash no total
-      const totalEl = document.getElementById('total-price');
-      totalEl.style.transition = 'color 0.3s';
-      totalEl.style.color = '#22c55e';
-      setTimeout(function () { totalEl.style.color = ''; }, 2000);
-
-      // Atualizar botão
-      document.getElementById('btn-buy').innerHTML = 'Complete Payment — 10% OFF Applied ✓';
-
+      // TODO: habilitar desconto real quando o backend updatePaymentIntent estiver pronto.
+      // Por enquanto: apenas fecha o popup e rola até o botão de pagar (sem alterar preço).
+      // O backend não tem como atualizar o PaymentIntent sem a função updatePaymentIntentAmount().
       closeExitPopup();
-
-      // Scroll para o botão
       document.getElementById('btn-buy').scrollIntoView({ behavior: 'smooth' });
     }
 
