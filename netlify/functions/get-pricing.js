@@ -91,26 +91,26 @@ const PRICING = {
   // PREÇOS DEDICADOS (Brasil, México, demais LATAM, África do Sul)
   // ═══════════════════════════════════════════════════════════
 
-  // México (USD)
-  MX: { currency: 'usd', symbol: '$',    plans: { starter: 700,     classic: 1700,    premium: 2700    }, bump: 300    },
+  // México (USD) — Tier B: $17/$27/$37
+  MX: { currency: 'usd', symbol: '$',    plans: { starter: 1700,    classic: 2700,    premium: 3700    }, bump: 700    },
 
-  // Brasil — ⚠️ PREÇO DE TESTE — REVERTER APÓS TESTE
-  BR: { currency: 'brl', symbol: 'R$',   plans: { starter: 100,     classic: 100,     premium: 100     }, bump: 100    },
+  // Brasil — R$87 / R$117 / R$147 (≈ US$15/20/25 — mercado BR)
+  BR: { currency: 'brl', symbol: 'R$',   plans: { starter: 8700,    classic: 11700,   premium: 14700   }, bump: 1700   },
 
-  // Argentina: ARS two-decimal (~210/BRL) → display 17997/19997/23997 → ×100
-  AR: { currency: 'ars', symbol: 'AR$',  plans: { starter: 1799700, classic: 1999700, premium: 2399700 }, bump: 399700 },
+  // Argentina: ARS two-decimal (~1050/USD) → display 17997/24997/31997 → ×100
+  AR: { currency: 'ars', symbol: 'AR$',  plans: { starter: 1799700, classic: 2499700, premium: 3199700 }, bump: 399700 },
 
-  // Colômbia: COP two-decimal (~710/BRL) → display 61997/69997/83997 → ×100
-  CO: { currency: 'cop', symbol: 'COP$', plans: { starter: 6199700, classic: 6999700, premium: 8399700 }, bump: 1799700},
+  // Colômbia: COP two-decimal (~4300/USD) → display 59997/79997/99997 → ×100
+  CO: { currency: 'cop', symbol: 'COP$', plans: { starter: 5999700, classic: 7999700, premium: 9999700 }, bump: 1999700},
 
-  // Peru: PEN two-decimal (~0.63/BRL) → display 57/67/77 → ×100
-  PE: { currency: 'pen', symbol: 'S/',   plans: { starter: 5700,    classic: 6700,    premium: 7700    }, bump: 1700   },
+  // Peru: PEN two-decimal (~3.8/USD) → display 67/87/107 → ×100
+  PE: { currency: 'pen', symbol: 'S/',   plans: { starter: 6700,    classic: 8700,    premium: 10700   }, bump: 1700   },
 
-  // Chile: CLP zero-decimal (~163/BRL) → 14997/16997/19997
-  CL: { currency: 'clp', symbol: '$',    plans: { starter: 14997,   classic: 16997,   premium: 19997   }, bump: 3997   },
+  // Chile: CLP zero-decimal (~930/USD) → 15997/21997/27997
+  CL: { currency: 'clp', symbol: '$',    plans: { starter: 15997,   classic: 21997,   premium: 27997   }, bump: 3997   },
 
-  // Uruguai: UYU two-decimal (~7.2/BRL) → display 647/747/897 → ×100
-  UY: { currency: 'uyu', symbol: '$U',   plans: { starter: 64700,   classic: 74700,   premium: 89700   }, bump: 19700  },
+  // Uruguai: UYU two-decimal (~40/USD) → display 797/997/1197 → ×100
+  UY: { currency: 'uyu', symbol: '$U',   plans: { starter: 79700,   classic: 99700,   premium: 119700  }, bump: 19700  },
 
   // África do Sul
   ZA: { currency: 'zar', symbol: 'R',    plans: { starter: 28700,   classic: 32700,   premium: 39700   }, bump: 6700   },

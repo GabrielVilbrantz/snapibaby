@@ -59,14 +59,14 @@ const PRICING = {
   HU: { currency: 'huf', symbol: 'Ft',   plans: { starter: 649700,  classic: 999700,  premium: 1329700 }, bump: 99700  },
 
   // ── PREÇOS DEDICADOS ──────────────────────────────────────
-  MX: { currency: 'usd', symbol: '$',    plans: { starter: 700,     classic: 1700,    premium: 2700    }, bump: 300    },
+  MX: { currency: 'usd', symbol: '$',    plans: { starter: 1700,    classic: 2700,    premium: 3700    }, bump: 700    },
   // Brasil — R$87 / R$117 / R$147
   BR: { currency: 'brl', symbol: 'R$',   plans: { starter: 8700,    classic: 11700,   premium: 14700   }, bump: 1700   },
-  AR: { currency: 'ars', symbol: 'AR$',  plans: { starter: 1799700, classic: 1999700, premium: 2399700 }, bump: 399700 },
-  CO: { currency: 'cop', symbol: 'COP$', plans: { starter: 6199700, classic: 6999700, premium: 8399700 }, bump: 1799700},
-  PE: { currency: 'pen', symbol: 'S/',   plans: { starter: 5700,    classic: 6700,    premium: 7700    }, bump: 1700   },
-  CL: { currency: 'clp', symbol: '$',    plans: { starter: 14997,   classic: 16997,   premium: 19997   }, bump: 3997   }, // zero-decimal
-  UY: { currency: 'uyu', symbol: '$U',   plans: { starter: 64700,   classic: 74700,   premium: 89700   }, bump: 19700  },
+  AR: { currency: 'ars', symbol: 'AR$',  plans: { starter: 1799700, classic: 2499700, premium: 3199700 }, bump: 399700 },
+  CO: { currency: 'cop', symbol: 'COP$', plans: { starter: 5999700, classic: 7999700, premium: 9999700 }, bump: 1999700},
+  PE: { currency: 'pen', symbol: 'S/',   plans: { starter: 6700,    classic: 8700,    premium: 10700   }, bump: 1700   },
+  CL: { currency: 'clp', symbol: '$',    plans: { starter: 15997,   classic: 21997,   premium: 27997   }, bump: 3997   }, // zero-decimal
+  UY: { currency: 'uyu', symbol: '$U',   plans: { starter: 79700,   classic: 99700,   premium: 119700  }, bump: 19700  },
   ZA: { currency: 'zar', symbol: 'R',    plans: { starter: 28700,   classic: 32700,   premium: 39700   }, bump: 6700   },
 
   // ── TIER C ($7/$17/$27) ───────────────────────────────────
