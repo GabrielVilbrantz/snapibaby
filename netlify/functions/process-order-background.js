@@ -272,7 +272,24 @@ function findThemeVariations(rawThemeName) {
 }
 
 async function generateImagesForOrder(order, faceUrl, db, orderId) {
-  const themes  = order.themes_selected || [];
+  const rawThemes = order.themes_selected || [];
+
+  // ── Expand themes to fill plan total ──────────────────────────────────────
+  // starter = 10, classic = 20, premium = 30
+  // Cycle through selected themes until we reach the plan total.
+  // Each repeated theme uses a different variation prompt → unique visuals.
+  const PLAN_TOTALS = { starter: 10, classic: 20, premium: 30 };
+  const targetTotal = PLAN_TOTALS[order.plan] || rawThemes.length || 10;
+
+  let themes = rawThemes.length > 0 ? [] : rawThemes;
+  if (rawThemes.length > 0) {
+    for (let i = 0; themes.length < targetTotal; i++) {
+      themes.push(rawThemes[i % rawThemes.length]);
+    }
+  }
+
+  console.log(`Plan: ${order.plan} → target ${targetTotal} photos from ${rawThemes.length} selected themes`);
+
   const results = [];
   const themeCount = {};
 
