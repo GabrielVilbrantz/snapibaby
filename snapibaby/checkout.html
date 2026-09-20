@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -824,65 +824,7 @@
             <label>💳 Forma de Pagamento</label>
             <div id="payment-element" style="margin-top:4px;"></div>
             <div id="card-errors" style="color:#ef4444;font-size:0.83rem;margin-top:8px;min-height:18px;"></div>
-          </div>
-
-          <!-- ORDER BUMP -->
-          <div class="order-bump-section">
-            <label for="bumpCheck" class="order-bump-label" id="bumpLabel">
-              <div class="bump-ribbon">⚡ Unique Offer — Today Only</div>
-              <div class="bump-body">
-
-
-
-                <!-- Items -->
-                <div class="bump-items">
-                  <div class="bump-item">
-                    <div class="bump-item-left">
-                      <span class="bump-item-title">Premium Frames</span>
-                      <span class="bump-item-desc">Professional studio frames ready for printing for each photo</span>
-                    </div>
-                    <div class="bump-item-price">
-                      <strong>included</strong>
-                    </div>
-                  </div>
-                  <div class="bump-item">
-                    <div class="bump-item-left">
-                      <span class="bump-item-title">Premium Editing</span>
-                      <span class="bump-item-desc">Professional color grading and retouching on every photo</span>
-                    </div>
-                    <div class="bump-item-price">
-                      <strong>included</strong>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Total -->
-                <div class="bump-total-row">
-                  <span class="bump-total-label">Both for only</span>
-                  <div class="bump-total-price">
-                    <span class="bump-total-now">+ $3.00</span>
-                    <span class="bump-off-badge">68% OFF</span>
-                  </div>
-                </div>
-
-                <!-- Checkbox -->
-                <div class="bump-header-row">
-                  <input type="checkbox" id="bumpCheck" onchange="toggleBump()">
-                  <div class="bump-checkbox-wrap"><span>✓</span></div>
-                  <div class="bump-title-text">YES — Add Premium Frames + Premium Editing</div>
-                </div>
-
-                <!-- Social proof & urgency -->
-                <div class="bump-social-proof">
-                  <span>Over <strong>3,800 moms</strong> have added this to their order — our most loved extra.</span>
-                  <span>Your baby deserves it.</span>
-                  <span class="bump-urgency">This pack will not appear again after checkout.</span>
-                </div>
-
-              </div>
-            </label>
-          </div>
-        </div>
+          </div></div>
       </div>
 
       <!-- RIGHT: ORDER SUMMARY -->
@@ -897,7 +839,7 @@
             </div>
             <div>
               <strong id="plan-name" style="display:block;font-size:0.95rem;">Premium Package – 30 Photos</strong>
-              <span style="font-size:0.8rem;color:var(--text-muted);">Delivered to your email in up to 15 min.</span>
+              <span style="font-size:0.8rem;color:var(--text-muted);">Delivered to your email in 15�30 min.</span>
             </div>
           </div>
 
@@ -1226,7 +1168,7 @@
     let detectedSymbol   = 'R$';
     let detectedZeroDecimal = false;
     let basePrice  = 97.00;
-    let bumpPrice  = 37.00;
+    let bumpPrice = '7.00'7.00;
 
     document.getElementById('plan-name').innerText = PLAN_NAMES[plan] || PLAN_NAMES.premium;
     // Não exibe preço antes da detecção geo — evita flash de preço errado
