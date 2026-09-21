@@ -33,7 +33,7 @@
   gtag('config', 'G-9EM8JRS1PZ');
 </script>
 <!-- Meta Pixel Code — loads only after cookie consent -->
-<script id="metaPixelScript" type="text/plain" data-cookiecategory="analytics">
+<script>
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -45,6 +45,7 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 fbq('init', '1480009823730507');
 fbq('track', 'PageView');
 </script>
+<!-- End Meta Pixel Code -->
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1480009823730507&ev=PageView&noscript=1"
 /></noscript>
@@ -2431,87 +2432,7 @@ document.addEventListener('DOMContentLoaded', () => {
   <button class="sticky-cta" onclick="document.getElementById('babyName').scrollIntoView({behavior:'smooth'}); document.getElementById('babyName').focus();">Create My Baby's Photos ✨</button>
 </div>
 
-<!-- GDPR COOKIE CONSENT BANNER -->
-<div id="cookieBanner" style="
-  display:none;
-  position:fixed;
-  bottom:0; left:0; right:0;
-  z-index:9999;
-  background:#1a1a2e;
-  color:#f0f0f0;
-  padding:16px 20px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-  flex-wrap:wrap;
-  font-family:'Inter',sans-serif;
-  font-size:0.85rem;
-  box-shadow:0 -4px 24px rgba(0,0,0,0.3);
-" role="dialog" aria-label="Cookie consent">
-  <p style="margin:0;flex:1;min-width:200px;line-height:1.5;">
-    🍪 We use cookies to personalize content and analyze traffic, including Meta Pixel.
-    <a href="privacy.html" style="color:#ff8fa3;text-decoration:underline;">Privacy Policy</a>
-  </p>
-  <div style="display:flex;gap:10px;flex-shrink:0;">
-    <button id="cookieDecline" style="
-      background:transparent;
-      border:1px solid rgba(255,255,255,0.3);
-      color:#ccc;
-      padding:9px 18px;
-      border-radius:8px;
-      cursor:pointer;
-      font-size:0.85rem;
-      font-family:'Inter',sans-serif;
-    ">Decline</button>
-    <button id="cookieAccept" style="
-      background:#f43f75;
-      border:none;
-      color:#fff;
-      padding:9px 22px;
-      border-radius:8px;
-      cursor:pointer;
-      font-weight:700;
-      font-size:0.85rem;
-      font-family:'Inter',sans-serif;
-    ">Accept</button>
-  </div>
-</div>
-<script>
-(function() {
-  var consent = localStorage.getItem('snapi_cookie_consent');
-  var banner  = document.getElementById('cookieBanner');
 
-  function loadPixel() {
-    // Execute the deferred pixel script
-    var scriptEl = document.getElementById('metaPixelScript');
-    if (scriptEl) {
-      var s = document.createElement('script');
-      s.text = scriptEl.textContent;
-      document.head.appendChild(s);
-    }
-  }
-
-  if (consent === 'accepted') {
-    loadPixel();
-  } else if (consent === 'declined') {
-    // pixel stays blocked
-  } else {
-    // show banner
-    if (banner) banner.style.display = 'flex';
-  }
-
-  document.getElementById('cookieAccept') && document.getElementById('cookieAccept').addEventListener('click', function() {
-    localStorage.setItem('snapi_cookie_consent', 'accepted');
-    if (banner) banner.style.display = 'none';
-    loadPixel();
-  });
-  document.getElementById('cookieDecline') && document.getElementById('cookieDecline').addEventListener('click', function() {
-    localStorage.setItem('snapi_cookie_consent', 'declined');
-    if (banner) banner.style.display = 'none';
-  });
-})();
-</script>
 
 <script>
 // SOCIAL PROOF NOTIFICATION SYSTEM — index.html
