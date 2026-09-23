@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">`n<meta name="robots" content="noindex, nofollow">
 <title>Create Your Baby's Photos | SnapiBaby</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="styles.css">
-<!-- Meta Pixel Code — fires only after cookie consent -->
+<!-- Meta Pixel Code â€” fires only after cookie consent -->
 <script>
 (function() {
   if (localStorage.getItem('snapi_cookie_consent') !== 'accepted') return;
@@ -213,7 +213,7 @@ body { background: #f4f6fa; }
 .btn-advance { width: 100%; max-width: 400px; padding: 15px; font-size: 1.2rem; }
 .btn-advance:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; border-color: #aaa; color: #666; }
 
-/* STEP 3: Processing — Blurred Teaser */
+/* STEP 3: Processing â€” Blurred Teaser */
 .processing-area { display: none; margin: 40px 0; }
 .progress-bar-container { background: #eee; height: 12px; border-radius: 10px; overflow: hidden; margin-top: 20px; }
 .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: width 0.3s linear; }
@@ -518,7 +518,7 @@ body { background: #f4f6fa; }
 .apc-features-v2 li { font-size: 0.88rem; margin-bottom: 8px; padding-left: 22px; position: relative; color: var(--text-dark); }
 .apc-features-v2 li::before { content: ''; position: absolute; left: 0; color: #22c55e; font-weight: bold; }
 .apc-features-v2 li.feat-no-v2 { color: #bbb; }
-.apc-features-v2 li.feat-no-v2::before { content: '—'; color: #ccc; }
+.apc-features-v2 li.feat-no-v2::before { content: 'â€”'; color: #ccc; }
 
 .apc-btn-v2 { width: 100%; padding: 14px; border: none; border-radius: 30px; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: var(--font-main); transition: all 0.2s; margin-top: auto; }
 .apc-btn-secondary { background: white; border: 2px solid var(--primary-dark) !important; color: var(--primary-dark); }
@@ -613,7 +613,7 @@ body { background: #f4f6fa; }
 
 <div class="app-navbar">
   <a href="index.html" class="logo" style="text-decoration:none;"> Snapi<span>Baby</span></a>
-  <div style="font-size:0.85rem; color:#888;">Support: Mon–Fri</div>
+  <div style="font-size:0.85rem; color:#888;">Support: Monâ€“Fri</div>
 </div>
 
 
@@ -651,7 +651,7 @@ body { background: #f4f6fa; }
   <!-- Counter -->
   <div class="photo-counter" id="photoCounter" style="display:none;">
     <div class="counter-dot"></div>
-    <span id="counterText">0 photos selected — minimum 3 required</span>
+    <span id="counterText">0 photos selected â€” minimum 3 required</span>
   </div>
 
   <!-- Photo previews -->
@@ -659,7 +659,7 @@ body { background: #f4f6fa; }
 
   <!-- Advance button (hidden until 3+ photos) -->
   <div style="margin-top: 20px; text-align: center;">
-    <button class="btn-primary btn-advance" id="btn-advance-upload" style="display:none; max-width:400px; width:100%; padding:15px; font-size:1.1rem;" onclick="showThemes()">Continue — Choose Themes</button>
+    <button class="btn-primary btn-advance" id="btn-advance-upload" style="display:none; max-width:400px; width:100%; padding:15px; font-size:1.1rem;" onclick="showThemes()">Continue â€” Choose Themes</button>
   </div>
 
   </div>
@@ -667,21 +667,21 @@ body { background: #f4f6fa; }
   <!-- STEP 2: THEME SELECTION -->
   <div class="theme-selection-area" id="step-themes">
     <h2>Step 2: Choose themes for <span class="baby-name-span"></span></h2>
-    <p>Select the themes you love — then choose your plan to unlock them all.</p>
+    <p>Select the themes you love â€” then choose your plan to unlock them all.</p>
     <div class="theme-grid" id="themeGrid"></div>
-    <button class="btn-primary btn-advance" onclick="goToPricing()" id="btn-process" disabled>See My Plan Options — <span id="selected-count">0 themes selected</span></button>
+    <button class="btn-primary btn-advance" onclick="goToPricing()" id="btn-process" disabled>See My Plan Options â€” <span id="selected-count">0 themes selected</span></button>
   </div>
 
-  <!-- STEP 3: PROCESSING — Blurred Teaser -->
+  <!-- STEP 3: PROCESSING â€” Blurred Teaser -->
   <div class="processing-area" id="step-processing">
-    <h2 id="processing-title" style="margin-bottom:8px;">Creating the magic for <span class="baby-name-span2" style="color:var(--primary);"></span>... ✨</h2>
+    <h2 id="processing-title" style="margin-bottom:8px;">Creating the magic for <span class="baby-name-span2" style="color:var(--primary);"></span>... âœ¨</h2>
     <p style="color:var(--text-muted); margin-bottom:0;">Your studio portraits are being crafted. Get ready.</p>
 
     <!-- Blurred teaser of the user's own photo -->
     <div class="teaser-photo-wrap" id="teaserPhotoWrap">
       <img id="teaserPhotoImg" src="" alt="Your baby's photo preview" />
       <div class="teaser-lock-overlay">
-        <div class="teaser-lock-icon">🔒</div>
+        <div class="teaser-lock-icon">ðŸ”’</div>
         <div class="teaser-lock-text">Unlock to reveal your portraits</div>
       </div>
       <div class="teaser-ring"></div>
@@ -749,7 +749,7 @@ body { background: #f4f6fa; }
           <li class="feat-no-v2">Free redo</li>
         </ul>
         <button class="apc-btn-v2 apc-btn-secondary" onclick="selectPlan('starter')" id="btn-starter">Get 10 photos in 1 hour</button>
-        <p class="app-guarantee" style="color:#c9335a; font-weight:700; font-size:0.8rem;">💰 100% refund if you don't love it</p>
+        <p class="app-guarantee" style="color:#c9335a; font-weight:700; font-size:0.8rem;">ðŸ’° 100% refund if you don't love it</p>
       </div>
 
       <!-- CLASSIC (popular) -->
@@ -772,7 +772,7 @@ body { background: #f4f6fa; }
           <li class="feat-no-v2">Free redo</li>
         </ul>
         <button class="apc-btn-v2 apc-btn-primary" onclick="selectPlan('classic')" id="btn-classic">Get 20 photos in 30 min</button>
-        <p class="app-guarantee" style="color:#c9335a; font-weight:700; font-size:0.8rem;">💰 100% refund if you don't love it</p>
+        <p class="app-guarantee" style="color:#c9335a; font-weight:700; font-size:0.8rem;">ðŸ’° 100% refund if you don't love it</p>
       </div>
 
       <!-- PREMIUM -->
@@ -789,14 +789,14 @@ body { background: #f4f6fa; }
           <li>30 professional AI photos</li>
           <li id="premium-themes-li">ALL your chosen themes unlocked</li>
           <li>4K resolution, ultra-realistic</li>
-          <li>Priority — ready in 15 min</li>
+          <li>Priority â€” ready in 15 min</li>
           <li>High-resolution digital delivery</li>
           <li>Portrait &amp; landscape format</li>
           <li>1 free redo included</li>
           <li>Perfect for the complete 1st year album</li>
         </ul>
         <button class="apc-btn-v2 apc-btn-gold" onclick="selectPlan('premium')" id="btn-premium">Get 30 photos in 15 min</button>
-        <p class="app-guarantee" style="color:#c9335a; font-weight:700; font-size:0.8rem;">💰 100% refund if you don't love it</p>
+        <p class="app-guarantee" style="color:#c9335a; font-weight:700; font-size:0.8rem;">ðŸ’° 100% refund if you don't love it</p>
       </div>
     </div>
 
@@ -804,10 +804,10 @@ body { background: #f4f6fa; }
     <div style="margin-top: 48px; text-align: left;">
       <p style="text-align:center; font-size:0.8rem; font-weight:700; letter-spacing:2px; color:#aaa; text-transform:uppercase; margin-bottom:20px;">WHAT MOMS ARE SAYING</p>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
-        <div style="background:#fff8fa; border:1px solid #ffd6e0; border-radius:14px; padding:16px;"><div style="font-size:0.85rem; color:#facc15; margin-bottom:6px;"></div><p style="font-size:0.88rem; color:#444; font-style:italic; margin-bottom:8px;">&ldquo;Ordered at 11pm. Photos were done before my next feed. I cried.&rdquo;</p><strong style="font-size:0.82rem; color:#888;">Megan W. — Mom of Emma</strong></div>
-        <div style="background:#fff8fa; border:1px solid #ffd6e0; border-radius:14px; padding:16px;"><div style="font-size:0.85rem; color:#facc15; margin-bottom:6px;"></div><p style="font-size:0.88rem; color:#444; font-style:italic; margin-bottom:8px;">&ldquo;Quoted $750 by a local photographer. Paid $49 here and the result is BETTER.&rdquo;</p><strong style="font-size:0.82rem; color:#888;">Emily C. — Mom of Sophia</strong></div>
-        <div style="background:#fff8fa; border:1px solid #ffd6e0; border-radius:14px; padding:16px;"><div style="font-size:0.85rem; color:#facc15; margin-bottom:6px;"></div><p style="font-size:0.88rem; color:#444; font-style:italic; margin-bottom:8px;">&ldquo;The 100% guarantee made me try it. I didn't need it — the portraits are stunning.&rdquo;</p><strong style="font-size:0.82rem; color:#888;">Amanda R. — Mom of Lucas</strong></div>
-        <div style="background:#fff8fa; border:1px solid #ffd6e0; border-radius:14px; padding:16px;"><div style="font-size:0.85rem; color:#facc15; margin-bottom:6px;"></div><p style="font-size:0.88rem; color:#444; font-style:italic; margin-bottom:8px;">&ldquo;My husband thought I hired a real photographer. I laughed for 10 minutes.&rdquo;</p><strong style="font-size:0.82rem; color:#888;">Valentina G. — Mom of Sofía</strong></div>
+        <div style="background:#fff8fa; border:1px solid #ffd6e0; border-radius:14px; padding:16px;"><div style="font-size:0.85rem; color:#facc15; margin-bottom:6px;"></div><p style="font-size:0.88rem; color:#444; font-style:italic; margin-bottom:8px;">&ldquo;Ordered at 11pm. Photos were done before my next feed. I cried.&rdquo;</p><strong style="font-size:0.82rem; color:#888;">Megan W. â€” Mom of Emma</strong></div>
+        <div style="background:#fff8fa; border:1px solid #ffd6e0; border-radius:14px; padding:16px;"><div style="font-size:0.85rem; color:#facc15; margin-bottom:6px;"></div><p style="font-size:0.88rem; color:#444; font-style:italic; margin-bottom:8px;">&ldquo;Quoted $750 by a local photographer. Paid $49 here and the result is BETTER.&rdquo;</p><strong style="font-size:0.82rem; color:#888;">Emily C. â€” Mom of Sophia</strong></div>
+        <div style="background:#fff8fa; border:1px solid #ffd6e0; border-radius:14px; padding:16px;"><div style="font-size:0.85rem; color:#facc15; margin-bottom:6px;"></div><p style="font-size:0.88rem; color:#444; font-style:italic; margin-bottom:8px;">&ldquo;The 100% guarantee made me try it. I didn't need it â€” the portraits are stunning.&rdquo;</p><strong style="font-size:0.82rem; color:#888;">Amanda R. â€” Mom of Lucas</strong></div>
+        <div style="background:#fff8fa; border:1px solid #ffd6e0; border-radius:14px; padding:16px;"><div style="font-size:0.85rem; color:#facc15; margin-bottom:6px;"></div><p style="font-size:0.88rem; color:#444; font-style:italic; margin-bottom:8px;">&ldquo;My husband thought I hired a real photographer. I laughed for 10 minutes.&rdquo;</p><strong style="font-size:0.82rem; color:#888;">Valentina G. â€” Mom of SofÃ­a</strong></div>
       </div>
       <div style="margin-top:20px; text-align:center; background:#f0faf4; border-radius:12px; padding:16px; border:1px solid #c3e6cb;">
         <span style="font-size:1.4rem; font-weight:800; color:#2e7d32;">2,400+</span>
@@ -824,24 +824,24 @@ body { background: #f4f6fa; }
 const ALL_PHOTOS = [
   { src: "newborn-astronaut-theme-ai.jpg",  name: "Astronaut " },
   { src: "newborn-cartoon.jpg",             name: "Cute Cartoon " },
-  { src: "newborn-dinosaur-theme.jpg",      name: "Dinosaur 🦖" },
-  { src: "newborn-easter-bunny.jpg",        name: "Easter Bunny 🐰" },
+  { src: "newborn-dinosaur-theme.jpg",      name: "Dinosaur ðŸ¦–" },
+  { src: "newborn-easter-bunny.jpg",        name: "Easter Bunny ðŸ°" },
   { src: "newborn-easter-bunny-ai.jpg",     name: "Spring Bunny " },
-  { src: "newborn-fairy-theme.jpg",         name: "Fairy Magic 🧚" },
-  { src: "newborn-fairy-theme-ai.jpg",      name: "Fairy Portrait 🧚" },
+  { src: "newborn-fairy-theme.jpg",         name: "Fairy Magic ðŸ§š" },
+  { src: "newborn-fairy-theme-ai.jpg",      name: "Fairy Portrait ðŸ§š" },
   { src: "newborn-floral-basket.jpg",       name: "Floral Basket " },
   { src: "newborn-floral.jpg",              name: "Soft Floral " },
-  { src: "newborn-minimalist.jpg",          name: "Minimalist 🤍" },
+  { src: "newborn-minimalist.jpg",          name: "Minimalist ðŸ¤" },
   { src: "newborn-natural.jpg",             name: "Classic Basket " },
-  { src: "newborn-pirate.jpg",              name: "Pirate 🏴‍☠️" },
-  { src: "newborn-pirate-theme.jpg",        name: "Pirate Adventure 🏴‍☠️" },
+  { src: "newborn-pirate.jpg",              name: "Pirate ðŸ´â€â˜ ï¸" },
+  { src: "newborn-pirate-theme.jpg",        name: "Pirate Adventure ðŸ´â€â˜ ï¸" },
   { src: "newborn-princess.jpg",            name: "Princess " },
   { src: "newborn-princess-theme.jpg",      name: "Princess Portrait " },
-  { src: "newborn-safari.jpg",              name: "Safari 🦁" },
-  { src: "newborn-space.jpg",               name: "Galaxy Space 🌌" },
+  { src: "newborn-safari.jpg",              name: "Safari ðŸ¦" },
+  { src: "newborn-space.jpg",               name: "Galaxy Space ðŸŒŒ" },
   { src: "newborn-starry.jpg",              name: "Starry Night " },
-  { src: "newborn-superhero.jpg",           name: "Superhero 🦸" },
-  { src: "newborn-teddy.jpg",               name: "Cozy Teddy 🧸" }
+  { src: "newborn-superhero.jpg",           name: "Superhero ðŸ¦¸" },
+  { src: "newborn-teddy.jpg",               name: "Cozy Teddy ðŸ§¸" }
 ];
 
 // Baby name + plan from URL
@@ -929,7 +929,7 @@ function handlePhotoUpload(event) {
   });
 
   if (uploadedFiles.length >= MAX_PHOTOS) {
-    // Subtle nudge — don't block with alert, just cap silently
+    // Subtle nudge â€” don't block with alert, just cap silently
     console.info('Max 5 photos reached.');
   }
 
@@ -953,7 +953,7 @@ function renderPhotoPreviews() {
     img.alt = `Baby photo ${index + 1}`;
     const removeBtn = document.createElement('button');
     removeBtn.className = 'photo-preview-remove';
-    removeBtn.innerHTML = '✕';
+    removeBtn.innerHTML = 'âœ•';
     removeBtn.onclick = (e) => { e.stopPropagation(); uploadedFiles.splice(index, 1); renderPhotoPreviews(); updatePhotoCounter(); };
     item.appendChild(img);
     item.appendChild(removeBtn);
@@ -963,7 +963,7 @@ function renderPhotoPreviews() {
   // Add more slot
   const addSlot = document.createElement('div');
   addSlot.className = 'add-more-slot';
-  addSlot.innerHTML = '➕<span>Add more</span>';
+  addSlot.innerHTML = 'âž•<span>Add more</span>';
   addSlot.onclick = () => document.getElementById('fotoBebe').click();
   container.appendChild(addSlot);
 
@@ -980,29 +980,29 @@ function updatePhotoCounter() {
 
   if (count === 0) {
     counter.classList.remove('ready');
-    counterText.textContent = 'No photos yet — upload at least 1 photo of your baby';
+    counterText.textContent = 'No photos yet â€” upload at least 1 photo of your baby';
     advanceBtn.style.display = 'none';
   } else if (count === 1) {
     counter.classList.add('ready');
-    counterText.textContent = '1 photo ready ✓ — add up to 4 more for better results!';
+    counterText.textContent = '1 photo ready âœ“ â€” add up to 4 more for better results!';
     advanceBtn.style.display = 'inline-block';
   } else if (count >= 2 && count < 5) {
     counter.classList.add('ready');
-    counterText.textContent = `${count} photos ready ✓ — great quality! (${5 - count} more allowed)`;
+    counterText.textContent = `${count} photos ready âœ“ â€” great quality! (${5 - count} more allowed)`;
     advanceBtn.style.display = 'inline-block';
   } else {
     counter.classList.add('ready');
-    counterText.textContent = `${count} photos ready — amazing variety!`;
+    counterText.textContent = `${count} photos ready â€” amazing variety!`;
     advanceBtn.style.display = 'inline-block';
   }
 }
 
 function showThemes() {
   if (uploadedFiles.length < 1) {
-    alert('Please upload at least 1 photo of your baby to continue! 🍼');
+    alert('Please upload at least 1 photo of your baby to continue! ðŸ¼');
     return;
   }
-  renderThemesOnce(); // ← Carrega as imagens só agora
+  renderThemesOnce(); // â† Carrega as imagens sÃ³ agora
   setTimeout(() => {
     document.getElementById('step-upload').style.display = 'none';
     document.getElementById('step-themes').style.display = 'block';
@@ -1036,7 +1036,7 @@ function goToPricing() {
   // Update theme count in pricing cards
   buildThemePreviewGrid();
 
-  // Carregar preços reais via geo-detection
+  // Carregar preÃ§os reais via geo-detection
   loadPricingCards();
 
   // Hide steps, show pricing
@@ -1048,7 +1048,7 @@ function goToPricing() {
   document.querySelectorAll('.baby-name-span').forEach(s => s.textContent = babyName);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  // ── Highlight pre-selected plan from home page ─────────────────────────────
+  // â”€â”€ Highlight pre-selected plan from home page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const stored = preSelectedPlan || localStorage.getItem('snapi_preselected_plan');
   if (stored) {
     const validPlans = ['starter', 'classic', 'premium'];
@@ -1070,8 +1070,8 @@ function goToPricing() {
   }
 }
 
-// ===== PRICING — busca preços corretos via get-pricing (geo-detection) =====
-// Armazena os preços para usar no selectPlan()
+// ===== PRICING â€” busca preÃ§os corretos via get-pricing (geo-detection) =====
+// Armazena os preÃ§os para usar no selectPlan()
 let _pricingData = null;
 
 async function loadPricingCards() {
@@ -1095,7 +1095,7 @@ async function loadPricingCards() {
     if (elC) elC.textContent = fmt(p.plans.classic.display);
     if (elP) elP.textContent = fmt(p.plans.premium.display);
   } catch(e) {
-    // Fallback: mostra preços BRL padrão
+    // Fallback: mostra preÃ§os BRL padrÃ£o
     console.warn('get-pricing failed in app.html:', e.message);
     const elS = document.getElementById('price-starter');
     const elC = document.getElementById('price-classic');
@@ -1110,11 +1110,11 @@ async function selectPlan(planName) {
   // Disable all plan buttons and show loading
   ['starter','classic','premium'].forEach(p => {
     const b = document.getElementById('btn-' + p);
-    if (b) { b.disabled = true; b.textContent = p === planName ? '⌛ Preparing...' : b.textContent; }
+    if (b) { b.disabled = true; b.textContent = p === planName ? 'âŒ› Preparing...' : b.textContent; }
   });
 
   try {
-    // Upload ALL photos (1–5) to get real URLs for KIE AI
+    // Upload ALL photos (1â€“5) to get real URLs for KIE AI
     const photoUrls = [];
 
     for (let i = 0; i < uploadedFiles.length; i++) {
@@ -1263,7 +1263,7 @@ async function generateAllThemesFal(apiKey, fakeInterval, bar, status) {
   const generatedImages = [];
 
   // Convert the first uploaded file to base64
-  status.textContent = 'Preparing your photo... 📤';
+  status.textContent = 'Preparing your photo... ðŸ“¤';
   let photoBase64 = null;
   let mimeType    = 'image/jpeg';
 
@@ -1286,7 +1286,7 @@ async function generateAllThemesFal(apiKey, fakeInterval, bar, status) {
     // Fallback: just show static images
     clearInterval(fakeInterval);
     bar.style.width = '100%';
-    status.textContent = 'Preview ready! ✨';
+    status.textContent = 'Preview ready! âœ¨';
     setTimeout(showPreview, 800);
     return;
   }
@@ -1320,7 +1320,7 @@ async function generateAllThemesFal(apiKey, fakeInterval, bar, status) {
 
   clearInterval(fakeInterval);
   bar.style.width = '100%';
-  status.textContent = 'Done! Preparing your preview... ✨';
+  status.textContent = 'Done! Preparing your preview... âœ¨';
   selectedThemeImages = generatedImages;
   setTimeout(showPreview, 800);
 }
@@ -1334,8 +1334,8 @@ function showPreview() {
 
 
 // ===== FAL.AI CONFIG =====
-// A chave fica segura no Netlify — o frontend chama a Function proxy
-const FAL_API_KEY = 'via-netlify-function'; // Não precisa mais da chave aqui
+// A chave fica segura no Netlify â€” o frontend chama a Function proxy
+const FAL_API_KEY = 'via-netlify-function'; // NÃ£o precisa mais da chave aqui
 
 function buildThemePreviewGrid() {
   const count = selectedThemeImages.length;
@@ -1347,13 +1347,13 @@ function buildThemePreviewGrid() {
   if (el('premium-themes-li')) el('premium-themes-li').textContent  = 'ALL ' + count + ' of your chosen themes unlocked';
 }
 
-// ===== COUNTDOWN TIMER — persiste entre recargas com localStorage =====
+// ===== COUNTDOWN TIMER â€” persiste entre recargas com localStorage =====
 (function() {
   var KEY = 'snapi_app_timer_end';
   var DURATION = 7 * 3600 + 52 * 60 + 31; // segundos iniciais
   var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
 
-  // Recupera ou cria o timestamp de expiração
+  // Recupera ou cria o timestamp de expiraÃ§Ã£o
   var stored = localStorage.getItem(KEY);
   var endTs = stored ? parseInt(stored, 10) : 0;
   if (!endTs || endTs <= Date.now() / 1000) {
@@ -1391,33 +1391,33 @@ function buildThemePreviewGrid() {
 (function() {
   var NOTIFICATIONS = [
     // TRANSFORMATION (40%)
-    { type: 'transformation', avatar: '🌸', text: "Ava's couch photo was just transformed into a Princess portrait", meta: 'moments ago' },
-    { type: 'transformation', avatar: '🍼', text: "Liam's parents just received their newborn Astronaut gallery", meta: '4 min ago' },
-    { type: 'transformation', avatar: '✨', text: "Baby Sophia's Fairy theme portraits were just delivered", meta: 'just now' },
-    { type: 'transformation', avatar: '🧸', text: "Noah's Teddy Bear portrait was delivered in 20 minutes", meta: '7 min ago' },
-    { type: 'transformation', avatar: '🌙', text: "Isabella's Starry Night photos are done", meta: '1 min ago' },
-    { type: 'transformation', avatar: '🦁', text: "Ethan's Safari portraits were just created from phone photos", meta: '5 min ago' },
-    { type: 'transformation', avatar: '👑', text: "Mia's Princess portrait is ready — mom hasn't stopped crying", meta: '3 min ago' },
-    { type: 'transformation', avatar: '🚀', text: "Oliver's Astronaut portraits delivered while mom was feeding", meta: '8 min ago' },
-    { type: 'transformation', avatar: '🧚', text: "Baby Emma's Fairy Magic photos just came in", meta: '6 min ago' },
-    { type: 'transformation', avatar: '🌿', text: "Charlotte's Floral Basket portrait is stunning", meta: '2 min ago' },
+    { type: 'transformation', avatar: 'ðŸŒ¸', text: "Ava's couch photo was just transformed into a Princess portrait", meta: 'moments ago' },
+    { type: 'transformation', avatar: 'ðŸ¼', text: "Liam's parents just received their newborn Astronaut gallery", meta: '4 min ago' },
+    { type: 'transformation', avatar: 'âœ¨', text: "Baby Sophia's Fairy theme portraits were just delivered", meta: 'just now' },
+    { type: 'transformation', avatar: 'ðŸ§¸', text: "Noah's Teddy Bear portrait was delivered in 20 minutes", meta: '7 min ago' },
+    { type: 'transformation', avatar: 'ðŸŒ™', text: "Isabella's Starry Night photos are done", meta: '1 min ago' },
+    { type: 'transformation', avatar: 'ðŸ¦', text: "Ethan's Safari portraits were just created from phone photos", meta: '5 min ago' },
+    { type: 'transformation', avatar: 'ðŸ‘‘', text: "Mia's Princess portrait is ready â€” mom hasn't stopped crying", meta: '3 min ago' },
+    { type: 'transformation', avatar: 'ðŸš€', text: "Oliver's Astronaut portraits delivered while mom was feeding", meta: '8 min ago' },
+    { type: 'transformation', avatar: 'ðŸ§š', text: "Baby Emma's Fairy Magic photos just came in", meta: '6 min ago' },
+    { type: 'transformation', avatar: 'ðŸŒ¿', text: "Charlotte's Floral Basket portrait is stunning", meta: '2 min ago' },
     // REACTION (30%)
-    { type: 'reaction', avatar: '💗', text: '"I literally cried." — New mom from Chicago', meta: 'just now' },
-    { type: 'reaction', avatar: '😍', text: '"My husband thought I hired a real photographer." — Sarah M.', meta: '3 min ago' },
-    { type: 'reaction', avatar: '🥹', text: '"Uploaded during feeding time. Finished before baby woke up." — Jessica W.', meta: '5 min ago' },
-    { type: 'reaction', avatar: '💕', text: '"Grandma cried seeing these photos." — Amanda R.', meta: '1 min ago' },
-    { type: 'reaction', avatar: '😭', text: '"These look more real than my actual studio session." — Melissa T.', meta: '9 min ago' },
-    { type: 'reaction', avatar: '✨', text: '"SnapiBaby gave me a second chance after my C-section." — Emily C.', meta: '4 min ago' },
-    { type: 'reaction', avatar: '🍼', text: '"Ordered at midnight. Photos done before next feed." — Megan W.', meta: 'just now' },
+    { type: 'reaction', avatar: 'ðŸ’—', text: '"I literally cried." â€” New mom from Chicago', meta: 'just now' },
+    { type: 'reaction', avatar: 'ðŸ˜', text: '"My husband thought I hired a real photographer." â€” Sarah M.', meta: '3 min ago' },
+    { type: 'reaction', avatar: 'ðŸ¥¹', text: '"Uploaded during feeding time. Finished before baby woke up." â€” Jessica W.', meta: '5 min ago' },
+    { type: 'reaction', avatar: 'ðŸ’•', text: '"Grandma cried seeing these photos." â€” Amanda R.', meta: '1 min ago' },
+    { type: 'reaction', avatar: 'ðŸ˜­', text: '"These look more real than my actual studio session." â€” Melissa T.', meta: '9 min ago' },
+    { type: 'reaction', avatar: 'âœ¨', text: '"SnapiBaby gave me a second chance after my C-section." â€” Emily C.', meta: '4 min ago' },
+    { type: 'reaction', avatar: 'ðŸ¼', text: '"Ordered at midnight. Photos done before next feed." â€” Megan W.', meta: 'just now' },
     // PURCHASE (20%)
-    { type: 'purchase', avatar: '🎀', text: 'Emily from California just unlocked all premium themes', meta: '2 min ago' },
-    { type: 'purchase', avatar: '📸', text: 'A mom in Texas just replaced a $900 studio session with SnapiBaby', meta: '6 min ago' },
-    { type: 'purchase', avatar: '💝', text: 'Valentina just upgraded to the complete keepsake collection', meta: '3 min ago' },
-    { type: 'purchase', avatar: '🛍️', text: 'Jessica from Florida just got her full newborn portrait collection', meta: '1 min ago' },
+    { type: 'purchase', avatar: 'ðŸŽ€', text: 'Emily from California just unlocked all premium themes', meta: '2 min ago' },
+    { type: 'purchase', avatar: 'ðŸ“¸', text: 'A mom in Texas just replaced a $900 studio session with SnapiBaby', meta: '6 min ago' },
+    { type: 'purchase', avatar: 'ðŸ’', text: 'Valentina just upgraded to the complete keepsake collection', meta: '3 min ago' },
+    { type: 'purchase', avatar: 'ðŸ›ï¸', text: 'Jessica from Florida just got her full newborn portrait collection', meta: '1 min ago' },
     // URGENCY (10%)
-    { type: 'urgency', avatar: '🔥', text: '23 moms created newborn portraits in the last hour', meta: 'live' },
-    { type: 'urgency', avatar: '👶', text: 'The newborn phase changes fast — preserve it now', meta: 'reminder' },
-    { type: 'urgency', avatar: '⚡', text: 'Average delivery: 22 minutes after payment confirmed.', meta: 'quick delivery' }
+    { type: 'urgency', avatar: 'ðŸ”¥', text: '23 moms created newborn portraits in the last hour', meta: 'live' },
+    { type: 'urgency', avatar: 'ðŸ‘¶', text: 'The newborn phase changes fast â€” preserve it now', meta: 'reminder' },
+    { type: 'urgency', avatar: 'âš¡', text: 'Average delivery: 22 minutes after payment confirmed.', meta: 'quick delivery' }
   ];
 
   // Fisher-Yates shuffle
@@ -1475,7 +1475,7 @@ function buildThemePreviewGrid() {
     if (qIdx >= queue.length) { queue = shuffle(NOTIFICATIONS); qIdx = 0; }
     showNotif(queue[qIdx]);
     qIdx++;
-    var delay = 8000 + Math.floor(Math.random() * 7001); // 8–15s
+    var delay = 8000 + Math.floor(Math.random() * 7001); // 8â€“15s
     setTimeout(nextNotif, delay + 4500);
   }
 
@@ -1485,3 +1485,4 @@ function buildThemePreviewGrid() {
 </script>
 </body>
 </html>
+

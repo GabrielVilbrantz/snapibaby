@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <!-- Meta Pixel -->
@@ -11,7 +11,7 @@
   </script>
   <!-- /Meta Pixel -->
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">`n<meta name="robots" content="noindex, nofollow">
 <title>Your Portraits Are Ready! | SnapiBaby</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -66,7 +66,7 @@
   /* PROGRESSIVE PHOTO GRID */
   #progressiveGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:20px;text-align:left}
 
-  /* Photo card — with entrance animation */
+  /* Photo card â€” with entrance animation */
   .photo-card{border-radius:14px;overflow:hidden;background:#f3f4f6;aspect-ratio:3/4;position:relative;box-shadow:0 4px 14px rgba(0,0,0,.1);opacity:0;transform:translateY(24px) scale(.95);animation:slideIn .55s cubic-bezier(.22,1,.36,1) forwards}
   @keyframes slideIn{to{opacity:1;transform:translateY(0) scale(1)}}
   .photo-card img{width:100%;height:100%;object-fit:cover;display:block}
@@ -121,13 +121,13 @@
 </head>
 <body>
 
-<div class="top-bar" id="topBar">✓ Payment Confirmed — Creating your baby's portraits now!</div>
+<div class="top-bar" id="topBar">âœ“ Payment Confirmed â€” Creating your baby's portraits now!</div>
 
 <div class="wrap">
 
   <!-- HERO -->
   <div class="hero">
-    <div class="check">✓</div>
+    <div class="check">âœ“</div>
     <h1 id="heroTitle">Payment approved!<br><span id="heroSpan">Creating your portraits...</span></h1>
     <p id="heroSub">Your AI portraits are being generated. Photos appear as each one is ready!</p>
   </div>
@@ -136,16 +136,16 @@
   <div class="card">
 
     <div class="order-badge">
-      ✓ Order <strong id="orderId">#SN-00000</strong> — Payment confirmed
+      âœ“ Order <strong id="orderId">#SN-00000</strong> â€” Payment confirmed
     </div>
 
     <!-- LOADING (stays visible while generating) -->
     <div id="stateLoading">
       <div class="spinner-wrap"><div class="spinner" id="spinner"></div></div>
-      <div class="loading-title" id="loadingTitle">🎨 Creating your baby's portraits...</div>
+      <div class="loading-title" id="loadingTitle">ðŸŽ¨ Creating your baby's portraits...</div>
       <p class="loading-sub" id="loadingSub">Each portrait appears <strong>as soon as it's ready</strong>.<br>No need to wait for all of them!</p>
       <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
-      <div class="progress-label" id="progressLabel">Estimated time: 1–3 min per portrait</div>
+      <div class="progress-label" id="progressLabel">Estimated time: 1â€“3 min per portrait</div>
 
       <!-- LIVE badge: "2 of 3 portraits ready!" -->
       <div id="liveBadge"></div>
@@ -154,25 +154,25 @@
       <div id="progressiveGrid"></div>
 
       <!-- Download button appears after first photo -->
-      <button id="earlyDownloadAll" onclick="downloadEarly()">⬇ Save Ready Photos Now</button>
+      <button id="earlyDownloadAll" onclick="downloadEarly()">â¬‡ Save Ready Photos Now</button>
     </div>
 
     <!-- ALL DONE -->
     <div id="stateDone">
       <div class="done-header">
-        <h2>🎉 All your portraits are ready!</h2>
+        <h2>ðŸŽ‰ All your portraits are ready!</h2>
         <p>Tap each photo to download it to your device</p>
       </div>
       <div class="photo-grid" id="photoGrid"></div>
       <a href="#" class="btn-dl-all" id="btnDlAll" onclick="downloadAll(event)">
-        ⬇ Download All Photos
+        â¬‡ Download All Photos
         <small>Tap to save all portraits to your device</small>
       </a>
     </div>
 
     <!-- FAILED -->
     <div id="stateFailed">
-      <div class="failed-icon">⚠️</div>
+      <div class="failed-icon">âš ï¸</div>
       <h3>Generation issue detected</h3>
       <p>Something went wrong generating your portraits.<br>
         Please contact us at <a href="mailto:support@snapibaby.com" style="color:#ff4d6d">support@snapibaby.com</a><br>
@@ -183,25 +183,25 @@
 
   <!-- SHARE -->
   <div class="share-card">
-    <h4>🎁 Love your portraits? Share SnapiBaby!</h4>
+    <h4>ðŸŽ Love your portraits? Share SnapiBaby!</h4>
     <p>Share with a friend and both of you get <strong style="color:#ff4d6d">10% off</strong> your next order.</p>
-    <button class="btn-share" onclick="nativeShare()">📤 Share SnapiBaby</button>
+    <button class="btn-share" onclick="nativeShare()">ðŸ“¤ Share SnapiBaby</button>
   </div>
 
   <div class="footer">
     Questions? <a href="mailto:support@snapibaby.com">support@snapibaby.com</a><br>
-    <a href="terms.html">Terms</a> &nbsp;·&nbsp; <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a> &nbsp;Â·&nbsp; <a href="privacy.html">Privacy</a>
   </div>
 
 </div>
 
 <script>
-// ── Order info ──
+// â”€â”€ Order info â”€â”€
 const urlParams    = new URLSearchParams(window.location.search);
 const savedName    = localStorage.getItem('snapi_customer_name') || '';
 const savedOrderNr = localStorage.getItem('snapi_order_number') || '';
 
-// savedOrderId é let pois pode ser atualizado pelo handleStripeReturn
+// savedOrderId Ã© let pois pode ser atualizado pelo handleStripeReturn
 let savedOrderId = localStorage.getItem('snapi_order_id') || urlParams.get('order_id') || '';
 
 if (savedOrderNr) document.getElementById('orderId').textContent = '#' + savedOrderNr;
@@ -210,13 +210,13 @@ if (savedName) {
   document.getElementById('heroSpan').textContent = first + "'s portraits are almost ready!";
 }
 
-// ── Stripe redirect handling (Apple Pay, Google Pay, PIX, etc.) ──────────────
+// â”€â”€ Stripe redirect handling (Apple Pay, Google Pay, PIX, etc.) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Retorna uma Promise para que pollStatus() possa aguardar antes de rodar.
 const stripeReturnPromise = (async function handleStripeReturn() {
   const piParam        = urlParams.get('payment_intent');
   const redirectStatus = urlParams.get('redirect_status');
 
-  // Só processar se veio via redirect do Stripe
+  // SÃ³ processar se veio via redirect do Stripe
   if (!piParam && !redirectStatus) return;
 
   console.log('[Stripe Return] redirect_status:', redirectStatus, '| piParam:', piParam);
@@ -231,11 +231,11 @@ const stripeReturnPromise = (async function handleStripeReturn() {
     return;
   }
 
-  // ── Pagamento confirmado ──
+  // â”€â”€ Pagamento confirmado â”€â”€
   let orderId = savedOrderId;
 
   if (!orderId && piParam) {
-    console.warn('[Stripe Return] order_id ausente — tentando criar pedido via payment_intent');
+    console.warn('[Stripe Return] order_id ausente â€” tentando criar pedido via payment_intent');
     document.getElementById('progressLabel').textContent = 'Confirming your order...';
 
     try {
@@ -267,7 +267,7 @@ const stripeReturnPromise = (async function handleStripeReturn() {
         if (orderRes.ok) {
           const newOrder = await orderRes.json();
           orderId = newOrder.id;
-          savedOrderId = newOrder.id; // atualiza a variável global
+          savedOrderId = newOrder.id; // atualiza a variÃ¡vel global
           localStorage.setItem('snapi_order_id',     newOrder.id);
           localStorage.setItem('snapi_order_number', newOrder.order_number);
           document.getElementById('orderId').textContent = '#' + newOrder.order_number;
@@ -281,24 +281,24 @@ const stripeReturnPromise = (async function handleStripeReturn() {
     }
   }
 
-  // ── NÃO disparamos geração aqui ──
-  // O stripe-webhook.js já dispara o process-order-background ao receber
-  // payment_intent.succeeded. Disparar novamente aqui causaria duas instâncias
+  // â”€â”€ NÃƒO disparamos geraÃ§Ã£o aqui â”€â”€
+  // O stripe-webhook.js jÃ¡ dispara o process-order-background ao receber
+  // payment_intent.succeeded. Disparar novamente aqui causaria duas instÃ¢ncias
   // paralelas sobrescrevendo o generated_urls uma da outra.
   if (orderId) {
-    console.log('[Stripe Return] orderId disponível:', orderId, '— geração disparada pelo webhook Stripe.');
+    console.log('[Stripe Return] orderId disponÃ­vel:', orderId, 'â€” geraÃ§Ã£o disparada pelo webhook Stripe.');
   } else {
-    console.warn('[Stripe Return] Sem order_id — o webhook do Stripe vai disparar a geração.');
+    console.warn('[Stripe Return] Sem order_id â€” o webhook do Stripe vai disparar a geraÃ§Ã£o.');
   }
 })();
 
-// ── State tracking ──
+// â”€â”€ State tracking â”€â”€
 let allPhotoUrls   = [];
 let shownPhotoUrls = new Set(); // URLs already rendered
 let totalThemes    = 0;
 let isDone         = false;
 
-// ── Build a photo card DOM element ──
+// â”€â”€ Build a photo card DOM element â”€â”€
 function makePhotoCard(item, index) {
   const card  = document.createElement('div');
   card.className = 'photo-card just-arrived';
@@ -318,7 +318,7 @@ function makePhotoCard(item, index) {
   link.href = item.url;
   link.target = '_blank';
   link.className = 'dl-btn';
-  link.textContent = '⬇ Save Photo';
+  link.textContent = 'â¬‡ Save Photo';
   link.onclick = (e) => e.stopPropagation();
 
   card.appendChild(img);
@@ -331,7 +331,7 @@ function makePhotoCard(item, index) {
   return card;
 }
 
-// ── Progressive reveal: show new photos as they arrive ──
+// â”€â”€ Progressive reveal: show new photos as they arrive â”€â”€
 function showPhotosProgressive(generatedUrls, done) {
   const okUrls = (generatedUrls || []).filter(x => x.status === 'ok' && x.url);
   const newUrls = okUrls.filter(x => !shownPhotoUrls.has(x.url));
@@ -355,7 +355,7 @@ function showPhotosProgressive(generatedUrls, done) {
         const badge = document.getElementById('liveBadge');
         badge.style.display = 'block';
         const total = totalThemes || okUrls.length;
-        badge.innerHTML = `✨ <strong>${allPhotoUrls.length} of ${total}</strong> portraits ready!`;
+        badge.innerHTML = `âœ¨ <strong>${allPhotoUrls.length} of ${total}</strong> portraits ready!`;
 
         // Show early download button after first photo
         document.getElementById('earlyDownloadAll').style.display = 'block';
@@ -365,7 +365,7 @@ function showPhotosProgressive(generatedUrls, done) {
 
         // Update top bar
         document.getElementById('topBar').textContent =
-          `✨ ${allPhotoUrls.length} portrait${allPhotoUrls.length > 1 ? 's' : ''} ready — more coming!`;
+          `âœ¨ ${allPhotoUrls.length} portrait${allPhotoUrls.length > 1 ? 's' : ''} ready â€” more coming!`;
 
       }, i * 400);
     });
@@ -379,7 +379,7 @@ function showPhotosProgressive(generatedUrls, done) {
   }
 }
 
-// ── Transition: loading → all done ──
+// â”€â”€ Transition: loading â†’ all done â”€â”€
 async function transitionToDone() {
   // Guard: if we somehow have 0 photos, fetch from DB before giving up
   if (allPhotoUrls.length === 0) {
@@ -389,11 +389,11 @@ async function transitionToDone() {
       if (okUrls.length > 0) {
         okUrls.forEach(item => { shownPhotoUrls.add(item.url); allPhotoUrls.push(item); });
       } else {
-        // Status is 'done' but no photos — order was stuck. Re-trigger generation.
-        console.warn('done status but 0 photos — re-triggering generation');
+        // Status is 'done' but no photos â€” order was stuck. Re-trigger generation.
+        console.warn('done status but 0 photos â€” re-triggering generation');
         document.getElementById('stateLoading').style.display = 'block';
-        document.getElementById('loadingTitle').textContent = '🔄 Restarting portrait generation...';
-        document.getElementById('loadingSub').innerHTML = 'The previous attempt had an issue. Starting again — please wait!';
+        document.getElementById('loadingTitle').textContent = 'ðŸ”„ Restarting portrait generation...';
+        document.getElementById('loadingSub').innerHTML = 'The previous attempt had an issue. Starting again â€” please wait!';
         isDone = false;
         try {
           await fetch('/.netlify/functions/process-order-background', {
@@ -425,9 +425,9 @@ async function transitionToDone() {
 
   // Update top bar + hero
   document.getElementById('topBar').textContent =
-    `🎉 All ${allPhotoUrls.length} portraits ready — save them now!`;
+    `ðŸŽ‰ All ${allPhotoUrls.length} portraits ready â€” save them now!`;
   document.getElementById('heroTitle').innerHTML =
-    'Your portraits<br><span style="background:linear-gradient(135deg,#ff4d6d,#c2185b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">are ready! 🎉</span>';
+    'Your portraits<br><span style="background:linear-gradient(135deg,#ff4d6d,#c2185b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">are ready! ðŸŽ‰</span>';
   document.getElementById('heroSub').textContent = 'Tap each photo to save it to your device.';
 }
 
@@ -439,7 +439,7 @@ function showFailed() {
   }
   document.getElementById('stateLoading').style.display = 'none';
   document.getElementById('stateFailed').style.display = 'block';
-  document.getElementById('topBar').textContent = '⚠️ Issue generating portraits — our team has been notified';
+  document.getElementById('topBar').textContent = 'âš ï¸ Issue generating portraits â€” our team has been notified';
 
   // Safety-net: fire a re-trigger so the order gets another chance automatically
   if (!_failedAlertFired && savedOrderId) {
@@ -450,13 +450,13 @@ function showFailed() {
       body: JSON.stringify({ orderId: savedOrderId, type: 'main' })
     })
     .then(() => {
-      // Switch UI back to loading — we just re-triggered generation
+      // Switch UI back to loading â€” we just re-triggered generation
       document.getElementById('stateFailed').style.display = 'none';
       document.getElementById('stateLoading').style.display = 'block';
-      document.getElementById('loadingTitle').textContent = '🔄 Retrying portrait generation...';
+      document.getElementById('loadingTitle').textContent = 'ðŸ”„ Retrying portrait generation...';
       document.getElementById('loadingSub').innerHTML =
-        'The first attempt had an issue. <strong>Starting again automatically</strong> — please wait!';
-      document.getElementById('topBar').textContent = '🔄 Retrying... portraits coming shortly!';
+        'The first attempt had an issue. <strong>Starting again automatically</strong> â€” please wait!';
+      document.getElementById('topBar').textContent = 'ðŸ”„ Retrying... portraits coming shortly!';
       // Resume polling
       pollStatus();
     })
@@ -464,11 +464,11 @@ function showFailed() {
       console.warn('Auto re-trigger failed:', e.message);
       // Show the failed UI with manual retry button as fallback
       document.getElementById('stateFailed').innerHTML = `
-        <div class="failed-icon">⚠️</div>
+        <div class="failed-icon">âš ï¸</div>
         <h3>Generation issue detected</h3>
         <p>Something went wrong generating your portraits.<br>
           <button onclick="manualRetry()" style="margin:16px 0;padding:12px 28px;background:linear-gradient(135deg,#ff4d6d,#e8003d);color:white;border:none;border-radius:12px;font-size:1rem;font-weight:800;cursor:pointer;font-family:Inter,sans-serif">
-            🔄 Try Again
+            ðŸ”„ Try Again
           </button><br>
           Or contact us at <a href="mailto:support@snapibaby.com" style="color:#ff4d6d">support@snapibaby.com</a><br>
           with your order number and we'll fix it immediately.</p>`;
@@ -480,8 +480,8 @@ function manualRetry() {
   if (!savedOrderId) { alert('Order ID not found. Please contact support@snapibaby.com'); return; }
   document.getElementById('stateFailed').style.display = 'none';
   document.getElementById('stateLoading').style.display = 'block';
-  document.getElementById('loadingTitle').textContent = '🔄 Retrying portrait generation...';
-  document.getElementById('loadingSub').innerHTML = '<strong>Starting again</strong> — please wait a few minutes!';
+  document.getElementById('loadingTitle').textContent = 'ðŸ”„ Retrying portrait generation...';
+  document.getElementById('loadingSub').innerHTML = '<strong>Starting again</strong> â€” please wait a few minutes!';
   fetch('/.netlify/functions/process-order-background', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -490,7 +490,7 @@ function manualRetry() {
   pollStatus();
 }
 
-// ── Download helpers — uses anchor click (works on mobile, no popup blocker) ──
+// â”€â”€ Download helpers â€” uses anchor click (works on mobile, no popup blocker) â”€â”€
 function triggerDownload(url, filename) {
   const a = document.createElement('a');
   a.href = url;
@@ -517,7 +517,7 @@ function downloadEarly() {
   downloadAll(null);
 }
 
-// ── Poll Supabase until done ──
+// â”€â”€ Poll Supabase until done â”€â”€
 async function pollStatus() {
   if (!savedOrderId) {
     document.getElementById('progressLabel').textContent = 'Loading order data...';
@@ -531,7 +531,7 @@ async function pollStatus() {
 
   const MAX_MS      = 15 * 60 * 1000; // 15 min
   const INTERVAL    = 5000;            // poll every 5s (faster for progressive)
-  const FALLBACK_MS = 90000;           // dispara fallback só após 90s sem resposta do webhook
+  const FALLBACK_MS = 90000;           // dispara fallback sÃ³ apÃ³s 90s sem resposta do webhook
   const start       = Date.now();
   let   elapsed     = 0;
   let   fallbackFired = false;
@@ -573,10 +573,10 @@ async function pollStatus() {
           showPhotosProgressive(order.generated_urls, true);
           return;
         } else {
-          // Marked done but no photos — re-trigger silently
-          console.warn('Order done but no photos — auto-retrigger');
-          document.getElementById('loadingTitle').textContent = '🔄 Retrying generation...';
-          document.getElementById('loadingSub').innerHTML = 'The previous attempt had an issue. Trying again — hang tight!';
+          // Marked done but no photos â€” re-trigger silently
+          console.warn('Order done but no photos â€” auto-retrigger');
+          document.getElementById('loadingTitle').textContent = 'ðŸ”„ Retrying generation...';
+          document.getElementById('loadingSub').innerHTML = 'The previous attempt had an issue. Trying again â€” hang tight!';
           try {
             await fetch('/.netlify/functions/process-order-background', {
               method: 'POST',
@@ -584,7 +584,7 @@ async function pollStatus() {
               body: JSON.stringify({ orderId: savedOrderId, type: 'main' })
             });
           } catch(e) { console.warn('Re-trigger failed:', e); }
-          // Don't return — continue to poll
+          // Don't return â€” continue to poll
         }
       }
       if (order.generation_status === 'failed' && !hasOkPhotos) {
@@ -648,15 +648,15 @@ async function pollStatus() {
   }, INTERVAL);
 }
 
-// ── Iniciar polling — aguarda handleStripeReturn se veio de redirect Stripe ──
-// Isso garante que o order_id esteja disponível antes de pollStatus rodar.
+// â”€â”€ Iniciar polling â€” aguarda handleStripeReturn se veio de redirect Stripe â”€â”€
+// Isso garante que o order_id esteja disponÃ­vel antes de pollStatus rodar.
 if (urlParams.get('payment_intent') || urlParams.get('redirect_status')) {
   stripeReturnPromise.then(() => pollStatus());
 } else {
   pollStatus();
 }
 
-// ── GA4: purchase confirmation on success page load ──────────────────────────────
+// â”€â”€ GA4: purchase confirmation on success page load â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 (function() {
   var sp = new URLSearchParams(window.location.search);
   var orderId   = savedOrderId || sp.get('order_id') || '';
@@ -698,7 +698,7 @@ if (urlParams.get('payment_intent') || urlParams.get('redirect_status')) {
     items:          items
   });
 
-  // ── Meta Pixel — Purchase (fires once per order, respects cookie consent) ──
+  // â”€â”€ Meta Pixel â€” Purchase (fires once per order, respects cookie consent) â”€â”€
   (function() {
     if (typeof fbq !== 'function') return;
     var fbKey = 'snapi_fb_purchase_fired_' + (orderId || 'noid');
@@ -712,22 +712,23 @@ if (urlParams.get('payment_intent') || urlParams.get('redirect_status')) {
     });
   })();
 })();
-// ── /GA4 + Meta ───────────────────────────────────────────────────────
+// â”€â”€ /GA4 + Meta â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-// ── Share ──
+// â”€â”€ Share â”€â”€
 async function nativeShare() {
   const data = {
-    title: 'SnapiBaby — AI Baby Portraits',
-    text: 'I just got the most beautiful AI newborn portraits! 🍼✨',
+    title: 'SnapiBaby â€” AI Baby Portraits',
+    text: 'I just got the most beautiful AI newborn portraits! ðŸ¼âœ¨',
     url: 'https://snapibaby.netlify.app'
   };
   if (navigator.share) {
     try { await navigator.share(data); } catch(e) {}
   } else {
-    navigator.clipboard.writeText('https://snapibaby.netlify.app — Use code SNAPIFRIEND10 for 10% off! 🍼');
+    navigator.clipboard.writeText('https://snapibaby.netlify.app â€” Use code SNAPIFRIEND10 for 10% off! ðŸ¼');
     alert('Link copied! Share it with a friend.');
   }
 }
 </script>
 </body>
 </html>
+

@@ -1162,13 +1162,13 @@
       premium:  'Premium Package — 30 Photos',
     };
 
-    // State — default BRL pra não ficar vazio enquanto carrega
+    // State — default BRL enquanto aguarda geo-detection
     let detectedCountry  = 'BR';
     let detectedCurrency = 'brl';
     let detectedSymbol   = 'R$';
     let detectedZeroDecimal = false;
-    let basePrice  = 97.00;
-    let bumpPrice = 7.00;
+    let basePrice  = 87.00;   // R$87 Starter (mínimo BR) — substituído pelo get-pricing
+    let bumpPrice = 17.00;
 
     document.getElementById('plan-name').innerText = PLAN_NAMES[plan] || PLAN_NAMES.premium;
     // Não exibe preço antes da detecção geo — evita flash de preço errado
