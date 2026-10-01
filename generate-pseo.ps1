@@ -27,20 +27,6 @@ $html = @"
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>$emoji AI $name Newborn Photos - Studio Quality at Home | SnapiBaby</title>
-<meta name="description" content="Transform your baby phone photo into a stunning AI $name newborn portrait. Studio quality from home. See it free before you pay. From `$29.">
-<meta name="keywords" content="AI $($name.ToLower()) newborn photos, $($name.ToLower()) baby photography, AI newborn portraits, newborn photography at home">
-<meta property="og:type" content="website">
-<meta property="og:title" content="AI $name Newborn Photos - Studio Quality | SnapiBaby">
-<meta property="og:description" content="Get a studio-quality $name newborn portrait from a simple phone photo. See the result before you pay.">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="AI $name Newborn Photos | SnapiBaby">
-<link rel="canonical" href="https://snapibaby.netlify.app/themes/$slug-newborn-photos.html">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../styles.css">
 <!-- Meta Pixel Code -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -58,6 +44,20 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=1470350508267862&ev=PageView&noscript=1"
 /></noscript>
 <!-- End Meta Pixel Code -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>$emoji AI $name Newborn Photos - Studio Quality at Home | SnapiBaby</title>
+<meta name="description" content="Transform your baby phone photo into a stunning AI $name newborn portrait. Studio quality from home. See it free before you pay. From `$29.">
+<meta name="keywords" content="AI $($name.ToLower()) newborn photos, $($name.ToLower()) baby photography, AI newborn portraits, newborn photography at home">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AI $name Newborn Photos - Studio Quality | SnapiBaby">
+<meta property="og:description" content="Get a studio-quality $name newborn portrait from a simple phone photo. See the result before you pay.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI $name Newborn Photos | SnapiBaby">
+<link rel="canonical" href="https://snapibaby.netlify.app/themes/$slug-newborn-photos.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Product","name":"AI $name Newborn Portrait","brand":{"@type":"Brand","name":"SnapiBaby"},"offers":{"@type":"AggregateOffer","lowPrice":"29.00","highPrice":"59.00","priceCurrency":"USD","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"18247","bestRating":"5"}}
 </script>

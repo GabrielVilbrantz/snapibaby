@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
   <title>Secure Checkout | SnapiBaby</title>
   <meta name="robots" content="noindex, nofollow">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -19,23 +20,23 @@
     gtag('config', 'G-9EM8JRS1PZ');
   </script>
   <!-- Meta Pixel Code -->
-  <script>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1470350508267862');
-    fbq('track', 'PageView');
-    fbq('track', 'InitiateCheckout');
-  </script>
-  <noscript><img height="1" width="1" style="display:none"
-  src="https://www.facebook.com/tr?id=1470350508267862&ev=PageView&noscript=1"
-  /></noscript>
-  <!-- End Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1470350508267862');
+fbq('track', 'PageView');
+fbq('track', 'InitiateCheckout');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1470350508267862&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
   <style>
     :root {
       --primary: #ff4d6d;
@@ -1159,13 +1160,13 @@
       premium:  'Premium Package — 30 Photos',
     };
 
-    // State — default BRL enquanto aguarda geo-detection
+    // State — default BRL pra não ficar vazio enquanto carrega
     let detectedCountry  = 'BR';
     let detectedCurrency = 'brl';
     let detectedSymbol   = 'R$';
     let detectedZeroDecimal = false;
-    let basePrice  = 87.00;   // R$87 Starter (mínimo BR) — substituído pelo get-pricing
-    let bumpPrice = 17.00;
+    let basePrice  = 97.00;
+    let bumpPrice = 7.00;
 
     document.getElementById('plan-name').innerText = PLAN_NAMES[plan] || PLAN_NAMES.premium;
     // Não exibe preço antes da detecção geo — evita flash de preço errado
@@ -1430,17 +1431,10 @@
         console.error('[checkout] create-order error:', orderErr.message);
       }
 
-      // ── Rastrear AddPaymentInfo no Meta Pixel ──
-      if (typeof fbq === 'function') {
-        fbq('track', 'AddPaymentInfo', {
-          content_category: 'Baby Photos',
-          content_name: planName,
-          value: basePrice + (hasBump ? bumpPrice : 0),
-          currency: (typeof detectedCurrency !== 'undefined' ? detectedCurrency : 'USD')
-        });
-      }
-
       // ── Confirmar pagamento ──
+      if (typeof fbq === 'function') {
+        fbq('track', 'AddPaymentInfo', { content_category: 'Baby Photos', content_name: planName, value: basePrice + (hasBump ? bumpPrice : 0), currency: (typeof detectedCurrency !== 'undefined' ? detectedCurrency : 'USD') });
+      }
       const returnUrl = `${window.location.origin}/success.html`
         + `?order_id=${order?.id || ''}`
         + `&email=${encodeURIComponent(customerEmail)}`

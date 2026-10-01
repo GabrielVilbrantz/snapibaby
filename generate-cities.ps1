@@ -38,19 +38,6 @@ $html = @"
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Newborn Photography $location - Studio Quality at Home | SnapiBaby</title>
-<meta name="description" content="AI newborn photography in $location. Studio-quality newborn portraits from a phone photo - no studio visit needed. Average $location studio costs `$$avg+. SnapiBaby from `$29. Free preview.">
-<meta name="keywords" content="AI newborn photography $name, newborn photographer $name, newborn photos $location, AI baby photos $name, newborn portrait $location">
-<meta property="og:type" content="website">
-<meta property="og:title" content="AI Newborn Photography $location | SnapiBaby">
-<meta property="og:description" content="Studio-quality newborn portraits from home in $location. Average studio cost `$$avg+. SnapiBaby from `$29 with free preview.">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="https://snapibaby.netlify.app/cities/ai-newborn-photography-$slug.html">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../styles.css">
 <!-- Meta Pixel Code -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -68,6 +55,19 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=1470350508267862&ev=PageView&noscript=1"
 /></noscript>
 <!-- End Meta Pixel Code -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Newborn Photography $location - Studio Quality at Home | SnapiBaby</title>
+<meta name="description" content="AI newborn photography in $location. Studio-quality newborn portraits from a phone photo - no studio visit needed. Average $location studio costs `$$avg+. SnapiBaby from `$29. Free preview.">
+<meta name="keywords" content="AI newborn photography $name, newborn photographer $name, newborn photos $location, AI baby photos $name, newborn portrait $location">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AI Newborn Photography $location | SnapiBaby">
+<meta property="og:description" content="Studio-quality newborn portraits from home in $location. Average studio cost `$$avg+. SnapiBaby from `$29 with free preview.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://snapibaby.netlify.app/cities/ai-newborn-photography-$slug.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Service","name":"AI Newborn Photography $location","provider":{"@type":"Organization","name":"SnapiBaby","url":"https://snapibaby.netlify.app"},"areaServed":{"@type":"City","name":"$name"},"offers":{"@type":"Offer","price":"29.00","priceCurrency":"USD"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"18247"}}
 </script>
