@@ -1,4 +1,4 @@
-# SnapiBaby — Project Context
+﻿# SnapiBaby — Project Context
 
 > Passe este arquivo no início de cada nova conversa para retomar o contexto completo.
 
@@ -26,7 +26,7 @@
 | Pagamento | Stripe Elements (`pk_live_...`) |
 | Backend | Netlify Functions (`/.netlify/functions/`) |
 | DB | Supabase (`supabase-client.js`) |
-| Analytics | Meta Pixel ID `977138755178682` (GDPR-condicionado) |
+| Analytics | Meta Pixel ID `1470350508267862` (GDPR-condicionado) |
 | SEO | Google Search Console verificado ✅ |
 
 ---

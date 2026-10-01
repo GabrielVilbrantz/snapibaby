@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -10,23 +10,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="styles.css">
-<!-- Meta Pixel Code â€” fires only after cookie consent -->
+<!-- Meta Pixel Code -->
 <script>
-(function() {
-  if (localStorage.getItem('snapi_cookie_consent') !== 'accepted') return;
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', '1480009823730507');
-  fbq('track', 'PageView');
-  fbq('track', 'ViewContent', { content_name: 'Pricing Plans', content_category: 'Baby Photos' });
-})();
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1470350508267862');
+fbq('track', 'PageView');
+fbq('track', 'ViewContent', { content_name: 'App Photo Editor', content_category: 'Baby Photos' });
 </script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1470350508267862&ev=PageView&noscript=1"
+/></noscript>
 <!-- End Meta Pixel Code -->
 <style>
 body { background: #f4f6fa; }
@@ -1107,6 +1107,10 @@ async function loadPricingCards() {
 }
 
 async function selectPlan(planName) {
+  if (typeof fbq === 'function') {
+    fbq('track', 'InitiateCheckout', { content_name: planName, content_category: 'Baby Photos' });
+  }
+
   // Disable all plan buttons and show loading
   ['starter','classic','premium'].forEach(p => {
     const b = document.getElementById('btn-' + p);

@@ -1,11 +1,11 @@
-# Skill: analytics-audit
+﻿# Skill: analytics-audit
 ## Depends on: product-marketing-context
 
 ## O que faz
 Audita e configura tracking de analytics do SnapiBaby para garantir dados confiantes.
 
 ## Ferramentas ativas
-- Meta Pixel (ID: 977138755178682) — GDPR-condicionado
+- Meta Pixel (ID: 1470350508267862) — GDPR-condicionado
 - Google Search Console — verificado, sitemap submetido
 
 ## Ferramentas a adicionar

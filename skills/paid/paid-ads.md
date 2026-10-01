@@ -1,11 +1,11 @@
-# Skill: paid-ads
+﻿# Skill: paid-ads
 ## Depends on: product-marketing-context
 
 ## O que faz
 Planeja e otimiza campanhas pagas para SnapiBaby (Meta Ads primario).
 
 ## Status atual
-Meta Pixel instalado (ID: 977138755178682) — GDPR-compliant
+Meta Pixel instalado (ID: 1470350508267862) — GDPR-compliant
 
 ## Estrutura de campanha recomendada
 
