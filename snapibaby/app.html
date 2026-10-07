@@ -904,13 +904,15 @@ function toggleTheme(card, imgSrc, themeName) {
   }
   const btn = document.getElementById('btn-process');
   const countEl = document.getElementById('selected-count');
+  const isEs = (localStorage.getItem('snapi_user_country') && {'MX':1,'ES':1,'AR':1,'CO':1,'PE':1,'CL':1,'EC':1}[localStorage.getItem('snapi_user_country')]) || (navigator.language && navigator.language.startsWith('es'));
+  
   if (selectedThemes > 0) {
     btn.disabled = false;
-    if (countEl) countEl.textContent = `${selectedThemes} theme${selectedThemes > 1 ? 's' : ''} selected`;
+    if (countEl) countEl.textContent = isEs ? `${selectedThemes} tema${selectedThemes > 1 ? 's' : ''} seleccionado${selectedThemes > 1 ? 's' : ''}` : `${selectedThemes} theme${selectedThemes > 1 ? 's' : ''} selected`;
     btn.classList.add('animate-pulse');
   } else {
     btn.disabled = true;
-    if (countEl) countEl.textContent = '0 themes selected';
+    if (countEl) countEl.textContent = isEs ? '0 temas seleccionados' : '0 themes selected';
     btn.classList.remove('animate-pulse');
   }
 }
@@ -1114,15 +1116,12 @@ async function selectPlan(planName) {
   // Disable all plan buttons and show loading
   ['starter','classic','premium'].forEach(p => {
     const b = document.getElementById('btn-' + p);
-    if (b) { b.disabled = true; b.textContent = p === planName ? '⌛ Preparing...' : b.textContent; }
+    if (b) { b.disabled = true; b.textContent = p === planName ? '⌛ Preparando...' : b.textContent; }
   });
 
   try {
-    // Upload ALL photos (1–5) to get real URLs for KIE AI
-    const photoUrls = [];
-
-    for (let i = 0; i < uploadedFiles.length; i++) {
-      const file = uploadedFiles[i];
+    // Upload photos in parallel with a 10s timeout to prevent freezing on slow connections
+    const uploadPromises = uploadedFiles.map(async (file, i) => {
       try {
         const base64 = await new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -1132,19 +1131,29 @@ async function selectPlan(planName) {
         });
         const mime = file.type || 'image/jpeg';
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        
         const res = await fetch('/.netlify/functions/upload-photo', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ photoBase64: base64, mimeType: mime })
+          body: JSON.stringify({ photoBase64: base64, mimeType: mime }),
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
+        
         if (res.ok) {
           const { url } = await res.json();
-          if (url) photoUrls.push(url);
+          return url;
         }
       } catch(e) {
-        console.warn(`Photo ${i + 1} upload failed (non-fatal):`, e.message);
+        console.warn(`Photo ${i + 1} upload failed:`, e.message);
       }
-    }
+      return null;
+    });
+
+    const results = await Promise.all(uploadPromises);
+    const photoUrls = results.filter(url => url !== null);
 
     if (photoUrls.length > 0) {
       localStorage.setItem('snapi_baby_photo_urls', JSON.stringify(photoUrls));
@@ -1153,7 +1162,7 @@ async function selectPlan(planName) {
     console.warn('Photo upload block failed (non-fatal):', e.message);
   }
 
-  window.location.href = 'checkout.html?plano=' + planName + (babyName !== 'your baby' ? '&baby=' + encodeURIComponent(babyName) : '');
+  window.location.href = 'checkout.html?plano=' + planName + (typeof babyName !== 'undefined' && babyName !== 'your baby' ? '&baby=' + encodeURIComponent(babyName) : '');
 }
 
 // Keep for backward compat
@@ -1265,9 +1274,10 @@ async function callFalForTheme(apiKey, themePrompt, faceImageUrl) {
 
 async function generateAllThemesFal(apiKey, fakeInterval, bar, status) {
   const generatedImages = [];
+  const isEs = (localStorage.getItem('snapi_user_country') && {'MX':1,'ES':1,'AR':1,'CO':1,'PE':1,'CL':1,'EC':1}[localStorage.getItem('snapi_user_country')]) || (navigator.language && navigator.language.startsWith('es'));
 
   // Convert the first uploaded file to base64
-  status.textContent = 'Preparing your photo... 📤';
+  status.textContent = isEs ? 'Preparando tu foto... 📤' : 'Preparing your photo... 📤';
   let photoBase64 = null;
   let mimeType    = 'image/jpeg';
 
@@ -1290,7 +1300,7 @@ async function generateAllThemesFal(apiKey, fakeInterval, bar, status) {
     // Fallback: just show static images
     clearInterval(fakeInterval);
     bar.style.width = '100%';
-    status.textContent = 'Preview ready! ✨';
+    status.textContent = isEs ? '¡Vista previa lista! ✨' : 'Preview ready! ✨';
     setTimeout(showPreview, 800);
     return;
   }
@@ -1298,7 +1308,7 @@ async function generateAllThemesFal(apiKey, fakeInterval, bar, status) {
   // Generate each selected theme via Netlify Function
   for (let i = 0; i < selectedThemeImages.length; i++) {
     const theme = selectedThemeImages[i];
-    status.textContent = 'Generating "' + theme.name + '" (' + (i + 1) + '/' + selectedThemeImages.length + ')...';
+    status.textContent = isEs ? 'Generando "' + theme.name + '" (' + (i + 1) + '/' + selectedThemeImages.length + ')...' : 'Generating "' + theme.name + '" (' + (i + 1) + '/' + selectedThemeImages.length + ')...';
 
     try {
       const res = await fetch('/.netlify/functions/generate-preview', {
@@ -1324,7 +1334,7 @@ async function generateAllThemesFal(apiKey, fakeInterval, bar, status) {
 
   clearInterval(fakeInterval);
   bar.style.width = '100%';
-  status.textContent = 'Done! Preparing your preview... ✨';
+  status.textContent = isEs ? '¡Listo! Preparando tu vista previa... ✨' : 'Done! Preparing your preview... ✨';
   selectedThemeImages = generatedImages;
   setTimeout(showPreview, 800);
 }
@@ -1346,9 +1356,17 @@ function buildThemePreviewGrid() {
   const starterN = Math.min(3, count);
   const classicN = Math.min(5, count);
   const el = (id) => document.getElementById(id);
-  if (el('starter-themes-li')) el('starter-themes-li').textContent = starterN + ' of your ' + count + ' theme' + (count !== 1 ? 's' : '') + ' unlocked';
-  if (el('classic-themes-li'))  el('classic-themes-li').textContent  = classicN + ' of your ' + count + ' theme' + (count !== 1 ? 's' : '') + ' unlocked';
-  if (el('premium-themes-li')) el('premium-themes-li').textContent  = 'ALL ' + count + ' of your chosen themes unlocked';
+  const isEs = (localStorage.getItem('snapi_user_country') && {'MX':1,'ES':1,'AR':1,'CO':1,'PE':1,'CL':1,'EC':1}[localStorage.getItem('snapi_user_country')]) || (navigator.language && navigator.language.startsWith('es'));
+  
+  if (isEs) {
+    if (el('starter-themes-li')) el('starter-themes-li').textContent = starterN + ' de tus ' + count + ' tema' + (count !== 1 ? 's' : '') + ' elegido' + (count !== 1 ? 's' : '') + ' desbloqueado' + (starterN !== 1 ? 's' : '');
+    if (el('classic-themes-li')) el('classic-themes-li').textContent = classicN + ' de tus ' + count + ' tema' + (count !== 1 ? 's' : '') + ' elegido' + (count !== 1 ? 's' : '') + ' desbloqueado' + (classicN !== 1 ? 's' : '');
+    if (el('premium-themes-li')) el('premium-themes-li').textContent = 'TODOS tus ' + count + ' temas elegidos desbloqueados';
+  } else {
+    if (el('starter-themes-li')) el('starter-themes-li').textContent = starterN + ' of your ' + count + ' theme' + (count !== 1 ? 's' : '') + ' unlocked';
+    if (el('classic-themes-li'))  el('classic-themes-li').textContent  = classicN + ' of your ' + count + ' theme' + (count !== 1 ? 's' : '') + ' unlocked';
+    if (el('premium-themes-li')) el('premium-themes-li').textContent  = 'ALL ' + count + ' of your chosen themes unlocked';
+  }
 }
 
 // ===== COUNTDOWN TIMER — persiste entre recargas com localStorage =====
