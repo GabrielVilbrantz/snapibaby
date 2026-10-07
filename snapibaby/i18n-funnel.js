@@ -165,12 +165,12 @@
   }
 
   function applyTranslations() {
-    var lang = 'en';
+    var lang = new URLSearchParams(window.location.search).get('lang') || localStorage.getItem('snapi_lang') || 'en';
     // Pega país salvo no localStorage
     var savedCountry = localStorage.getItem('snapi_user_country');
     var countryLangMap = {'MX':'es','ES':'es','AR':'es','CO':'es','PE':'es','VE':'es','CL':'es','EC':'es','GT':'es','CU':'es','BO':'es','DO':'es','HN':'es','PY':'es','SV':'es','NI':'es','CR':'es','PA':'es','UY':'es','PR':'es'};
     if (savedCountry && countryLangMap[savedCountry]) lang = 'es';
-    if (navigator.language.startsWith('es')) lang = 'es'; // Fallback
+    if (navigator.language.startsWith('es') && lang === 'en') lang = 'es'; if(new URLSearchParams(window.location.search).get('lang')) { localStorage.setItem('snapi_lang', new URLSearchParams(window.location.search).get('lang')); } // Fallback
     
     if (lang !== 'es') return;
     

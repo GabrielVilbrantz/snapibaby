@@ -1430,7 +1430,7 @@ a.tag-tema:hover {
 
     // ── Language detection → render correct video testimonials ──
     const countryLangMap = window.SNAPI_COUNTRY_LANG || {};
-    let lang = countryLangMap[d.country];
+    let lang = new URLSearchParams(window.location.search).get('lang') || localStorage.getItem('snapi_lang') || countryLangMap[d.country]; if(new URLSearchParams(window.location.search).get('lang')) { localStorage.setItem('snapi_lang', new URLSearchParams(window.location.search).get('lang')); }
     if (!lang && navigator.language) {
       if (navigator.language.startsWith('es')) lang = 'es';
       else if (navigator.language.startsWith('fr')) lang = 'fr';
@@ -1474,7 +1474,7 @@ a.tag-tema:hover {
     console.log(`[geo-pricing] country=${d.country} lang=${lang} currency=${d.currency} starter=${fmtS} classic=${fmtC} premium=${fmtP}`);
   } catch(e) {
     console.warn('get-pricing (homepage): fallback to static prices', e.message);
-    let fallbackLang = 'en';
+    let fallbackLang = new URLSearchParams(window.location.search).get('lang') || localStorage.getItem('snapi_lang') || 'en';
     if (navigator.language) {
       if (navigator.language.startsWith('es')) fallbackLang = 'es';
       else if (navigator.language.startsWith('fr')) fallbackLang = 'fr';
