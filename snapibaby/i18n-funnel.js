@@ -272,6 +272,9 @@
       var topbar = document.querySelector('.trust-top-bar');
       if (topbar) topbar.textContent = t.chk_top_bar;
       
+      var banner = document.querySelector('img[src="checkout.jpeg"]');
+      if (banner) banner.src = "checkout_es.jpg";
+      
       var h2 = document.querySelector('.site-header h2');
       if (h2) h2.textContent = t.chk_title;
       var p = document.querySelector('.site-header p');
