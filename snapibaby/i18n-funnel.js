@@ -1,5 +1,75 @@
 (function() {
-  var dict = {
+  var dictTextNode = {
+    // Upsell
+    "Order confirmed — But wait, one more thing...": "Orden confirmada — Pero espera, una cosa más...",
+    "These dates only come": "Estas fechas solo ocurren",
+    "once a year.": "una vez al año.",
+    "You already secured your baby's memories. But holidays pass fast —": "Ya aseguraste los recuerdos de tu bebé. Pero las fiestas pasan rápido —",
+    "and these are the moments you'll wish you had captured.": "y estos son los momentos que desearías haber capturado.",
+    "Exclusive Post-Purchase Offer — Not Available Anywhere Else": "Oferta Exclusiva Post-Compra — No disponible en otro lugar",
+    "Christmas Theme": "Tema Navideño",
+    "Cozy holiday portraits — Santa hats, fairy lights & winter magic": "Retratos acogedores — Gorros de Santa, luces y magia invernal",
+    "Halloween Theme": "Tema de Halloween",
+    "Spooky & cute costumes — Little pumpkins, ghosts & fall vibes": "Disfraces tiernos — Calabacitas, fantasmas y otoño",
+    "Easter Theme": "Tema de Pascua",
+    "Springtime moments — Bunny ears, pastel colors & flowers": "Momentos de primavera — Orejas de conejo, tonos pastel y flores",
+    "photos": "fotos",
+    "exclusive": "exclusivo",
+    "Add 15 Holiday Photos to My Order": "Agregar 15 Fotos Festivas a mi Orden",
+    "One-click secure payment. No need to enter card details again.": "Pago seguro en un clic. No necesitas ingresar tu tarjeta de nuevo.",
+    "No thanks, I don't want these memories": "No gracias, no quiero estos recuerdos",
+    
+    // Checkout General
+    "Order Summary": "Resumen de Orden",
+    "Package Price": "Precio del Paquete",
+    "Total:": "Total:",
+    "Complete Purchase 🚀": "Completar Compra 🚀",
+    "100% Secure Payment": "Pago 100% Seguro",
+    "Your data is encrypted with 256-bit SSL.": "Tus datos están encriptados con SSL de 256 bits.",
+    "Processed safely via Stripe.": "Procesado de forma segura vía Stripe.",
+    "Wait! Don't go yet...": "¡Espera! No te vayas aún...",
+    "Your baby's memories are still here": "Los recuerdos de tu bebé aún están aquí",
+    "We noticed you're leaving. As a special gift,": "Notamos que te vas. Como un regalo especial,",
+    "we reserved a secret discount just for you.": "reservamos un descuento secreto para ti.",
+    "Scratch to reveal your discount": "Rasca para revelar tu descuento",
+    "OFF your order": "DE DESCUENTO en tu orden",
+    "Applied automatically at checkout": "Aplicado automáticamente",
+    "Claim My Discount & Finish Checkout": "Reclamar mi descuento y finalizar compra",
+    "No thanks, I'll pay full price": "No gracias, pagaré el precio completo",
+    "Sign up and receive everything in your inbox!": "¡Regístrate y recibe todo en tu correo!",
+    "Confirm & Receive My Photos": "Confirmar y recibir mis fotos",
+    "Your Details (Where we'll send your photos)": "Tus Datos (A dónde enviaremos tus fotos)",
+    "Secure Payment": "Pago Seguro",
+    "Secure & Encrypted Checkout": "Pago Seguro y Encriptado",
+    "Photos delivered to your email in minutes.": "Fotos enviadas a tu email en minutos.",
+    "Order confirmed": "Orden confirmada",
+    "But wait, one more thing...": "Pero espera, una cosa más...",
+    "Premium Package": "Paquete Premium",
+    "Classic": "Clásico",
+    "Starter": "Básico",
+    "Delivered to your email in 15 to 30 min.": "Enviado a tu email en 15 a 30 min.",
+    "Premium Frames & Editing": "Marcos Premium y Edición",
+    "Real Stories from Real Moms": "Historias reales de madres reales",
+    "Join thousands of happy families": "Únete a miles de familias felices",
+    "Mom of": "Mamá de",
+    "weeks": "semanas",
+    "month": "mes",
+    
+    // app.html specific that might leak into text nodes
+    "Step 1: Upload at least 3 photos of your baby": "Paso 1: Sube al menos 3 fotos de tu bebé",
+    "Tap to select multiple photos at once": "Toca para seleccionar varias fotos a la vez",
+    "Choose Photos": "Elige Fotos",
+    "For best results, send at least 3 photos where:": "Para mejores resultados, envía al menos 3 fotos donde:",
+    "Baby's face is": "La cara del bebé sea",
+    "clearly visible and well-lit": "claramente visible y bien iluminada",
+    "Photos are taken from": "Las fotos sean tomadas desde",
+    "different angles": "diferentes ángulos",
+    "At least one photo shows the": "Al menos una foto muestre la",
+    "full face (front view)": "cara completa (vista frontal)",
+    "Avoid blurry, dark, or covered face photos": "Evita fotos borrosas, oscuras o con la cara tapada"
+  };
+
+  var dictTargeted = {
     es: {
       // ── app.html Step 1 ──
       "app_title": "1. Sube las fotos de tu bebé",
@@ -38,13 +108,33 @@
       "app_guarantee": "💰 100% reembolso si no te encanta",
       
       // ── checkout.html ──
-      "chk_title": "Pago Seguro",
-      "chk_subtitle": "Casi listo. Tus fotos estarán preparadas en minutos.",
-      "chk_contact": "Información de Contacto",
-      "chk_email": "Tu Email (donde enviaremos las fotos)",
-      "chk_summary": "Resumen de Orden",
-      "chk_btn": "Completar Pago Seguro",
-      "chk_guarantee": "🔒 Garantía de Devolución de 7 Días",
+      "chk_top_bar": "🔒 Pago Seguro y Encriptado — Protegido con SSL · Tus datos están 100% seguros",
+      "chk_title": "🍼 SnapiBaby",
+      "chk_subtitle": "Entorno Seguro y Encriptado 🔒 · Fotos enviadas a tu email en minutos.",
+      "chk_step1": "👤 1. Tus Datos (A donde enviaremos tus fotos)",
+      "chk_cashback_title": "¡Regístrate y recibe todo en tu bandeja de entrada!",
+      "chk_cashback_sub": "Tus <strong>fotos HD</strong>, <strong>cupones de cashback</strong> exclusivos y las últimas noticias de <strong>SnapiBaby</strong> — directo a ti.",
+      "chk_name_placeholder": "Tu nombre completo (ej. María García)",
+      "chk_email_placeholder": "Tu mejor correo electrónico",
+      "chk_cashback_btn": "✨ Confirmar y Recibir Mis Fotos",
+      "chk_cashback_success": "🎉 ¡Estás dentro! Tus fotos serán enviadas a este correo. El cupón <strong>SNAPI10</strong> también va en camino — ¡10% de descuento en tu próximo pedido!",
+      "chk_step2": "💳 2. Pago Seguro",
+      "chk_secure_title": "Pago 100% Seguro",
+      "chk_secure_sub": "Tus datos están encriptados con SSL de 256 bits.<br>Procesado de forma segura vía Stripe.",
+      "chk_payment_method": "💳 Forma de Pago",
+      "chk_summary_title": "🛒 Resumen de Orden",
+      "chk_delivery_time": "Enviado a tu email en 15 a 30 min.",
+      "chk_pkg_price": "Precio del Paquete",
+      "chk_bump_text": "+ Marcos Premium y Edición",
+      "chk_total": "Total:",
+      "chk_btn": "Completar Pago 🚀",
+      "chk_guarantee": "🛡️ Garantía de Devolución del 100% — Libre de riesgos por 7 días",
+      "chk_terms": "Al hacer clic arriba, confirmas nuestros <a href='terms.html' style='color:var(--primary);'>Términos de Servicio</a> y <a href='privacy.html' style='color:var(--primary);'>Política de Privacidad</a>. Tus fotos serán entregadas al email proporcionado.",
+      
+      // ── upsell.html ──
+      "up_top": "¡ESPERA! TU ORDEN NO ESTÁ COMPLETA",
+      "up_title": "¡No cierres esta página!",
+      "up_sub": "Agrega nuestra oferta más popular y ahorra en grande hoy.",
       
       // ── success.html ──
       "suc_title": "¡Orden Confirmada! 🎉",
@@ -53,6 +143,26 @@
       "suc_btn": "Ver estado de mi orden"
     }
   };
+
+  function translateTextNodes(node) {
+    if (node.nodeType === 3) {
+      var text = node.nodeValue;
+      var replaced = false;
+      for (var key in dictTextNode) {
+        if (text.includes(key)) {
+          text = text.replace(new RegExp(key, 'g'), dictTextNode[key]);
+          replaced = true;
+        }
+      }
+      if (replaced) {
+        node.nodeValue = text;
+      }
+    } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT' && node.nodeName !== 'STYLE') {
+      for (var i = 0; i < node.childNodes.length; i++) {
+        translateTextNodes(node.childNodes[i]);
+      }
+    }
+  }
 
   function applyTranslations() {
     var lang = 'en';
@@ -63,8 +173,13 @@
     if (navigator.language.startsWith('es')) lang = 'es'; // Fallback
     
     if (lang !== 'es') return;
-    var t = dict.es;
+    
+    // 1) Translate generic text nodes across the entire page (useful for checkout, upsell, success)
+    setTimeout(function() { translateTextNodes(document.body); }, 50);
+    setTimeout(function() { translateTextNodes(document.body); }, 800);
+    setTimeout(function() { translateTextNodes(document.body); }, 2000);
 
+    var t = dictTargeted.es;
     var path = window.location.pathname;
 
     // --- APP.HTML ---
@@ -82,7 +197,6 @@
       var btn = document.querySelector('#btn-advance-upload');
       if (btn) btn.textContent = t.app_next_btn;
       
-      // Step 2 & 3 text replacement happens partially in app.html dynamically, so we hook into it or replace statics here
       var step2h2 = document.querySelector('#step-themes h2');
       if (step2h2) step2h2.innerHTML = t.app_step2_title + ' <span class="baby-name-span">tu bebé</span>';
       var step2p = document.querySelector('#step-themes p');
@@ -123,7 +237,6 @@
         el.textContent = t.app_guarantee;
       });
       
-      // Translate features and button texts statically where possible
       document.querySelectorAll('.apc-photo-pill').forEach(function(el) {
         el.textContent = el.textContent.replace('photos', 'fotos');
       });
@@ -156,37 +269,100 @@
 
     // --- CHECKOUT.HTML ---
     if (path.includes('checkout.html')) {
+      var topbar = document.querySelector('.trust-top-bar');
+      if (topbar) topbar.textContent = t.chk_top_bar;
+      
       var h2 = document.querySelector('.site-header h2');
       if (h2) h2.textContent = t.chk_title;
       var p = document.querySelector('.site-header p');
       if (p) p.textContent = t.chk_subtitle;
+      
       var cards = document.querySelectorAll('.card-header');
-      if (cards[0]) cards[0].innerHTML = "✉️ " + t.chk_contact;
-      if (cards[1]) cards[1].innerHTML = "🛒 " + t.chk_summary;
-      var l = document.querySelector('label[for="email"]');
-      if (l) l.textContent = t.chk_email;
-      var btn2 = document.getElementById('pay-button');
-      if (btn2) btn2.textContent = t.chk_btn;
-      var guar = document.querySelector('.guarantee-text');
+      if (cards[0]) cards[0].textContent = t.chk_step1;
+      if (cards[1]) cards[1].textContent = t.chk_step2;
+      
+      var cbTitle = document.querySelector('.cashback-box h4');
+      if (cbTitle) cbTitle.textContent = t.chk_cashback_title;
+      var cbSub = document.querySelector('.cashback-box p');
+      if (cbSub) cbSub.innerHTML = t.chk_cashback_sub;
+      
+      var cbName = document.getElementById('cashbackName');
+      if (cbName) cbName.placeholder = t.chk_name_placeholder;
+      var cbEmail = document.getElementById('cashbackEmail');
+      if (cbEmail) cbEmail.placeholder = t.chk_email_placeholder;
+      var cbBtn = document.querySelector('.cashback-btn');
+      if (cbBtn) cbBtn.textContent = t.chk_cashback_btn;
+      var cbSuc = document.getElementById('cashbackSuccess');
+      if (cbSuc) cbSuc.innerHTML = t.chk_cashback_success;
+      
+      var secTitle = document.querySelector('.secure-badge-text h5');
+      if (secTitle) secTitle.textContent = t.chk_secure_title;
+      var secSub = document.querySelector('.secure-badge-text p');
+      if (secSub) secSub.innerHTML = t.chk_secure_sub;
+      
+      var payLbl = document.querySelector('.form-group label');
+      if (payLbl && payLbl.textContent.includes('Payment')) payLbl.textContent = t.chk_payment_method;
+      
+      var sumCards = document.querySelectorAll('.card-header');
+      if (sumCards.length > 2) sumCards[2].textContent = t.chk_summary_title;
+      
+      var sumDeliv = document.querySelector('.plan-preview span');
+      if (sumDeliv) sumDeliv.textContent = t.chk_delivery_time;
+      
+      var items = document.querySelectorAll('.summary-item span');
+      items.forEach(function(i) {
+        if (i.textContent.includes('Package Price')) i.textContent = t.chk_pkg_price;
+        if (i.textContent.includes('+ Premium Frames')) i.textContent = t.chk_bump_text;
+        if (i.textContent.includes('Total:')) i.textContent = t.chk_total;
+      });
+      
+      var btn2 = document.getElementById('btn-buy');
+      if (btn2) {
+        btn2.textContent = t.chk_btn;
+        btn2.dataset.defaultLabel = t.chk_btn;
+      }
+      var guar = document.querySelector('.guarantee-badge');
       if (guar) guar.textContent = t.chk_guarantee;
+      
+      var terms = document.querySelector('.security-note');
+      if (terms) terms.innerHTML = t.chk_terms;
+      
+      setTimeout(function() {
+        var pName = document.getElementById('plan-name');
+        if (pName && pName.textContent.includes('Photos')) {
+          pName.textContent = pName.textContent.replace('Photos', 'Fotos');
+        }
+        var btnBuy = document.getElementById('btn-buy');
+        if (btnBuy && btnBuy.textContent.includes('Complete Purchase')) {
+          btnBuy.textContent = t.chk_btn;
+          btnBuy.dataset.defaultLabel = t.chk_btn;
+        }
+      }, 500);
+    }
+    
+    // --- UPSELL.HTML ---
+    if (path.includes('upsell.html')) {
+      var upTop = document.querySelector('.order-badge');
+      if (upTop) upTop.innerHTML = '<span>✓</span> ' + t.suc_title + ' — ' + t.up_top;
+      var upH1 = document.querySelector('h1');
+      if (upH1) upH1.innerHTML = '¡Estas fechas solo ocurren<br><span>una vez al año.</span>';
+      var upP = document.querySelector('.upsell-sub');
+      if (upP) upP.textContent = 'Ya aseguraste los recuerdos de tu bebé. Pero las fiestas pasan rápido — y estos son los momentos que desearías haber capturado.';
     }
 
     // --- SUCCESS.HTML ---
     if (path.includes('success.html')) {
-      var h1s = document.querySelector('h1');
-      if (h1s) h1s.textContent = t.suc_title;
-      var ps = document.querySelector('p');
-      if (ps) ps.textContent = t.suc_subtitle;
-      var dt = document.querySelector('.delivery-text');
-      if (dt) dt.textContent = t.suc_done;
-      var btns = document.querySelector('.btn-primary');
-      if (btns) btns.textContent = t.suc_btn;
+      var h2s = document.querySelector('.container h2');
+      if (h2s) h2s.textContent = t.suc_title;
+      var p1 = document.querySelector('.container p');
+      if (p1) p1.textContent = t.suc_subtitle;
+      var p2 = document.querySelectorAll('.container p')[1];
+      if (p2) p2.textContent = t.suc_done;
+      var btnS = document.querySelector('.btn');
+      if (btnS) btnS.textContent = t.suc_btn;
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', applyTranslations);
-  } else {
-    applyTranslations();
-  }
+  applyTranslations();
+
 })();
