@@ -817,8 +817,11 @@ src="https://www.facebook.com/tr?id=1470350508267862&ev=PageView&noscript=1"
             </div>
           </div>
 
+          <!-- EXPRESS CHECKOUT ELEMENT (Apple Pay / Google Pay) -->
+          <div id="express-checkout-element" style="margin-bottom:12px;"></div>
+          
           <!-- STRIPE PAYMENT ELEMENT — Google Pay, Apple Pay, PIX, Cartão e mais -->
-          <div class="form-group">
+          <div class="form-group" style="margin-top:12px;">
             <label>💳 Forma de Pagamento</label>
             <div id="payment-element" style="margin-top:4px;"></div>
             <div id="card-errors" style="color:#ef4444;font-size:0.83rem;margin-top:8px;min-height:18px;"></div>
@@ -1326,10 +1329,37 @@ src="https://www.facebook.com/tr?id=1470350508267862&ev=PageView&noscript=1"
 
         paymentElement = stripeElements.create('payment', {
           layout: 'tabs',
-          wallets: { applePay: 'auto', googlePay: 'auto' },
+          wallets: { applePay: 'never', googlePay: 'never' },
         });
         paymentElement.mount('#payment-element');
         paymentElement.on('ready', () => { peReady = true; });
+
+        // Montar Express Checkout Element para 1-click
+        const expressCheckoutElement = stripeElements.create('expressCheckout', {
+          buttonHeight: 50,
+        });
+        expressCheckoutElement.mount('#express-checkout-element');
+
+        expressCheckoutElement.on('click', (event) => {
+          const emailInput = document.getElementById('cashbackEmail');
+          const email = emailInput?.value.trim();
+          if (!email || !email.includes('@')) {
+            event.preventDefault();
+            document.getElementById('card-errors').textContent = 'Please enter your email above before using Apple Pay / Google Pay.';
+            emailInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            emailInput.focus();
+          } else {
+            event.resolve();
+          }
+        });
+
+        expressCheckoutElement.on('confirm', async (event) => {
+          // Quando o usuário autoriza no Apple Pay, criamos a order no Supabase e finalizamos a compra!
+          const btn = document.getElementById('btn-buy');
+          if (btn) btn.innerHTML = '<div class="btn-spinner"></div> Processing...';
+          
+          await processPurchase(true); // O processPurchase já cria a order e chama confirmPayment com redirect!
+        });
 
         paymentElement.on('change', ({ value }) => {
           document.getElementById('card-errors').textContent = '';
@@ -1357,7 +1387,7 @@ src="https://www.facebook.com/tr?id=1470350508267862&ev=PageView&noscript=1"
 
     // detectedCountry/Currency/Symbol são definidos no bloco get-pricing acima
 
-    async function processPurchase() {
+    async function processPurchase(isExpressCheckout = false) {
       const btn = document.getElementById('btn-buy');
       const customerName  = document.getElementById('cashbackName')?.value.trim() || '';
       const customerEmail = document.getElementById('cashbackEmail')?.value.trim() || '';
@@ -1374,9 +1404,11 @@ src="https://www.facebook.com/tr?id=1470350508267862&ev=PageView&noscript=1"
       localStorage.setItem('snapi_customer_email', customerEmail);
       localStorage.setItem('snapi_plan', plan || 'premium');
 
-      btn.innerHTML = '⌛ Processing...';
-      btn.style.opacity = '0.75';
-      btn.disabled = true;
+      if (btn && !isExpressCheckout) {
+        btn.innerHTML = '⏳ Processing...';
+        btn.style.opacity = '0.75';
+        btn.disabled = true;
+      }
       document.getElementById('card-errors').textContent = '';
 
       // Se o Payment Element ainda não foi inicializado (auto-init falhou), inicializar agora
@@ -1390,9 +1422,11 @@ src="https://www.facebook.com/tr?id=1470350508267862&ev=PageView&noscript=1"
         } catch (err) {
           document.getElementById('card-errors').textContent = err.message || 'Payment initialization failed. Please try again.';
           document.getElementById('card-errors').style.color = '#ef4444';
-          btn.innerHTML = btn.dataset.defaultLabel || 'Complete Purchase 🚀';
-          btn.style.opacity = '1';
-          btn.disabled = false;
+          if (btn) {
+            btn.innerHTML = btn.dataset.defaultLabel || 'Complete Purchase 🚀';
+            btn.style.opacity = '1';
+            btn.disabled = false;
+          }
           return;
         }
       }
@@ -1440,15 +1474,20 @@ src="https://www.facebook.com/tr?id=1470350508267862&ev=PageView&noscript=1"
         + `&email=${encodeURIComponent(customerEmail)}`
         + `&async=1`;
 
+      const confirmParams = {
+        return_url: returnUrl,
+        receipt_email: customerEmail
+      };
+
+      if (!isExpressCheckout) {
+        confirmParams.payment_method_data = {
+          billing_details: { name: customerName, email: customerEmail }
+        };
+      }
+
       const { error, paymentIntent } = await stripeClient.confirmPayment({
         elements: stripeElements,
-        confirmParams: {
-          return_url: returnUrl,
-          payment_method_data: {
-            billing_details: { name: customerName, email: customerEmail }
-          },
-          receipt_email: customerEmail
-        },
+        confirmParams,
         redirect: 'if_required'
       });
 
