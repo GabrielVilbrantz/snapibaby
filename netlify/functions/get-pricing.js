@@ -167,7 +167,27 @@ const HEADERS = {
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: HEADERS, body: '' };
 
-  const country = (event.headers['x-country'] || 'US').toUpperCase();
+  // Allow override via query string, then check multiple common proxy/CDN headers
+  let country = (
+    event.queryStringParameters?.country ||
+    event.headers['x-country'] ||
+    event.headers['x-nf-country'] ||
+    event.headers['cf-ipcountry'] ||
+    event.headers['x-vercel-ip-country'] ||
+    'US'
+  ).toUpperCase();
+
+  // Se a geolocalização não encontrou nada além de US, tentar usar fuso horário passado pelo frontend se existir
+  if (country === 'US' && event.queryStringParameters?.tz) {
+    const tz = event.queryStringParameters.tz;
+    if (tz.includes('Mexico')) country = 'MX';
+    else if (tz.includes('Buenos_Aires') || tz.includes('Argentina')) country = 'AR';
+    else if (tz.includes('Bogota')) country = 'CO';
+    else if (tz.includes('Lima')) country = 'PE';
+    else if (tz.includes('Santiago')) country = 'CL';
+    else if (tz.includes('Madrid')) country = 'ES';
+  }
+
   const pricing  = PRICING[country] || PRICING.DEFAULT;
   const isZero   = ZERO_DECIMAL.has(pricing.currency);
   const toDisplay = (v) => isZero ? v : v / 100;
